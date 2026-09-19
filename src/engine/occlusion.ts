@@ -144,6 +144,18 @@ export function patchOcclusion(mat: THREE.Material) {
           #else
             float mask = smoothstep(0.5, 0.72, wNoise(p * 0.3 + 9.0));
             diffuseColor.rgb *= 1.0 - 0.28 * c * mask;
+            // phase 3 (C-024): the crack net stays as it was (00:19). On top: a few long, mostly vertical
+            // fractures on the walls and towers, like the building art (scene-mi-naa-hubtown-gate-variant-b,
+            // scene-minaa-water-holders), and rust-ochre darkening only at the bases. No speckle (C-013 lost on it).
+            {
+              float sideK = 1.0 - smoothstep(0.55, 0.85, abs(wn.y));
+              vec2 vq = (abs(wn.x) > abs(wn.z) ? p.zy : p.xy) * vec2(0.55, 0.12);
+              vq.x += wNoise(vec3(vq * 3.0, 2.0)) * 0.35;
+              float longF = crack2(vq + 11.0, 0.028) * smoothstep(0.45, 0.7, wNoise(p * 0.18 + 21.0));
+              diffuseColor.rgb *= 1.0 - 0.34 * longF * sideK;
+              float base = (1.0 - smoothstep(0.0, 1.6, p.y - 0.1)) * sideK * smoothstep(0.35, 0.7, wNoise(p * 0.4 + 5.0));
+              diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.92, 0.76, 0.6), base * 0.55);
+            }
           #endif
         }
         #endif`)
