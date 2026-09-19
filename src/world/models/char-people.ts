@@ -752,16 +752,47 @@ export function buildSculpted(race: Race, body: Body, look: string, opts: ModelO
   c.mats = materials(c, pal);
 
   const bodyKey = `body:${race}:${body}:${look}:${c.key.join(',')}`;
-  const geo = sculpt(bodyKey, c.prims, look === 'defender' ? 0.019 : 0.0145, true);
-  const skinMesh = new THREE.SkinnedMesh(geo, c.mats);
-  skinMesh.castShadow = true;
-  skinMesh.receiveShadow = true;
-  skinMesh.frustumCulled = false;
-  skinMesh.userData.keep = true;
-  rig.body.add(skinMesh);
-  skinMesh.updateMatrixWorld(true);
+  const cell = look === 'defender' ? 0.019 : 0.0145;
+  // Robes and skirts are their own layer over the body. In one blended skin they swallowed the legs:
+  // the apprentice sat on his crate with no legs (user, morning after phase 2).
+  const outer = c.prims.filter((p) => p.tag === 'skirt');
+  const inner = c.prims.filter((p) => p.tag !== 'skirt');
   const skeleton = new THREE.Skeleton(rig.joints as THREE.Bone[]);
-  skinMesh.bind(skeleton);
+  const addSkin = (key: string, prims: Prim[]) => {
+    const m = new THREE.SkinnedMesh(sculpt(key, prims, cell, true), c.mats);
+    m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.userData.keep = true;
+    rig.body.add(m);
+    m.updateMatrixWorld(true);
+    m.bind(skeleton);
+  };
+  addSkin(bodyKey, inner);
+  if (outer.length) {
+    // the lower robe follows the legs, blended by height, so a stride pulls the cloth instead of stabbing through it
+    const g = sculpt(bodyKey + ':outer', outer, cell, true);
+    if (!g.userData.legWeights) {
+      g.userData.legWeights = true;
+      const pos = g.getAttribute('position') as THREE.BufferAttribute;
+      const si = g.getAttribute('skinIndex') as THREE.BufferAttribute;
+      const sw = g.getAttribute('skinWeight') as THREE.BufferAttribute;
+      // down to the knee the cloth follows the thighs (a lap when seated); below it, the shins (it hangs from the knee)
+      const th = B.dims.thigh;
+      for (let v = 0; v < pos.count; v++) {
+        const x = pos.getX(v), y = pos.getY(v);
+        const side = Math.min(1, Math.max(0, 0.5 + x / (B.hipW * 1.6))); // 0 left leg .. 1 right leg
+        const up = Math.min(1, Math.max(0, -y / th)) * 0.9;          // hips -> thigh
+        const low = Math.min(1, Math.max(0, (-y - th) / (th * 0.4))); // thigh -> shin, past the knee
+        if (low <= 0) {
+          si.setXYZW(v, J.hips, J.lLeg, J.rLeg, J.hips);
+          sw.setXYZW(v, 1 - up, up * (1 - side), up * side, 0);
+        } else {
+          si.setXYZW(v, J.lLeg, J.rLeg, J.lShin, J.rShin);
+          sw.setXYZW(v, (1 - low) * (1 - side), (1 - low) * side, low * (1 - side), low * side);
+        }
+      }
+      si.needsUpdate = true; sw.needsUpdate = true;
+    }
+    addSkin(bodyKey + ':outer', outer);
+  }
   // back to the rest orientation: everything below is placed relative to hanging limbs
   rig.lArm.rotation.z = 0; rig.rArm.rotation.z = 0; rig.lLeg.rotation.z = 0; rig.rLeg.rotation.z = 0;
 

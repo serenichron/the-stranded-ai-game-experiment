@@ -30,6 +30,12 @@ const SETS: Record<string, Row[]> = {
     { kind: 'npc-sehari', body: 'female', look: 'hunter', label: 'Hunter' },
     { kind: 'npc-apprentice', body: 'male', look: 'apprentice', label: 'Apprentice' },
   ],
+  seat: [
+    { kind: 'npc-apprentice', body: 'male', look: 'apprentice', state: 'seated', label: 'Apprentice seated' },
+    { kind: 'npc-apprentice', body: 'male', look: 'apprentice', label: 'Apprentice' },
+    { kind: 'npc-minaa', body: 'female', look: 'tarn', label: 'Tarn' },
+    { kind: 'npc-minaa', body: 'female', look: 'hadda', label: 'Hadda' },
+  ],
   crowd: [0, 1, 2, 3, 4, 5].map((i) => ({ kind: 'npc-minaa' as EntityKind, label: `crowd ${i}` })),
   tel: [
     { kind: 'telsharin', label: 'Telsharin' },
