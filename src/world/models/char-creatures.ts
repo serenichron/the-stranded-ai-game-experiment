@@ -358,7 +358,8 @@ export function buildDog(opts: ModelOpts): Model {
   rig.lArm.position.z = -0.05;
   rig.rArm.position.z = -0.05;
   const glows: Glow[] = [];
-  const coatHex = shade(0xa08e6e, (r() - 0.5) * 0.03, 0, (r() - 0.5) * 0.08);
+  // sun-dark (the dog event text): a darker coat than the sand, so the dogs read at game zoom
+  const coatHex = shade(0x6f5640, (r() - 0.5) * 0.04, 0, (r() - 0.5) * 0.08);
   // short sun-dark fur with a darker saddle, smooth-shaded (phase 2)
   const coat = tmat('fur', coatHex, { rough: 0.95, rep: [2, 1] });
   const back = tmat('fur', shade(coatHex, 0, -0.04, -0.14), { rough: 0.95, rep: [2, 1] });

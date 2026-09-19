@@ -714,7 +714,7 @@ function materials(c: Ctx, pal: Pal): THREE.Material[] {
     const st = makeSmat('defender', 0xece2d0, { rough: 0.88, flat: true, scale: 1.7, emissive: 0x5fe0d0, emissiveMap: 'defenderGlow', ei: 1.9 });
     c.glows.push({ mat: st, base: 1.9, crystal: false });
     skin = marked = hair = lip = st;
-    nail = smat('defender', 0xd0c4ae, { rough: 0.9, flat: true, scale: 1.1 });
+    nail = smat('defender', 0xe6ddcb, { rough: 0.9, flat: true, scale: 1.7 });
   } else {
     const old = look === 'apprentice';
     skin = smat('iskari', old ? 0xa39c90 : 0xeae4d8, { rough: 0.97, scale: 3 });
