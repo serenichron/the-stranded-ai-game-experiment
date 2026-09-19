@@ -362,7 +362,8 @@ function dressBody(c: Ctx): Pal {
       sleeves(0.022, 1.9);
       trousers(0.02, 0.85);
       band(0.06, 0.035, 0.04, M.leather);
-      return { top: look === 'pell' ? 0x8f7050 : 0x7a5a40, bottom: 0x5e4632 };
+      // a pale dusty hood and cape over a dark coat: two values, so he reads from the game camera
+      return { top: look === 'pell' ? 0x6a543e : 0x7a5a40, bottom: 0x4a3a2c, trim: 0xbba483 };
     }
     // crowd: a tunic or a bare chest, trousers of some length
     const bare = !f && r() < 0.35;
@@ -567,7 +568,7 @@ function sculptHead(c: Ctx): { geoKey: string; prims: Prim[]; eyes: V3[]; eyeR: 
       e([0, hy + h * 0.25, d * 1.0], [0.035, 0.035, 0.03], M.robe, 0.015);
     } else if (look === 'pell' || look === 'scavenger') {
       // a deep hood, the face open at the front
-      e([0, hy + h * 0.12, 0.02], [w * 1.34, h * 1.18, d * 1.3], M.top, 0.01);
+      e([0, hy + h * 0.12, 0.02], [w * 1.34, h * 1.18, d * 1.3], M.trim, 0.01);
       e([0, hy - h * 0.05, -d * 0.95], [w * 0.8, h * 0.85, d * 0.55], M.top, 0.02, undefined, true);
     } else if (f) {
       hair([0, hy + h * 0.14, 0.012], [w * 1.08, h * 0.98, d * 1.08], 0.5);
@@ -687,7 +688,7 @@ function materials(c: Ctx, pal: Pal): THREE.Material[] {
   let skin: THREE.Material, marked: THREE.Material, hair: THREE.Material, nail: THREE.Material, lip: THREE.Material;
   if (race === 'minaa') {
     const tone = look === 'player' ? 0 : (r() - 0.5) * 0.12;
-    const hex = shade(look === 'tarn' ? 0xa4704e : look === 'hadda' ? 0x8e5c3c : 0xb3825c, 0, 0, tone);
+    const hex = shade(look === 'tarn' ? 0xa4704e : look === 'hadda' ? 0xa06a48 : 0xb3825c, 0, 0, tone);
     skin = smat('skin', hex, { rough: 0.72, scale: 6 });
     marked = skin;
     hair = smat('hair', look === 'tarn' ? 0x8a8078 : pick(r, [0x2e231c, 0x3a2a1e, 0x241c17, 0x4a3524]), { rough: 0.95, scale: 12 });
@@ -1059,11 +1060,11 @@ function gear(c: Ctx, pal: Pal): void {
       strap(c, 1, leather, 0.04, 0.012);
     } else if (scav) {
       // a face scarf, a long gun, a satchel
-      put(hd, ring(H.w * 0.92, 0.024, 6, 16), smat('cloth', 0x8a7458), [0, hy - H.h * 0.55, -0.01], [Math.PI / 2 + 0.2, 0, 0], [1, H.d / H.w, 1]);
+      put(hd, ring(H.w * 0.92, 0.024, 6, 16), smat('cloth', 0xa4502e), [0, hy - H.h * 0.55, -0.01], [Math.PI / 2 + 0.2, 0, 0], [1, H.d / H.w, 1]);
       strap(c, -1, leather, 0.04, 0.02);
       put(rig.hips, box(0.17, 0.15, 0.08), leather, [-0.2, 0, 0.02]);
       put(rig.spine, cyl(0.02, 0.018, 0.95, 6), metal, [0.1, yS * 0.7, B.chestD + 0.05], [0, 0, -0.55]);
-      flap(c, rig.spine, smat('patched', look === 'pell' ? 0x6e4e36 : 0x7a4a33, { rough: 0.95, double: true, scale: 3 }), [0, yS + 0.04, B.chestD * 0.9], 0.3, 0.5, { hang: 0.7, curve: 0.18, restX: -0.2 });
+      flap(c, rig.spine, smat('patched', look === 'pell' ? 0xbba483 : 0x7a4a33, { rough: 0.95, double: true, scale: 3 }), [0, yS + 0.04, B.chestD * 0.9], 0.3, 0.5, { hang: 0.7, curve: 0.18, restX: -0.2 });
     } else {
       // crowd: one visible augment each (canon: the most augmented race)
       const k = r();
