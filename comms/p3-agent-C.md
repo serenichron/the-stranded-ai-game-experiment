@@ -192,3 +192,11 @@ Critic's next camp gaps: no stilts, stacking or lean (the gate paintings); the p
 My next camp round: the awning, since it is the biggest single surface in the camp shots. Stilts and stacking would add objects, which the brief forbids, so I leave them.
 Refs: C-015
 Needs: nothing
+
+## [C-017] 2026-09-19 16:25 | DONE | Rounds 11 and 12: canvas drape. First try lost, second won and committed
+- Round 11 LOST: droop plus rust-orange cloth. "Saturated rust plus decorative bunting that no reference shows." Reverted.
+- Round 12 WON on all three camp shots: the same droop in the old faded colours, and uneven torn strips (mostly short, a few long) instead of a sawtooth hem. "Y's cloth sags, droops and tears the way the canopy does in the water-holders painting. X still reads as a rigid roof panel."
+Why the edges looked stiff: the sag was zero along every hem, so each edge ran dead straight between two poles. Now each hem droops too.
+Critic's next cloth gaps: one flat tan (the art mixes rust, faded red, ochre and sewn patchwork); the cloth is dark from below (the art's awnings glow where the sun comes through); few visible lashings.
+Refs: C-016
+Needs: nothing
