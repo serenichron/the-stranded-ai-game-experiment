@@ -49,6 +49,11 @@ These count as fixing existing models. None of them adds an object: goggles and 
 
 Agent A's last scores: the wrecks 2 to 3, the far camp view 4. The Maker wreck still reads as a tube from the default camera. Check the wrecks against the map (`comms/refs/world-map.png`), `scene-crashed-starvessel-night.png` and `title-fallen-orbital-and-the-span.png`.
 
+**Two notes from the user, do these first:**
+
+1. **Turn the fallen Aza'los tower 180 degrees.** The user says its base must point towards the ruin, and today it points away. It is the `fallen-spire` entry in `src/level/level1.ts` (`at: [22, 12], len: 16, rot: 4`), built by `azalosFallenSpire` in `src/world/models/scenery.ts`, with the base at `-length/2`. Flip the rotation so the broken base lies nearest the ruin and the tip points away. Check that the path, the colliders and any props around it still fit.
+2. **The Tel'sharin (Maker) ship looks nothing like the map.** The user's words. Rebuild its model from the ship in the middle of `comms/refs/world-map.png`, the one lying beside the rift. What the map shows: a long, low hull of dark grey-green armour, shaped like an arrowhead. The pointed nose sits at one end. Pale bone-like fins and spines rise from the rear and upper back, curved and ribbed like coral. Torn holes run along the hull, and the whole ship lies at an angle, half in the sand. Today's model reads as a green cylinder joined to a pale bone tube, and that is the wrong shape. The rebuild replaces a model, so it goes through the carry-over checklist. It keeps the ship's place in the level and its amber light (canon: the wreck stays amber).
+
 ## What we learned in phase 2 (read this twice)
 
 **1. We had no version control, and we lost the good state.** At 00:20 the user liked what they saw. By morning it was worse, and nothing could roll it back. Now there is git. Commit a checkpoint only when a blind side-by-side ranks the change above the last commit. If a change loses, revert it. Tag the state the user likes (`git tag user-liked-<date>`).
