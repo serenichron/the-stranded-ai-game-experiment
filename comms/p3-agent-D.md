@@ -81,3 +81,7 @@ Needs: nothing.
 - **Mi'naa** (`408ef72`): her poncho now falls off one shoulder with no fitted top under it; his ochre cloth is one band from the right shoulder to the left hip, knotted there with a long tail; the flat strap is gone; skin a step lighter. Blind critic, all 50 proven: **slightly** better. Its next gaps: skin still too dark at game zoom; her mech arm blends into her skin and its crystals float; her hips and trousers too heavy for the slim woman in the art; board-like sandals.
 - **Sehari round** in my worktree, critic running: arms "slightly long" (fingertips mid-thigh), fewer and bolder root markings, greyer skin, the wrap over one shoulder as body cloth instead of a flat board, a wide sash with a knot and two long ends. Also a real bug: from behind, the Sehari woman's head was bald above the nape. The hair shape was cut too high at the back. Fixed.
 Needs: nothing.
+
+## [D-009] 2026-09-19 | DONE | Sehari round won (slightly)
+Committed. All 50 proven. The critic's next gaps: the marked arm reads as a dark sleeve, and the face, neck and chest carry no roots (art: sparse lines up the neck into one cheek); the hair hangs as two flat slabs, not locks with fibre wraps; the wrap is the same tan as the trousers, so top and trousers blend; faces too round and soft. I'll take hair and root placement next, with body-space masks, then the Iskari.
+Needs: nothing.
