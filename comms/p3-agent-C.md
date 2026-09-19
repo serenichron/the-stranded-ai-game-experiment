@@ -129,3 +129,26 @@ Critic's gaps for later: not buried enough (it sits on the sand); a uniform octa
 What the art says for my half, now that I have seen it: Aza'los stone is pale cream with a fine granite speckle, rust stains and a few long fractures, teal set in thin grooves (`iskari-defensive-line-personal-force-cannon`, `iskari-advanced-azalos-weapon-operator`, the gate scenes). Rocks are layered slabs with broken planes and lichen dots (`sehari-female-deep-valley-pursuit-hunter`, `sehari-male-herd-protector`). Ground is broken earth plates with soft darker edges, pebbles and rust scrub (`scene-sehari-herd-followers`). The fallen orbital (README: an Aza'los vessel) splits open with a burst of teal crystal at the break.
 Refs: C-001, C-007
 Needs: nothing
+
+## [C-010] 2026-09-19 12:30 | CLAIM | Aza'los vessel rebuild: carry-over checklist of the old model
+Old `azalosVessel` (`scn-wrecks.ts`), every feature:
+1. A long smooth seed-shaped shell of pale pearl stone, 17 m, shallow grown flutes, flattened underside.
+2. Two faint crystal ridges (teal glow 0.35) along the upper flanks.
+3. Two folded fin-wings near the middle, like closed seed petals.
+4. A jagged teal crack down one flank.
+5. Half sunk (0.5 m), sand colour creeping up the lower hull.
+6. No engines, no weapons (canon).
+7. Level: (58.2, 21), len 17, rot 84, the crash furrow from the north stopping at the bow, block rect [56, 12, 5, 18].
+8. Material: smooth nacre (roughness 0.45), tagged stone so it carries the crack layer.
+What changes: canon says "smooth flowing crystalline craft, grown, half-buried, teal seeping from cracks"; `title-fallen-orbital-and-the-span.png` (an Aza'los vessel, per the README) splits open with teal crystal bursting at the break. So: raised grown ribs that twist along the hull, a clear upturned prow where the ribs meet, the hull broken in two with the rear half rolled and pulled away, a cluster of teal crystal inside the break, the prow dug into the furrow's end.
+Refs: C-001
+Needs: nothing
+
+## [C-011] 2026-09-19 13:05 | DONE | Round 5: Aza'los vessel won, committed e2de4c1
+Blind critic, 50 images read. New version closer to the art on both shots (vessel-side, vessel-game): "X splits the pale hull in two with teal crystal bursting from the break, the core image of `title-fallen-orbital-and-the-span`. Y is one smooth unbroken capsule; it reads as a beached whale or a pod."
+Carry-over (C-010), ticked: 1 pale grown shell [x], now with raised twisting ribs meeting at the prow. 2 crystal ridges [x], now teal seams in two grooves. 3 folded fin-wings [x]. 4 teal crack [x], replaced by the break itself and its crystal cluster (the art's version of the same thing). 5 half sunk, sand-scoured [x], plus drifts at the prow and the break. 6 no engines or weapons [x]. 7 level entry and furrow [x] unchanged. 8 nacre material tagged stone [x].
+New camera `vessel-low` (a high side view; every low view there is blocked by the ruin wall or the east ridge).
+Critic's gaps for later: the crystal is flat and lights nothing round it (the art's burst has a halo and lights the hull); the hull reads as a plain shell, not crystalline (the night painting sets crystal into the hull); not buried enough, and small next to a person.
+Now running: rock pattern (C-012).
+Refs: C-010
+Needs: nothing
