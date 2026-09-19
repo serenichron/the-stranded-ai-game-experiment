@@ -130,7 +130,7 @@ const PAINTERS: Record<string, Paint> = {
     const c = cells(r, 11);
     field(g, (u, v) => {
       const e = c(u, v).edge;
-      const crack = e < 0.03 ? 0.86 + e * 4 : 1;
+      const crack = e < 0.05 ? 0.72 + e * 4 : 1;
       return (0.9 + 0.1 * n.fbm(u * 12, v * 12)) * crack;
     });
   },
@@ -208,7 +208,7 @@ const PAINTERS: Record<string, Paint> = {
     field(g, (u, v) => {
       const weave = 0.96 + 0.04 * Math.sin(u * SIZE * 1.6) * Math.sin(v * SIZE * 1.6);
       // soft folds from noise, not a regular stripe (a stripe shows as bars on sculpted bodies)
-      const fold = 0.93 + 0.07 * n.fbm(u * 5, v * 2, 3);
+      const fold = 0.84 + 0.16 * n.fbm(u * 5, v * 2, 3);
       const grime = 0.88 + 0.12 * n.fbm(u * 6, v * 6);
       return weave * fold * grime;
     });
@@ -257,7 +257,7 @@ const PAINTERS: Record<string, Paint> = {
   /** Mi'naa patchwork: cloth with sewn patches of other tones, stitches and stains. Coloured, tinted lightly. */
   patched(g, r, n) {
     PAINTERS.cloth(g, r, n);
-    const tones = ['rgba(120,70,40,0.16)', 'rgba(60,90,90,0.14)', 'rgba(200,160,100,0.16)', 'rgba(90,50,30,0.14)', 'rgba(255,240,210,0.12)'];
+    const tones = ['rgba(120,70,40,0.35)', 'rgba(60,90,90,0.3)', 'rgba(200,160,100,0.35)', 'rgba(90,50,30,0.3)', 'rgba(255,240,210,0.25)'];
     for (let i = 0; i < 7; i++) {
       const w = 26 + r() * 50, h = 22 + r() * 44, x = r() * SIZE, y = r() * SIZE * 0.9;
       g.fillStyle = tones[i % tones.length];
