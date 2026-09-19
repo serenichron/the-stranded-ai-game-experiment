@@ -309,7 +309,13 @@ function dressBody(c: Ctx): Pal {
     const MI = { ochre: 0xc8904a, rust: 0xa4502e, teal: 0x4f7f78, sand: 0xcdb38a, brown: 0x7a5a3e };
     if (look === 'player' && !f) {
       // mi-naa-tinker-pair.png, the man: bare chest, patched rust trousers cut ragged below the knee, sandals
-      c.key.push('tinkerM2');
+      c.key.push('tinkerM3');
+      {
+        // the diagonal band: keep the inflated torso only between two parallel planes
+        const nb = norm([0.85, -0.53, 0]);
+        const c0 = dot3([0, yS * 0.52, 0], nb), w = 0.052;
+        layer(c, ['chest', 'belly', 'yoke', 'pelvis'], 0.02, M.top, [{ n: nb, o: c0 + w }, { n: [-nb[0], -nb[1], -nb[2]], o: -(c0 - w) }], 0.012);
+      }
       c.mech = -1;
       trousers(0.018, 0.35, 0.01);
       band(0.05, 0.035, 0.022, M.leather);
@@ -318,10 +324,10 @@ function dressBody(c: Ctx): Pal {
     }
     if (look === 'player' && f) {
       // the woman: a short loose top, bare midriff, wide teal trousers to mid-shin, a rope belt
-      c.key.push('tinkerF3');
+      c.key.push('tinkerF5');
       c.mech = 1;
-      top(0.018, yS * 0.74);
-      c.prims.push({ kind: 'cap', a: [0.01, yS + 0.03, 0.01], b: [-0.01, yS * 0.66, 0.01], r: B.neckR * 1.4, r2: B.chestW * 1.55, s: [1, 1, 0.78], bone: J.spine, mat: M.top, k: 0.02, tag: 'poncho', clip: [{ n: [0, -1, 0], o: -(yS * 0.66) }, { n: [-0.35, -1, 0], o: -(yS * 0.66) }] });
+      const off = norm([-0.6, 0.8, 0]);
+      c.prims.push({ kind: 'cap', a: [0.03, yS + 0.02, 0.01], b: [0.0, yS * 0.62, 0.01], r: B.neckR * 1.7, r2: B.chestW * 1.8, s: [1, 1, 0.9], bone: J.spine, mat: M.top, k: 0.02, tag: 'poncho', clip: [{ n: [0, -1, 0], o: -(yS * 0.62) }, { n: [-0.3, -1, 0], o: -(yS * 0.62) }, { n: off, o: dot3([-0.02, yS + 0.02, 0], off) }] });
       trousers(0.02, 0.62, 0.02);
       band(0.02, 0.025, 0.028, M.leather);
       return { top: 0xe0b058, bottom: MI.teal };
@@ -663,7 +669,7 @@ function materials(c: Ctx, pal: Pal): THREE.Material[] {
   let skin: THREE.Material, marked: THREE.Material, hair: THREE.Material, nail: THREE.Material, lip: THREE.Material;
   if (race === 'minaa') {
     const tone = look === 'player' ? 0 : (r() - 0.5) * 0.12;
-    const hex = shade(look === 'tarn' ? 0xa4704e : look === 'hadda' ? 0x8e5c3c : 0x9c6644, 0, 0, tone);
+    const hex = shade(look === 'tarn' ? 0xa4704e : look === 'hadda' ? 0x8e5c3c : 0xb3825c, 0, 0, tone);
     skin = smat('skin', hex, { rough: 0.72, scale: 6 });
     marked = skin;
     hair = smat('hair', look === 'tarn' ? 0x8a8078 : pick(r, [0x2e231c, 0x3a2a1e, 0x241c17, 0x4a3524]), { rough: 0.95, scale: 12 });
@@ -979,14 +985,15 @@ function gear(c: Ctx, pal: Pal): void {
     if (look === 'player' && !f) {
       // the tinker man: a torn ochre sash over one shoulder, a bandolier of crystal cartridges across it,
       // goggles round his neck, an iron forearm (mi-naa-tinker-pair.png)
-      strap(c, -1, smat('patched', 0xc8904a, { rough: 0.9, scale: 3 }), 0.09, 0.008);
       strap(c, 1, leather, 0.04, 0.016);
       const cart = [CRYSTAL_HEX.verdant, CRYSTAL_HEX.azure, CRYSTAL_HEX.violet, CRYSTAL_HEX.amber];
       for (let i = 0; i < 4; i++) {
         const t = (i - 1.5) * 0.06;
         lit(put(rig.spine, box(0.02, 0.045, 0.02), glow(c.glows, cart[i], 0.9, true, 0x2a2a2a), [-0.55 * t + 0.01, yS * 0.55 + 0.8 * t, -B.chestD - 0.028], [0, 0, 0.58]));
       }
-      flap(c, rig.hips, smat('patched', 0xc8904a, { rough: 0.9, scale: 3, double: true }), [0.1, 0.02, -B.hipD - 0.02], 0.1, 0.36, { hang: 0.85, drag: 0.15, yaw: 0.3 });
+      const ochre = smat('patched', 0xc8904a, { rough: 0.9, scale: 3, double: true });
+      put(rig.hips, ball(0.034, 8, 6), c.mats[M.top], [-B.hipW * 0.95, 0.02, -B.hipD * 0.75], undefined, [1.2, 0.9, 0.8]);
+      flap(c, rig.hips, ochre, [-B.hipW * 0.95, 0.0, -B.hipD * 0.8], 0.11, 0.5, { hang: 0.85, drag: 0.15, yaw: -0.35, taper: 0.8 });
       neckGoggles(c, brass, leather);
       // his left arm is machine from the shoulder: dull steel plates and brass collars
       mechArm(c, -1, smat('metal', 0x77756e, { rough: 0.45, metal: 0.3, scale: 5 }), brass);
@@ -1007,7 +1014,7 @@ function gear(c: Ctx, pal: Pal): void {
       lit(put(rig.lFore, box(0.018, 0.022, 0.004), glow(c.glows, 0x7fe0c8, 0.8, false, 0x1f4f46), [0, -d.foreArm * 0.88, -B.wristR - 0.012]));
       goggles(c, brass, leather);
       // the poncho's hem is torn all round, and so are the trouser ends
-      tornHem(rig.spine, c.mats[M.top], yS * 0.66, B.chestW * 1.5, B.chestW * 1.5 * 0.78, 16, 0.08, 31, 0.35);
+      tornHem(rig.spine, c.mats[M.top], yS * 0.62, B.chestW * 1.66, B.chestW * 1.66 * 0.8, 18, 0.09, 31, 0.3);
       for (const s of S) {
         const t = 0.02 + 0.02, sh = s < 0 ? rig.lShin : rig.rShin;
         const rr = B.kneeR * 0.92 + (B.ankleR - B.kneeR * 0.92) * 0.62 + t;
