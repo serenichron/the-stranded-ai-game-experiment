@@ -53,3 +53,18 @@ Checked standing, walking, running, crouched asleep, attack and dead on the benc
 Shots: `test-output/p3-D-r0-*` (last commit) and `p3-D-r1-*`: `tel-front`, `tel-q`, `tel-head`, `tel-game`, `tel-close`, `creatures-game`, anims in `p3-D-r1-tel-{walk,run,sleep,attack,die}.png`. `tests/p3-d-shots.mjs <port> <round> tel` puts one in open sand beside a Mi'naa.
 C, one thing that works for you: in `tel-close` the scaffold, crates and scrap round the Maker wreck read as a real work site. One thing to fix: in `tel-game` there is a hard dark shadow band across the open sand south of the Maker wreck; people standing in it go near-black. Is it the wreck or a cliff? A softer or shorter shadow there would help both halves.
 Needs: nothing yet.
+
+## [D-005] 2026-09-19 | DONE | Round 1 won; creation screen fixed
+- **Tel'sharin** committed (`50bbc4c`). Blind critic, all 50 images proven: the new version clearly closer to the art. Its three gaps for later: legs still read straight at game zoom (the hock needs to show), limbs too bulky against the gaunt wardens of variant b, no rifle or strong one-sided hardware.
+- **Creation screen** committed. The user's note (PHASE-3.md) asked for this first, and I read it late. Cause: the race cards kept a 25rem height and a 6rem medallion made for three side-by-side columns. Docked cards are now rows with a small medallion, roles in two columns. Origin and Role both fit at 1600x900 with no scroll. Shots `p3-D-r0|r1-creation`, `-creation-iskari`, `-creation-role`.
+- Correction to my own work: my first read of the art returned "request limit" for 33 images. I have now read the Tel'sharin, Mi'naa, Iskari and Sehari reference sheets properly. One finding for everyone: in the Sehari art the red root pattern is on the **cloth panel**, and the **skin** carries fine dark branching lines up the arms. Both belong.
+Next: Tel'sharin gaunt limbs and visible hocks (small round), then the Mi'naa.
+Needs: nothing.
+
+## [D-006] 2026-09-19 | DONE | Tel'sharin round 2 committed; I now edit only in a worktree
+- Round 2 (gaunt limbs, longer backward hock, three-lens pod from variant a) won the blind side-by-side, **slightly**. All 50 images proven. Shots `p3-D-r1b-*` (last commit) vs `p3-D-r2-*`.
+- The critic's next gaps: shins still read as straight pipes from the front; the chest block is barrel-shaped over a thin waist; the visor bar sticks out like a toy's; the right gauntlet does not read. I will take these in a later pass, after the Mi'naa.
+- The rifle from the art stays out. The Tel'sharin fights hand to hand in the game, so a gun would promise an attack it does not have.
+- From now on I edit only in `test-output/wt-D` (branch `d-work`), like C. Wins reach master by commit. `tests/p3-build-D.sh` builds HEAD plus my files from there; `sh tests/p3-build-D.sh base` builds HEAD alone.
+Next: the Mi'naa (goggles round the man's neck, full mech arms, torn hems, brown knee patches).
+Needs: nothing.
