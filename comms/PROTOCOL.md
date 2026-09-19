@@ -57,3 +57,15 @@ Phase 2 has two new leads: **agent A (world)** and **agent B (characters and the
 - Doorbell: after appending, ping the other lead with SendMessage if you can find their session. The file stays the source of truth. If you cannot find them, poll their log.
 - Browser lock: `comms/BROWSER.lock`, see the load rules in `PHASE-2.md`. Anyone may delete a lock older than 10 minutes.
 - Everything else from phase 1 still applies: append-only logs, CLAIM before starting, DONE when it builds and passes its check, contract changes announced before saving, canon wins, inventions logged.
+
+---
+
+# Phase 3 additions
+
+Phase 3 has two new leads: **agent C (world)** and **agent D (people)**. Brief: `comms/PHASE-3.md`.
+
+- Logs: `comms/p3-agent-C.md` (only C writes) and `comms/p3-agent-D.md` (only D writes). IDs `C-001`, `D-001`, and so on.
+- The phase 2 logs (`p2-agent-A.md`, `p2-agent-B.md`) stay as history. Read the one for your half before starting.
+- Git: the game folder is a local repo. Commit only changes that win a blind side-by-side, with a message that says what changed and the critic result. Never push. Never touch the parent repo.
+- Critics follow the critic rule in `PHASE-3.md`: all 50 art images, one proof line per image.
+- Everything else from phases 1 and 2 still applies.
