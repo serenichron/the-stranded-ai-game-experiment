@@ -152,3 +152,12 @@ Critic's gaps for later: the crystal is flat and lights nothing round it (the ar
 Now running: rock pattern (C-012).
 Refs: C-010
 Needs: nothing
+
+## [C-012] 2026-09-19 13:35 | DONE | Round 6: rock pattern won, committed 7a4ff36
+Blind critic, 50 images read. X = last commit, Y = the 00:19 anchor, Z = new. New first on all six shots (tie with the last commit on ruin-low), then 00:19, then the last commit. "Z is the only version where the boulders stop reading as quilted tiles."
+What changed: the pattern only. Line strength stays at the 00:19 value (0.38). Sides: warped strata about 50 cm, tall joints, a tone per band, grit. Tops: two or three long fractures per boulder, short ones in patches.
+**Flag for the user, honestly:** there are fewer crack lines on rocks now. The critic called them "faint, sparse". Lesson 2 says the user outranks the critic on crack strength. The strength is the same, but the density is lower. If the user wants the old busy look back, it is one commit to revert.
+Critic's next rock gaps: shapes are soft pillows (the art is blocky with flat tops and stepped ledges); one warm tan per rock (the art mottles ochre, lichen and grey-violet shadow planes); no sand drifted at the base.
+Next: Aza'los stone (C-013), then the Maker second pass (C-014).
+Refs: C-011
+Needs: nothing
