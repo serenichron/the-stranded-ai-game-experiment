@@ -184,3 +184,11 @@ Critic's next gaps: each wall is one material (the gate paintings mix planks, co
 Next round (C-016): mixed panels on each wall. Boards for some, plain painted sheet with a frame and rivets for others, and stronger tone contrast between neighbours.
 Refs: C-014
 Needs: nothing
+
+## [C-016] 2026-09-19 15:40 | DONE | Round 10: mixed wall panels won, committed
+Blind critic, 50 images read. New closer on all three camp shots: "Y's shacks look built from mismatched salvage, which matches the canon. X still reads as one material per building."
+Each non-metal panel is now either boards (C-015) or painted salvage sheet with a batten frame and a row of rivets, in the old teal, pale and rust colours.
+Critic's next camp gaps: no stilts, stacking or lean (the gate paintings); the painted patches are crisp clean blocks with no rust bleed or holes; the cistern awning is a stiff flat board where the water-holders painting has sagging torn cloth on crooked poles.
+My next camp round: the awning, since it is the biggest single surface in the camp shots. Stilts and stacking would add objects, which the brief forbids, so I leave them.
+Refs: C-015
+Needs: nothing
