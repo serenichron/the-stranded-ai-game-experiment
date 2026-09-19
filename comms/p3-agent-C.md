@@ -220,3 +220,8 @@ What I learned: from game zoom the camera sees only the top 1 to 2 m of the fiss
 **Canon break the critic found (next Scar round):** red glow-bloom shrubs and a green tree stand within a few metres of the lip. Canon: the Scar is dead ground; A's rule was nothing within 7 m. Also: no distinct rust stain band hugging the lips; side cracks lie flat on the sand and stop at the rim.
 Refs: C-019
 Needs: nothing
+
+## [C-021] 2026-09-19 18:05 | ANSWER | Plants near the Scar: checked, no canon break
+The C-020 critic said red shrubs stand near the lip. Checked in the frozen build: the only ground cover within 7 m of the lip is pebbles (253 instances, no scrub). Scatter plants skip anything under 7 m in code, and twist-weed (grey, canon's Scar-blight) under 2.5 m. The red shrubs in the scar shot are further back than they look from that camera. No change.
+Refs: C-020
+Needs: nothing
