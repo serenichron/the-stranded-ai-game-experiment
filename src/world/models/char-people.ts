@@ -154,6 +154,8 @@ export interface Ctx {
   glows: Glow[]; sway: Sway[];
   /** Clothing flags, part of the cache key. */
   key: string[];
+  /** Mi'naa: the side (-1 left, 1 right) whose arm is a machine from the shoulder down. */
+  mech?: number;
 }
 
 const v3 = (a: V3, b: V3, t: number): V3 => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
@@ -307,14 +309,17 @@ function dressBody(c: Ctx): Pal {
     const MI = { ochre: 0xc8904a, rust: 0xa4502e, teal: 0x4f7f78, sand: 0xcdb38a, brown: 0x7a5a3e };
     if (look === 'player' && !f) {
       // mi-naa-tinker-pair.png, the man: bare chest, patched rust trousers cut ragged below the knee, sandals
-      c.key.push('tinkerM');
+      c.key.push('tinkerM2');
+      c.mech = -1;
       trousers(0.018, 0.35, 0.01);
       band(0.05, 0.035, 0.022, M.leather);
-      return { top: MI.ochre, bottom: MI.rust };
+      kneePatches(c, 0.018 + 0.012);
+      return { top: MI.ochre, bottom: MI.rust, trim: 0x6a4a30 };
     }
     if (look === 'player' && f) {
       // the woman: a short loose top, bare midriff, wide teal trousers to mid-shin, a rope belt
-      c.key.push('tinkerF2');
+      c.key.push('tinkerF3');
+      c.mech = 1;
       top(0.018, yS * 0.74);
       c.prims.push({ kind: 'cap', a: [0.01, yS + 0.03, 0.01], b: [-0.01, yS * 0.66, 0.01], r: B.neckR * 1.4, r2: B.chestW * 1.55, s: [1, 1, 0.78], bone: J.spine, mat: M.top, k: 0.02, tag: 'poncho', clip: [{ n: [0, -1, 0], o: -(yS * 0.66) }, { n: [-0.35, -1, 0], o: -(yS * 0.66) }] });
       trousers(0.02, 0.62, 0.02);
@@ -397,6 +402,76 @@ function dressBody(c: Ctx): Pal {
   skirt(0.07, 0.34, B.hipW * 1.1, B.hipW * 1.35, M.top, 0.85);
   band(0.07, 0.06, 0.035, M.sash);
   return { top: 0xe0d6c0, bottom: 0xe0d6c0, robe: 0x6a6080, sash: 0x4f8a86 };
+}
+
+/** Mismatched brown patches sewn over both knees (mi-naa-tinker-pair.png, the man). */
+function kneePatches(c: Ctx, t: number): void {
+  const { B, j } = c;
+  for (const s of S) {
+    const kn = j[s < 0 ? 'lShin' : 'rShin'];
+    c.prims.push({ kind: 'ell', a: [kn[0], kn[1] + 0.03, kn[2] - B.kneeR - t + 0.012], s: [B.kneeR * 1.05, 0.065, 0.018], rot: [0, 0, s * 0.3], bone: s < 0 ? J.lLeg : J.rLeg, mat: M.trim, k: 0.006 });
+    c.prims.push({ kind: 'ell', a: [kn[0], kn[1] - 0.04, kn[2] - B.kneeR * 0.92 - t + 0.01], s: [B.kneeR * 0.95, 0.05, 0.016], rot: [0, 0, -s * 0.2], bone: s < 0 ? J.lShin : J.rShin, mat: M.trim, k: 0.006 });
+  }
+}
+
+/**
+ * A torn hem: a ring of small ragged cloth tongues hanging from a cut edge. Placed on a bone at local
+ * height y, radius rx by rz, so it follows that bone. Triplanar can't cut a real ragged edge, so the
+ * shape does it (lesson 6).
+ */
+function tornHem(parent: THREE.Object3D, m: THREE.Material, y: number, rx: number, rz: number, n: number, len: number, seed: number, tilt = 0): void {
+  const r = rng(seed);
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + r() * 0.3;
+    const x = Math.cos(a) * rx, z = Math.sin(a) * rz;
+    const l = len * (0.45 + r() * 0.8);
+    const g = new THREE.Object3D();
+    g.position.set(x, y - tilt * x, z);
+    g.rotation.y = -a + Math.PI / 2;
+    parent.add(g);
+    put(g, cone(0.022 + r() * 0.014, l, 3), m, [0, -l / 2 + 0.004, 0], [Math.PI + (r() - 0.5) * 0.3, 0, (r() - 0.5) * 0.4], [1, 1, 0.22]);
+  }
+}
+
+/**
+ * A Mi'naa machine arm from the shoulder down (mi-naa-tinker-pair.png, docs/visual-reference.md
+ * "Tinker gear"): plated upper arm and forearm over the skin, exposed pistons and copper wiring,
+ * brass collars, a small teal crystal core glowing at the elbow. The hand is sculpted as metal.
+ */
+function mechArm(c: Ctx, side: number, plate: THREE.Material, trim: THREE.Material): void {
+  const { rig, B } = c;
+  const d = B.dims;
+  const arm = side < 0 ? rig.lArm : rig.rArm, fore = side < 0 ? rig.lFore : rig.rFore;
+  const dark = smat('metal', 0x2e2c2a, { rough: 0.5, metal: 0.3, scale: 5 });
+  const copper = smat('metal', 0xb0603a, { rough: 0.45, metal: 0.3, scale: 6 });
+  // shoulder cap and upper arm plate
+  put(arm, ball(B.armR * 1.55, 12, 8), plate, [side * 0.006, -0.01, 0], undefined, [1, 0.85, 1]);
+  put(arm, tube('mech-u-' + B.armR, d.upperArm * 0.8, [[0, B.armR + 0.014], [0.5, B.armR + 0.012], [1, B.elbowR + 0.012]], 10), plate, [0, -d.upperArm * 0.12, 0]);
+  put(arm, cyl(B.armR + 0.016, B.armR + 0.016, 0.018, 12), trim, [0, -d.upperArm * 0.14, 0]);
+  put(arm, cyl(B.armR + 0.015, B.armR + 0.015, 0.014, 12), trim, [0, -d.upperArm * 0.62, 0]);
+  // copper wires down the back of the upper arm
+  for (const k of [-1, 1]) put(arm, cyl(0.004, 0.004, d.upperArm * 0.75, 4), copper, [k * 0.012, -d.upperArm * 0.5, B.armR + 0.012]);
+  // elbow joint: a brass drum with the crystal core
+  put(fore, cyl(B.elbowR + 0.016, B.elbowR + 0.016, 0.05, 12), trim, [0, 0, 0], [0, 0, Math.PI / 2]);
+  lit(put(fore, octa(0.017), glow(c.glows, 0x5fd0c0, 1.2, true, 0x1f6f6a), [side * (B.elbowR + 0.03), 0, 0], undefined, [1, 1.3, 1], 'crystal'));
+  // forearm: plate, two pistons along the inside, brass collar at the wrist
+  put(fore, tube('mech-f-' + B.foreR, d.foreArm * 0.85, [[0, B.foreR + 0.016], [0.35, B.foreR + 0.02], [1, B.wristR + 0.012]], 10), plate, [0, -0.03, 0]);
+  for (const z of [-1, 1]) {
+    put(fore, cyl(0.007, 0.007, d.foreArm * 0.6, 6), dark, [-side * (B.foreR + 0.01), -d.foreArm * 0.45, z * 0.014]);
+    put(fore, cyl(0.004, 0.004, d.foreArm * 0.3, 5), trim, [-side * (B.foreR + 0.01), -d.foreArm * 0.2, z * 0.014]);
+  }
+  put(fore, cyl(B.wristR + 0.016, B.wristR + 0.016, 0.02, 12), trim, [0, -d.foreArm + 0.02, 0]);
+}
+
+/** Goggles hanging round the neck on their strap (mi-naa-tinker-pair.png, the man). */
+function neckGoggles(c: Ctx, brass: THREE.Material, leather: THREE.Material): void {
+  const { rig, B } = c;
+  const yS = B.dims.spineLen;
+  put(rig.spine, ring(B.neckR * 1.9, 0.008, 5, 16), leather, [0, yS + 0.03, 0.0], [Math.PI / 2 + 0.25, 0, 0]);
+  for (const s of S) {
+    put(rig.spine, cyl(0.028, 0.028, 0.03, 12), brass, [s * 0.034, yS + 0.012, -B.neckR * 1.9 - 0.012], [1.25, 0, 0]);
+    put(rig.spine, cyl(0.021, 0.021, 0.032, 12), smat('', 0x6a8a88, { rough: 0.15, metal: 0.3 }), [s * 0.034, yS + 0.012, -B.neckR * 1.9 - 0.012], [1.25, 0, 0]);
+  }
 }
 
 // ================================================================= head, hands, feet (rigid, finer)
@@ -501,6 +576,19 @@ function sculptHand(c: Ctx, s: number): Prim[] {
     });
     P.push({ kind: 'cap', a: [s * 0.006, -0.03, -0.034], b: [s * 0.02, -0.1, -0.06], r: 0.011, r2: 0.008, bone: -1, mat: M.marked, k: 0.008 });
     P.push({ kind: 'cap', a: [s * 0.02, -0.1, -0.06], b: [s * 0.03, -0.13, -0.066], r: 0.007, r2: 0.0015, bone: -1, mat: M.nail, k: 0.004 });
+    return P;
+  }
+  if (c.mech === s) {
+    // a machine hand: plated palm, jointed metal fingers, brass knuckles (mi-naa-tinker-pair.png)
+    P.push({ kind: 'box', a: [0, -0.045 * k, 0], s: [0.015 * k, 0.042 * k, 0.037 * k], r: 0.008, bone: -1, mat: M.metal, k: 0.006 });
+    [-0.026, -0.009, 0.008, 0.024].forEach((z, i) => {
+      const L = [0.068, 0.078, 0.073, 0.058][i] * k;
+      const a: V3 = [0, -0.085 * k, z * k], mid: V3 = [s * 0.012, -0.085 * k - L * 0.5, z * k], tip: V3 = [s * 0.03, -0.085 * k - L, z * k];
+      P.push({ kind: 'ell', a, s: [0.011, 0.01, 0.009], bone: -1, mat: M.brass, k: 0.003 });
+      P.push({ kind: 'cap', a, b: mid, r: 0.0075, r2: 0.007, bone: -1, mat: M.metal, k: 0.003 });
+      P.push({ kind: 'cap', a: mid, b: tip, r: 0.0068, r2: 0.0055, bone: -1, mat: M.metal, k: 0.003 });
+    });
+    P.push({ kind: 'cap', a: [s * 0.004, -0.025 * k, -0.03 * k], b: [s * 0.016, -0.075 * k, -0.052 * k], r: 0.009, r2: 0.007, bone: -1, mat: M.metal, k: 0.006 });
     return P;
   }
   const skinMat = race === 'sehari' && s < 0 ? M.marked : M.skin;
@@ -813,7 +901,7 @@ export function buildSculpted(race: Race, body: Body, look: string, opts: ModelO
     // hands and feet are shared by everyone of the same race and build: key them by what shapes them
     const boots = look === 'hadda' || look === 'digger' || look === 'pell' || look === 'scavenger';
     const bk = look === 'defender' || race === 'telsharin' ? look : c.body;
-    rigid(s < 0 ? rig.lHand : rig.rHand, `hand:${race}:${bk}:${s}`, sculptHand(c, s), 0.0045);
+    rigid(s < 0 ? rig.lHand : rig.rHand, `hand:${race}:${bk}:${s}${c.mech === s ? ':mech' : ''}`, sculptHand(c, s), 0.0045);
     rigid(s < 0 ? rig.lFoot : rig.rFoot, `foot:${race}:${bk}:${boots ? 'boot' : 'bare'}:${s}`, sculptFoot(c, s), 0.0075);
   }
   // eyes: dark and human for the Mi'naa, pale-gold glowing for the Sehari, pale for the Iskari
@@ -899,17 +987,34 @@ function gear(c: Ctx, pal: Pal): void {
         lit(put(rig.spine, box(0.02, 0.045, 0.02), glow(c.glows, cart[i], 0.9, true, 0x2a2a2a), [-0.55 * t + 0.01, yS * 0.55 + 0.8 * t, -B.chestD - 0.028], [0, 0, 0.58]));
       }
       flap(c, rig.hips, smat('patched', 0xc8904a, { rough: 0.9, scale: 3, double: true }), [0.1, 0.02, -B.hipD - 0.02], 0.1, 0.36, { hang: 0.85, drag: 0.15, yaw: 0.3 });
-      goggles(c, brass, leather);
-      const iron = smat('metal', 0x3e3a36, { rough: 0.45, metal: 0.3, scale: 4 });
-      put(rig.lFore, tube('ironfore2', d.foreArm, [[0, B.foreR + 0.012], [0.3, B.foreR + 0.014], [0.85, B.wristR + 0.012], [1, B.wristR + 0.01]], 10), iron);
-      for (const y of [-0.01, -d.foreArm * 0.55]) put(rig.lFore, cyl(B.foreR + 0.016, B.foreR + 0.016, 0.02, 12), brass, [0, y, 0]);
-      lit(put(rig.lFore, octa(0.02), glow(c.glows, 0x5fd0c0, 1.1, true, 0x1f6f6a), [0, -d.foreArm * 0.35, -B.foreR - 0.012], undefined, [1, 1.5, 1], 'crystal'));
+      neckGoggles(c, brass, leather);
+      // his left arm is machine from the shoulder: dull steel plates and brass collars
+      mechArm(c, -1, smat('metal', 0x77756e, { rough: 0.45, metal: 0.3, scale: 5 }), brass);
+      // the trouser legs end in torn tongues below the knee
+      for (const s of S) {
+        const t = 0.018 + 0.01, sh = s < 0 ? rig.lShin : rig.rShin;
+        const rr = B.kneeR * 0.92 + (B.ankleR - B.kneeR * 0.92) * 0.35 + t;
+        tornHem(sh, c.mats[M.bottom], -d.shin * 0.35, rr, rr, 9, 0.07, 71 + s);
+      }
     } else if (look === 'player' && f) {
       // the tinker woman: goggles on her brow, a bronze arm with two teal cells, a crystal at her throat
-      const bronze = smat('metal', 0x8a6238, { rough: 0.45, metal: 0.25, scale: 4 });
-      put(rig.lFore, tube('bronzefore', d.foreArm * 0.85, [[0, B.foreR + 0.012], [0.3, B.foreR + 0.014], [1, B.wristR + 0.012]], 10), bronze);
-      for (let i = 0; i < 2; i++) lit(put(rig.lFore, octa(0.02), glow(c.glows, 0x5fd0c0, 1.1, true, 0x1f6f6a), [0, -d.foreArm * (0.3 + i * 0.3), -B.foreR - 0.012], undefined, [1, 1.5, 1], 'crystal'));
+      // her right arm is machine: copper-bronze plates, two teal cells on the forearm
+      const bronze = smat('metal', 0x9a6a3c, { rough: 0.45, metal: 0.25, scale: 4 });
+      mechArm(c, 1, bronze, brass);
+      for (let i = 0; i < 2; i++) lit(put(rig.rFore, octa(0.02), glow(c.glows, 0x5fd0c0, 1.1, true, 0x1f6f6a), [0, -d.foreArm * (0.3 + i * 0.25), -B.foreR - 0.026], undefined, [1, 1.5, 1], 'crystal'));
+      // a slim metal cuff with a small screen on the other wrist
+      put(rig.lFore, cyl(B.wristR + 0.01, B.wristR + 0.012, 0.035, 10), smat('metal', 0xa8a8a0, { rough: 0.35, metal: 0.4, scale: 4 }), [0, -d.foreArm * 0.88, 0]);
+      lit(put(rig.lFore, box(0.018, 0.022, 0.004), glow(c.glows, 0x7fe0c8, 0.8, false, 0x1f4f46), [0, -d.foreArm * 0.88, -B.wristR - 0.012]));
       goggles(c, brass, leather);
+      // the poncho's hem is torn all round, and so are the trouser ends
+      tornHem(rig.spine, c.mats[M.top], yS * 0.66, B.chestW * 1.5, B.chestW * 1.5 * 0.78, 16, 0.08, 31, 0.35);
+      for (const s of S) {
+        const t = 0.02 + 0.02, sh = s < 0 ? rig.lShin : rig.rShin;
+        const rr = B.kneeR * 0.92 + (B.ankleR - B.kneeR * 0.92) * 0.62 + t;
+        tornHem(sh, c.mats[M.bottom], -d.shin * 0.62, rr, rr, 9, 0.06, 81 + s);
+      }
+      // the rope belt's knotted ends hang at the front
+      for (const x of [-0.01, 0.015]) put(rig.hips, cyl(0.006, 0.006, 0.2, 5), smat('cloth', 0xa4502e, { rough: 0.95, scale: 4 }), [0.05 + x, -0.08, -B.hipD - 0.03], [0.1, 0, x * 8]);
       lit(put(rig.spine, octa(0.014), glow(c.glows, 0x5fd0c0, 0.9, true, 0x1f6f6a), [0, yS - 0.06, -B.chestD - 0.03], undefined, [0.8, 1.6, 0.8]));
       put(rig.hips, box(0.06, 0.08, 0.035), leather, [0.14, -0.04, -B.hipD * 0.6], [0, 0.4, 0]);
     } else if (look === 'hadda') {
