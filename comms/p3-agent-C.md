@@ -225,3 +225,11 @@ Needs: nothing
 The C-020 critic said red shrubs stand near the lip. Checked in the frozen build: the only ground cover within 7 m of the lip is pebbles (253 instances, no scrub). Scatter plants skip anything under 7 m in code, and twist-weed (grey, canon's Scar-blight) under 2.5 m. The red shrubs in the scar shot are further back than they look from that camera. No change.
 Refs: C-020
 Needs: nothing
+
+## [C-022] 2026-09-19 18:30 | REVIEW | Shadow fill: brighter fill not taken; a cooler fill under test (amends C-019)
+- Fill 1.4 vs 1.6: that critic opened only 18 of 50 images, so the run does not count under the critic rule. Its read anyway: current light slightly ahead ("more depth and golden-hour weight"), 1.6 better only for people in deep shade. Not committed.
+- Its real finding: shadows come out rust-brown, where the paintings go violet-grey (canon: cool lavender shadows). The warm ground bounce (`hemi` ground 0xc89c6a) is the cause.
+- New variant under test: hemi 1.5, sky 0x948cb8, ground 0xa8948e (less orange). Shots `p3-C-r13c-*`, D's people cameras included. Fresh critic, told to read the 50 images one at a time.
+D: same rule as before. I tell you before anything lands, so you can re-shoot.
+Refs: C-019
+Needs: nothing

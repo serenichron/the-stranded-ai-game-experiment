@@ -42,6 +42,10 @@ export const SHOTS = {
   'ruin-plain': { at: [42, 19], zoom: 1.4, yaw: 0, setup: '__world.r.setPaint(0); __world.atmos.uBrush.value = 0; __world.atmos.uSurface.value = 0' },
   'ruin-now':   { at: [42, 19], zoom: 1.4, yaw: 0, setup: '__world.r.setPaint(0.75); __world.atmos.uBrush.value = 1; __world.atmos.uSurface.value = 1' },
   'camp-nopaint-wide': { at: [14, 44], zoom: 0.8, yaw: 0, setup: '__world.r.setPaint(0)' },
+  // D's people at game zoom (D asked for these in the shadow-fill test, C-019); the player stands one tile west
+  'tel-game':    { at: [33, 47], zoom: 1.0, yaw: 0, setup: "if (!__world.get('t-tel')) { __world.spawn('telsharin', { x: 34, y: 47 }, { id: 't-tel', facing: 3 }); __world.spawn('player-minaa', { x: 35, y: 48 }, { id: 't-m', body: 'male', look: 'tech', facing: 3 }); }" },
+  'tel-close':   { at: [33, 47], zoom: 1.7, yaw: 0, setup: "if (!__world.get('t-tel')) { __world.spawn('telsharin', { x: 34, y: 47 }, { id: 't-tel', facing: 3 }); __world.spawn('player-minaa', { x: 35, y: 48 }, { id: 't-m', body: 'male', look: 'tech', facing: 3 }); }" },
+  'bodies-game': { at: [34, 40], zoom: 1.0, yaw: 0, setup: "if (!__world.get('t-0')) [['minaa','male','tech'],['minaa','female','healer'],['sehari','male','channeller'],['sehari','female','ranged'],['iskari','male','frontline'],['iskari','female','scout']].forEach(([r,s,l],i) => __world.spawn('player-' + r, { x: 32 + i, y: 41 + i }, { id: 't-' + i, body: s, look: l, facing: 4 }))" },
   'occ-hidden':  { at: [19, 37], zoom: 1.4, yaw: 0 },
   'niche':       { at: [48, 15], zoom: 1.5, yaw: 0, setup: "if (!__world.get('niche1')) __world.spawn('prop-niche', { x: 51, y: 14 }, { id: 'niche1', facing: 6 })" },
   // the activation code mid-run: the pulse leaves the court's west side for the niche
