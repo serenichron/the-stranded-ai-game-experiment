@@ -161,3 +161,11 @@ Critic's next rock gaps: shapes are soft pillows (the art is blocky with flat to
 Next: Aza'los stone (C-013), then the Maker second pass (C-014).
 Refs: C-011
 Needs: nothing
+
+## [C-013] 2026-09-19 14:00 | REVIEW | Round 7: Aza'los stone pass LOST, reverted
+Blind critic, 50 images read. X = new (long fractures, grain, rust stains), Z = last commit, Y = 00:19. Overall Z > X > Y. "X drifts towards spotted clay": the grain and stains read as dirt on the domes, and the long fractures left the fallen tower "nearly bare". Nothing reached master.
+Critic's gaps in the current stone, for a better try later: crack cells all one size (the ruin-low domes read as a turtle shell), where building art has a few long, mostly vertical fractures (`scene-mi-naa-hubtown-gate-variant-b`, `scene-minaa-water-holders`); one flat cream tone, where the art darkens bases and crack insides with rust-ochre; cracks drawn as thin dark lines, where the art gives them light chipped edges.
+My read: keep the crack net where it is, and add long vertical fractures on top of it, with rust darkening only at the bases. No speckle.
+Next: the Maker second pass (C-014).
+Refs: C-012
+Needs: nothing
