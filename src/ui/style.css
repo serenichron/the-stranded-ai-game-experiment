@@ -2775,6 +2775,71 @@ html {
 .st-root .creation.show-bodies .cc-card p {
   margin: 0;
 }
+/* Compact docked cards (phase 3, agent D). The race cards kept the 25rem height and big medallion
+   made for three columns side by side, so stacked in one column they were mostly empty and scrolled
+   (user note). Docked, each card is a row: a small medallion left, title, text and chips right. */
+.st-root .creation.show-bodies .cc-body {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.st-root .creation.show-bodies .cc-title {
+  margin-bottom: 0.7rem;
+  font-size: 1.5rem;
+}
+.st-root .creation.show-bodies .cc-grid .cc-card,
+.st-root .creation.show-bodies .cc-grid.three:not(.roles) .cc-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'glyph title' 'glyph text' 'glyph extra';
+  column-gap: 0.9rem;
+  row-gap: 0.15rem;
+  align-items: start;
+  min-height: 0;
+  padding: 0.65rem 0.9rem;
+}
+.st-root .creation.show-bodies .cc-grid .cc-glyph,
+.st-root .creation.show-bodies .cc-grid.three:not(.roles) .cc-glyph {
+  grid-area: glyph;
+  align-self: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  padding: 0.65rem;
+  margin: 0;
+}
+.st-root .creation.show-bodies .cc-grid .cc-card-title,
+.st-root .creation.show-bodies .cc-grid.three:not(.roles) .cc-card-title {
+  grid-area: title;
+  align-self: start;
+  font-size: 1.2rem;
+  margin: 0;
+}
+.st-root .creation.show-bodies .cc-grid .cc-card p {
+  grid-area: text;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+.st-root .creation.show-bodies .cc-chips,
+.st-root .creation.show-bodies .cc-ability {
+  grid-area: extra;
+  margin-top: 0.3rem;
+  padding-top: 0;
+}
+.st-root .creation.show-bodies .cc-chips .cc-mini {
+  width: auto;
+  margin-right: 0.2rem;
+}
+/* six roles: two columns, so all of them fit without scrolling */
+.st-root .creation.show-bodies .cc-grid.roles {
+  grid-template-columns: 1fr 1fr;
+}
+.st-root .creation.show-bodies .cc-grid.roles .cc-glyph {
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0.45rem;
+}
+.st-root .creation.show-bodies .cc-bodyrow {
+  margin-top: 0.7rem;
+}
 .st-root .cc-bodyrow {
   display: flex;
   flex-wrap: wrap;

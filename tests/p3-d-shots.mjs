@@ -77,7 +77,7 @@ async function cam(x, y, zoom, yaw = 0) {
 
 try {
   // ---------------------------------------------------------------- creation with the line-up
-  if (want('creation') || want('creation-iskari')) {
+  if (want('creation') || want('creation-iskari') || want('creation-role')) {
     await page.goto(`${base}/`, { waitUntil: 'load', timeout: 90000 });
     await page.waitForFunction(() => !!window.__world, null, { timeout: 60000 });
     await wait(2500);
@@ -95,6 +95,11 @@ try {
     await page.locator('.cc-body-btn').nth(0).click().catch(() => {});
     await wait(2000);
     if (want('creation-iskari')) await shot('creation-iskari');
+    if (want('creation-role')) {
+      await page.locator('button.btn.primary', { hasText: 'Next' }).first().click().catch((e) => console.log('next failed', String(e).slice(0, 120)));
+      await wait(2200);
+      await shot('creation-role');
+    }
   }
 
   // ---------------------------------------------------------------- in the game
