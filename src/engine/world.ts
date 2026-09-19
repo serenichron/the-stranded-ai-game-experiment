@@ -506,7 +506,7 @@ export class World implements IWorld {
     this.fxl.setAmbient(q !== 'low', q !== 'low');
     occUniforms.uCloudK.value = q === 'low' ? 0 : 0.1;
     atmos.uSurface.value = q === 'low' ? 0 : 1;
-    this.r.setPaint(q === 'low' ? 0 : 0.75);
+    this.r.setPaint(0);
     atmos.uMottle.value = q === 'low' ? 0.5 : 1;
     this.scaleMax = q === 'low' ? 0.75 : 1;
     this.scale = q === 'high' ? 1 : Math.min(this.scale, this.scaleMax);

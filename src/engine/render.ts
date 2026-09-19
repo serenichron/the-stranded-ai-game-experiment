@@ -59,7 +59,7 @@ const GradeShader = {
     uVignette: { value: 0.4 },
     uTime: { value: 0 },
     uGrain: { value: 0.035 },
-    uPaint: { value: 0.75 },   // Kuwahara brush-patch blend, 0 = off
+    uPaint: { value: 0 },      // Kuwahara brush-patch blend, 0 = off (off since 09:55: it softened the cracks the user likes)
     uRes: { value: new THREE.Vector2(1, 1) },
   },
   vertexShader: /* glsl */`

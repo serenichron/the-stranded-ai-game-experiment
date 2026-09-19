@@ -105,10 +105,9 @@ export function patchOcclusion(mat: THREE.Material) {
           // cracked earth, only where the terrain says the ground is packed, rocky or dead
           float m = vColor.a;
           vec2 q = vWorldPos.xz;
-          // patchy: the crust only shows where a slow noise lets it, and fades in
-          float patchy = smoothstep(0.35, 0.65, wNoise(vec3(q * 0.18, 2.0)));
-          float c = crack2(q * 0.55 + wNoise(vec3(q * 0.4, 1.0)) * 0.9, 0.04);
-          diffuseColor.rgb *= 1.0 - 0.2 * c * m * patchy;
+          // the 00:19 crust the user liked (restored 09:50): full strength, two scales, everywhere the mask allows
+          float c = crack2(q * 0.8 + wNoise(vec3(q * 0.5, 1.0)) * 0.6, 0.05) * 0.7 + crack2(q * 2.3, 0.08) * 0.3;
+          diffuseColor.rgb *= 1.0 - 0.32 * c * m;
         }
         #endif
         #if defined(WORLD_SURFACE_STONE) || defined(WORLD_SURFACE_ROCK)
@@ -117,14 +116,13 @@ export function patchOcclusion(mat: THREE.Material) {
           // (the lit normal is not declared yet at this point, so take the face normal from derivatives)
           vec3 wn = normalize(cross(dFdx(vWorldPos), dFdy(vWorldPos)));
           vec3 p = vWorldPos;
-          vec2 sp = abs(wn.x) > abs(wn.z) ? p.zy : p.xy;
-          float side = crack2(sp * vec2(1.6, 1.1) + wNoise(p * 0.8) * 0.8, 0.05);
-          // top faces crack less, and in bigger, looser plates, or boulders read as turtle shells
-          float top = crack2(p.xz * 0.6 + wNoise(p * 0.5) * 1.2, 0.035) * 0.45;
+          // the 00:19 settings the user liked (restored 09:50)
+          float side = abs(wn.x) > abs(wn.z) ? crack2(p.zy * vec2(1.3, 1.0), 0.06) : crack2(p.xy * vec2(1.3, 1.0), 0.06);
+          float top = crack2(p.xz * 1.1, 0.06);
           float c = mix(side, top, smoothstep(0.55, 0.85, abs(wn.y)));
           #ifdef WORLD_SURFACE_ROCK
             float mask = smoothstep(0.35, 0.6, wNoise(p * 0.45 + 4.0));
-            diffuseColor.rgb *= 1.0 - 0.24 * c * mask;
+            diffuseColor.rgb *= 1.0 - 0.38 * c * mask;
           #else
             float mask = smoothstep(0.5, 0.72, wNoise(p * 0.3 + 9.0));
             diffuseColor.rgb *= 1.0 - 0.28 * c * mask;
