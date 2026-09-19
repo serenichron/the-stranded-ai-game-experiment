@@ -2865,3 +2865,43 @@ html {
   font-style: italic;
   opacity: 0.72;
 }
+
+/* Portraits from the concept art on the race cards and body buttons (phase 3, agent D, user request). */
+.st-root .cc-portrait {
+  width: 6rem;
+  height: 6rem;
+  margin: 0 auto 0.9rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.25);
+  filter: saturate(0.85) brightness(0.9);
+  transition: filter 0.25s, box-shadow 0.25s;
+}
+.st-root .cc-card.on .cc-portrait,
+.st-root .cc-card:hover .cc-portrait {
+  filter: none;
+}
+.st-root .cc-card.on .cc-portrait {
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.25), 0 0 1.4rem color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.st-root .creation.show-bodies .cc-grid .cc-portrait {
+  grid-area: glyph;
+  align-self: center;
+  width: 5rem;
+  height: 5rem;
+  margin: 0;
+}
+.st-root .cc-body-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding-left: 0.4rem;
+}
+.st-root .cc-body-portrait {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}

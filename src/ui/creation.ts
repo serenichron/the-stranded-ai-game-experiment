@@ -29,6 +29,12 @@ import type { CreationChoice, CreationPreview } from './types';
 import { clear, h, signed, svg } from './dom';
 import { RACE_GLYPH, ROLE_GLYPH } from './glyphs';
 
+/**
+ * Head-and-shoulders portraits cropped from the concept art (public/portraits/, sources in
+ * public/portraits/SOURCES.md). The user asked for them beside the 3D bodies on the Origin step.
+ */
+const portraitOf = (race: string, body: 'male' | 'female') => `/portraits/${race}-${body}.jpg`;
+
 const RACES: Race[] = ['minaa', 'sehari', 'iskari'];
 const DEFAULT_NAME: Record<Race, string> = {
   minaa: 'Tasko',
@@ -135,11 +141,11 @@ export function runCreation(host: HTMLElement, preview?: CreationPreview): Promi
       );
     };
 
-    const card = (opts: { on: boolean; glyph: string; title: string; text: string; extra?: Node | null; onPick: () => void; cls?: string }) =>
+    const card = (opts: { on: boolean; glyph: string; title: string; text: string; extra?: Node | null; onPick: () => void; cls?: string; portrait?: string }) =>
       h(
         'button',
         { class: `cc-card ${opts.cls ?? ''} ${opts.on ? 'on' : ''}`, type: 'button', 'aria-pressed': String(opts.on), onclick: opts.onPick },
-        svg(opts.glyph, 'glyph cc-glyph'),
+        opts.portrait ? h('img', { class: 'cc-portrait', src: opts.portrait, alt: '' }) : svg(opts.glyph, 'glyph cc-glyph'),
         h('div', { class: 'cc-card-title' }, opts.title),
         h('p', null, opts.text),
         opts.extra ?? null,
@@ -156,6 +162,7 @@ export function runCreation(host: HTMLElement, preview?: CreationPreview): Promi
             title: RACE_LABEL[r],
             text: RACE_BLURB[r],
             cls: `race-${r}`,
+            portrait: portraitOf(r, bodySel),
             extra: h(
               'div',
               { class: 'cc-chips' },
@@ -177,7 +184,7 @@ export function runCreation(host: HTMLElement, preview?: CreationPreview): Promi
         h('button', {
           class: `btn ${bodySel === b ? 'primary' : 'ghost'} cc-body-btn`, type: 'button', 'aria-pressed': String(bodySel === b),
           onclick: () => { bodySel = b; render(); },
-        }, label);
+        }, h('img', { class: 'cc-body-portrait', src: portraitOf(race ?? 'minaa', b), alt: '' }), label);
       body.append(
         h('div', { class: 'cc-bodyrow' },
           h('div', { class: 'sc cc-mini' }, 'Body'),
