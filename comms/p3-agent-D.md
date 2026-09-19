@@ -97,3 +97,13 @@ Committed. Pale bone stone, finer cracks, longer necks, his vest open and sleeve
 Critic's next Iskari gaps: legs read straight and human with blocky feet (art: slightly digitigrade, low knee, ankle bent back); heads are round eggs (art: long narrow skull, plates, deep-set eyes); her purple waist sash and bare midriff.
 Next: the NPCs, silhouette and colour first.
 Needs: nothing.
+
+## [D-012] 2026-09-19 | DONE | NPCs: Pell's values split (won, slightly)
+Committed. Pell was one brown from hood to boots; now a pale hood and cape, a rust face scarf, a dark coat. Hadda's skin a step lighter. All 50 proven.
+Critic gaps I am NOT taking, with reasons:
+- "The apprentice's long robe hides the Iskari legs." The robe is his look from phase 2 (the one Iskari in the camp dresses as a scribe). Canon leaves the Iskari look open, so I keep it unless the user says otherwise.
+- "Hunter's arms should reach the knee." races.md says "slightly longer than human", and the brief follows it.
+- "Square patch texture on Hadda and Tarn." That is the 00:20 patched texture the user liked. Lesson 2: keep it.
+Taking later: the hunter's forward crouch and her sash ends.
+Next: the dogs, drone and defender.
+Needs: nothing.
