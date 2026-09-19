@@ -118,7 +118,7 @@ function build0(race: Race, body: Body, look: string): Build {
   // Iskari serving line: tall, very lean, long neck, digitigrade legs (iskari-menders-pair.png)
   const old = look === 'apprentice';
   return f ? {
-    dims: { thigh: 0.49, shin: 0.44, meta: 0.14, footH: 0.035, hipW: 0.095, spineLen: 0.52, shoulderW: 0.17, upperArm: 0.36, foreArm: 0.33, neck: 0.14 },
+    dims: { thigh: 0.49, shin: 0.44, meta: 0.14, footH: 0.035, hipW: 0.095, spineLen: 0.52, shoulderW: 0.17, upperArm: 0.36, foreArm: 0.33, neck: 0.17 },
     chestW: 0.125, chestD: 0.085, waistW: 0.09, waistD: 0.07, hipW: 0.14, hipD: 0.1,
     neckR: 0.036, armR: 0.036, elbowR: 0.028, foreR: 0.03, wristR: 0.021,
     thighR: 0.07, kneeR: 0.042, calfR: 0.042, ankleR: 0.026,
@@ -126,7 +126,7 @@ function build0(race: Race, body: Body, look: string): Build {
     head: { w: 0.07, h: 0.108, d: 0.1, jaw: 0.5, brow: 0.8, cheek: 1.2, chin: 1 },
     height: 1.96,
   } : {
-    dims: { thigh: 0.51, shin: 0.46, meta: 0.15, footH: 0.035, hipW: 0.1, spineLen: 0.57, shoulderW: 0.21, upperArm: 0.38, foreArm: 0.35, neck: 0.14 },
+    dims: { thigh: 0.51, shin: 0.46, meta: 0.15, footH: 0.035, hipW: 0.1, spineLen: 0.57, shoulderW: 0.21, upperArm: 0.38, foreArm: 0.35, neck: 0.165 },
     chestW: 0.16, chestD: 0.1, waistW: 0.115, waistD: 0.085, hipW: 0.13, hipD: 0.095,
     neckR: 0.046, armR: 0.044, elbowR: 0.033, foreR: 0.037, wristR: 0.025,
     thighR: 0.075, kneeR: 0.045, calfR: 0.046, ankleR: 0.028,
@@ -404,13 +404,19 @@ function dressBody(c: Ctx): Pal {
   if (f) {
     // iskari-menders-pair.png, narrow: a short wrap top over the chest, bare waist, a short wrap skirt
     layer(c, ['chest'], 0.016, M.top, [{ n: [0, -1, 0], o: -(yS * 0.55) }, { n: [0, 1, 0], o: yS - 0.075 }]);
-    skirt(0.06, 0.36, B.hipW * 1.12, B.hipW * 1.5, M.top, 0.9);
+    skirt(0.05, 0.28, B.hipW * 1.1, B.hipW * 1.32, M.top, 0.88);
+    // a teal border band at the hem (the art's script-marked hem)
+    c.prims.push({ kind: 'cap', a: [0, -0.262, 0.01], b: [0, -0.28, 0.01], r: B.hipW * 1.3 + 0.004, r2: B.hipW * 1.33 + 0.004, s: [1, 1, 0.88], bone: J.hips, mat: M.trim, k: 0.004, tag: 'skirt', clip: [{ n: [0, -1, 0], o: 0.28 }] });
+    {
+      const nb = norm([-0.8, -0.6, 0]);
+      const c0 = dot3([0, yS * 0.72, 0], nb), w = 0.04;
+      layer(c, ['chest', 'yoke'], 0.018, M.top, [{ n: nb, o: c0 + w }, { n: [-nb[0], -nb[1], -nb[2]], o: -(c0 - w) }], 0.012);
+    }
     band(0.05, 0.035, 0.03, M.sash);
     return { top: 0xe0d6c0, bottom: 0xe0d6c0, sash: 0x6a6080, trim: 0x3f7a74 };
   }
   // broad: an open dusty-violet vest (two halves, the stone chest bare between), a cream kilt, a teal sash
   for (const s of S) layer(c, ['chest', 'yoke', 'belly'], 0.018, M.robe, [{ n: [s * -1, 0, 0], o: -0.055 }, { n: [0, -1, 0], o: -0.1 }]);
-  layer(c, ['uarm'], 0.02, M.robe, [{ n: [0, -1, 0], o: -(yS - 0.07) }]);
   skirt(0.07, 0.34, B.hipW * 1.1, B.hipW * 1.35, M.top, 0.85);
   band(0.07, 0.06, 0.035, M.sash);
   return { top: 0xe0d6c0, bottom: 0xe0d6c0, robe: 0x6a6080, sash: 0x4f8a86 };
@@ -710,9 +716,9 @@ function materials(c: Ctx, pal: Pal): THREE.Material[] {
     nail = smat('defender', 0xd0c4ae, { rough: 0.9, flat: true, scale: 1.1 });
   } else {
     const old = look === 'apprentice';
-    skin = smat('iskari', old ? 0xa39c90 : 0xd3cab8, { rough: 0.97, scale: 3 });
+    skin = smat('iskari', old ? 0xa39c90 : 0xeae4d8, { rough: 0.97, scale: 3 });
     marked = hair = lip = skin;
-    nail = smat('iskari', old ? 0xa8a296 : 0xbdb2a0, { rough: 0.9, scale: 3 });
+    nail = smat('iskari', old ? 0xa8a296 : 0xcfc6b6, { rough: 0.9, scale: 3 });
   }
   mats[M.skin] = skin; mats[M.marked] = marked; mats[M.hair] = hair; mats[M.nail] = nail; mats[M.lip] = lip;
   const clothKey = race === 'minaa' ? 'patched' : 'cloth';
@@ -1151,8 +1157,10 @@ function gear(c: Ctx, pal: Pal): void {
 
   // Iskari serving line: the soul crystal, shown and never explained
   const soul = glow(c.glows, 0x5fd8e8, 1.4, true, 0x1c6a76, true);
-  lit(put(rig.spine, octa(0.042), soul, [0, yS * 0.62, -B.chestD - 0.012], undefined, [0.8, 1.5, 0.55], 'crystal'));
-  put(rig.spine, ring(0.045, 0.009, 5, 10), c.mats[M.nail], [0, yS * 0.62, -B.chestD - 0.004], undefined, [0.85, 1.4, 1]);
+  // her wrap top covers the chest, so her crystal sits out in front of the cloth (carry-over: keep it visible)
+  const cz = -B.chestD - (f && look !== 'apprentice' ? 0.036 : 0);
+  lit(put(rig.spine, octa(0.042), soul, [0, yS * 0.62, cz - 0.012], undefined, [0.8, 1.5, 0.55], 'crystal'));
+  put(rig.spine, ring(0.045, 0.009, 5, 10), c.mats[M.nail], [0, yS * 0.62, cz - 0.004], undefined, [0.85, 1.4, 1]);
   if (look === 'apprentice') {
     const leather2 = smat('leather', 0x6b4a30, { rough: 0.8, scale: 5 });
     strap(c, -1, leather2, 0.04, 0.03);
@@ -1170,7 +1178,6 @@ function gear(c: Ctx, pal: Pal): void {
     put(hd, ring(H.w * 1.02, 0.014, 6, 20), hb, [0, hy + H.h * 0.42, 0.005], [Math.PI / 2 + 0.1, 0, 0], [1, H.d / H.w * 1.05, 1.6]);
     flap(c, hd, hb, [0.02, hy + H.h * 0.4, H.d * 1.02], 0.03, 0.2, { hang: 0.7, drag: 0.2 });
     // the wrap top goes over one shoulder
-    strap(c, -1, smat('cloth', 0xe0d6c0, { rough: 0.95, scale: 3 }), 0.06, 0.012);
   } else {
     // an open dusty-violet vest over the stone chest, a long teal cloth hanging in front
     flap(c, rig.hips, smat('cloth', 0x4f8a86, { rough: 0.95, double: true, scale: 4 }), [0, 0.03, -B.hipD - 0.04], 0.16, 0.46, { front: true, curve: 0.14, taper: 0.9 });

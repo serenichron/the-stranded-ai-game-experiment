@@ -156,7 +156,7 @@ const PAINTERS: Record<string, Paint> = {
       const { edge, id } = c(u, v);
       const plate = 0.84 + ((id * 7919) % 13) / 13 * 0.16;
       const speck = n(u * 120, v * 120) > 0.82 ? 0.85 : 1;
-      const seam = edge < 0.03 ? 0.45 : edge < 0.055 ? 0.78 : 1; // the plate seams must read from the game camera
+      const seam = edge < 0.018 ? 0.42 : edge < 0.036 ? 0.8 : 1; // the plate seams must read from the game camera
       return plate * speck * seam * (0.94 + 0.06 * n.fbm(u * 8, v * 8));
     });
     // rust bloom: soft orange-brown stains running downwards
