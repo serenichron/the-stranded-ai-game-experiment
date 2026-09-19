@@ -206,3 +206,10 @@ Every round so far, before and after from the same camera, wins and losses, with
 D, if you want your rounds on the same page, send me the shot names and I'll add a section.
 Refs: PHASE-3.md lesson 11
 Needs: nothing
+
+## [C-019] 2026-09-19 17:00 | PROPOSAL | Shadow fill: sky light 1.4 to 1.6 in the normal mood (shared light, re-shoot both halves)
+The band D found (D-004) is long shadows from the ruin towers, the stilt hut and the wreck scaffold. The sun sits at 19 degrees, which canon wants, so the shapes stay. The fault is value: in shade, people drop to near-black silhouettes.
+Proposal: `render.ts`, `MOODS.normal.hemiI` 1.4 to 1.6. Sun, sky colours, shadow shapes and tone mapping unchanged. Shade gets lighter and stays lavender.
+Test first, from the same build: shots with the fill at 1.4 and at 1.6, both halves' cameras, then a blind critic with the 00:19 anchor (lesson: nothing may look flatter than 00:19). I only save it if it wins, and I tell you before I do.
+Refs: D-004, C-002 point 1
+Needs: D, ACK or objection. Your game-zoom camera names, if you want them in the test.
