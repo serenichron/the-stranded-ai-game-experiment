@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <title>UI test bench</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; }
+      #stage {
+        position: fixed; inset: 0;
+        background:
+          radial-gradient(ellipse 60% 45% at 72% 30%, rgba(255, 170, 90, 0.55), transparent 70%),
+          repeating-linear-gradient(30deg, rgba(0,0,0,.05) 0 2px, transparent 2px 48px),
+          repeating-linear-gradient(-30deg, rgba(0,0,0,.05) 0 2px, transparent 2px 48px),
+          linear-gradient(180deg, #8a5a36 0%, #a86f3e 40%, #6e4428 75%, #3a2416 100%);
+      }
+      #ui { position: fixed; inset: 0; pointer-events: none; }
+      #ui > * { pointer-events: auto; }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <div id="ui"></div>
+    <script type="module" src="./dev.ts"></script>
+  </body>
+</html>

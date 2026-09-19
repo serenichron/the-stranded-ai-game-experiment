@@ -1,0 +1,17 @@
+# Phase 2: voices
+
+One paragraph per speaker, as written in `src/story/dialogues.ts`.
+
+**The apprentice.** He wants his master back, or at least her last words. His tic is the self-correction: "I keep records. Or I try to." "Two hundred years ago. Or it was yesterday." He is formal and full-sentenced, and his humour is so dry it could pass for sadness ("Please do not die on my errand. I would have to write it down."). His dodge is to turn a hard question back into the work. Ask what he is thinking and he offers to talk about the ruin. Ask what happens if the plate says something he fears, and he says he will write it down anyway. He never says the word "afraid".
+
+**Hadda.** She wants the scrap her crew paid for, in blood and in Brenn's arm. Her tic is Brenn: every second line leans on him, and she counts every cost out loud ("Nobody says Hadda doesn't pay."). She opens with the trade-tongue "Gud dey" and speaks in short, hot clauses. Her dodge is an order in place of an answer: "Talk. I've got scrap to count." She notices wounds as a nuisance to her crew, not a worry. She reacts to what you did with the plating, even when she does not know it was you.
+
+**Pell.** Pell wants metal, and to be left alone. The tic is putting a price on everything ("Staring costs extra." "Watching is free. For now.") and the phrase "Covered is covered". Pell never greets anyone. The opener is a sales pitch built from your boots or your hands, so it can never be confused with Hadda's "Gud dey". The dodge is to answer with a price or a question, and to talk about Hadda in the third person ("Hadda knows what Hadda wants to know."). Pell keeps a thin pride: pays debts, even to talkers, and hates owing. "They" throughout.
+
+**Mother Tarn.** She wants everyone fed. Her tic is "Eat first", and every subject turns into a bowl sooner or later. She is bossy in a warm way, and she notices bodies: blood, a limp, stone hands that do not eat. For an Iskari she offers the fire in place of the stew. Her dodge is food: ask about Pell's exile and she tells you she packed Pell a bowl. She takes the apprentice a bowl every day, knowing he will not eat it. That makes her after-bark about the untouched stew land at the reveal.
+
+**The digger.** He wants one good find, just one. His tic is counting small things (one bolt a day, a spoon, the best day this month). His dodge is a joke, and Brenn is always the punchline. He reacts to your race and to what you did at the wreck, and never takes any of it seriously. He is the camp's cheapest laugh, and he knows it.
+
+**The Sehari hunter.** She wants the animals back, so she can hunt again. Her tic is stillness and the old Sehari roots: "sael" for the force under the sand, "kin" for crystal. She uses them freely with a Sehari player and not at all with anyone else. With others she is blunt about noise ("You walk loud."). Her dodge is to say less. Her conversations end on "Walk soft." Her hunt line changes once the ded-waka sleeps or dies, because the ground feels different to her.
+
+**The narrator.** Second person, present tense, plain and concrete. It lets a miss be funny when nothing serious is at stake (an offended beetle, a ring you count twice), and it goes straight when something is. It never tells you what to click. It tells you what the world did, and leaves the next try to you. It stays quiet and grave through the archive and the tent, and the level still ends on the stair.
