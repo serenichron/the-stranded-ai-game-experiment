@@ -121,8 +121,26 @@ export function patchOcclusion(mat: THREE.Material) {
           float top = crack2(p.xz * 1.1, 0.06);
           float c = mix(side, top, smoothstep(0.55, 0.85, abs(wn.y)));
           #ifdef WORLD_SURFACE_ROCK
+            // phase 3 (C-009): layered sandstone instead of an even honeycomb (the critic's "turtle shell").
+            // Sides: warped strata bands about 50 cm deep, split by tall vertical joints, each band a
+            // slightly different tone. Tops: a few big broken planes. Line strength stays at the 00:19 0.38.
+            float topK = smoothstep(0.55, 0.85, abs(wn.y));
             float mask = smoothstep(0.35, 0.6, wNoise(p * 0.45 + 4.0));
-            diffuseColor.rgb *= 1.0 - 0.38 * c * mask;
+            float yy = p.y * 1.9 + wNoise(p * 0.5) * 1.3 + wNoise(p * 1.9) * 0.2;
+            float band = fract(yy);
+            float seamL = 1.0 - smoothstep(0.0, 0.06, min(band, 1.0 - band));
+            vec2 sp = abs(wn.x) > abs(wn.z) ? p.zy : p.xy;
+            float joint = crack2(sp * vec2(0.8, 0.28) + 3.0, 0.05);
+            float sideC = max(seamL, joint * 0.8);
+            // tops: two or three long fractures across a boulder, and a few short ones in patches
+            vec2 tq = p.xz + vec2(wNoise(vec3(p.xz * 0.7, 3.0)), wNoise(vec3(p.xz * 0.7, 6.0))) * 0.9;
+            float topC = max(crack2(tq * 0.32, 0.035), crack2(tq * 1.2 + 5.0, 0.05) * 0.8 * smoothstep(0.55, 0.75, wNoise(p * 0.8 + 2.0)));
+            float cc = mix(sideC, topC, topK);
+            diffuseColor.rgb *= 1.0 - 0.38 * cc * max(mask, 0.6);
+            float bt = fract(sin(floor(yy) * 12.9898) * 43758.5453);
+            diffuseColor.rgb *= mix(vec3(1.0), mix(vec3(0.9, 0.9, 0.94), vec3(1.07, 1.02, 0.95), bt), 1.0 - topK);
+            // grit and lichen speckle, the art's rocks all carry it
+            diffuseColor.rgb *= 1.0 - 0.12 * smoothstep(0.72, 0.8, wNoise(p * 7.0));
           #else
             float mask = smoothstep(0.5, 0.72, wNoise(p * 0.3 + 9.0));
             diffuseColor.rgb *= 1.0 - 0.28 * c * mask;
