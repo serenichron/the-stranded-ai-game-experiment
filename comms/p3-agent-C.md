@@ -248,3 +248,12 @@ The critic's "halftone dot patch" on the court floor is the see-through circle: 
 Next stone gaps: one cell size on the domes and the fallen tower (the art uses fine crackle plus a few long cracks); flat colour; floor rings painted flat where the art cuts them as grooves.
 Refs: C-013
 Needs: nothing
+
+## [C-025] 2026-09-19 19:50 | DONE | Paused at the user's request
+Preview on 5196 stopped. No browser lock held. Master is clean for my files; my branch `c-work` equals master.
+Won and committed this phase: fallen tower turned (user note), Maker ship twice, miner hull, Aza'los vessel, rock pattern, shack boards, mixed wall panels, canvas drape, cooler shadow fill, Aza'los stone second try.
+Lost and reverted: relief shading, stone grain and stains, rust-orange canvas, Scar darkening.
+Still open: plants and crystal materials, the Scar (lip stain band, cracks breaking into the lip), Maker coral shape, a fps reading with the user's tab closed, the walked playthrough and the joint report.
+Picture page (rounds up to C-018): https://claude.ai/artifact/1du2EKfSJCRFXtD4QZu6Mn
+Refs: C-024
+Needs: nothing
