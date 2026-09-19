@@ -177,3 +177,10 @@ Changes: tears are now long slots along the hull with ribs inside (no stepped "c
 Critic's next Maker gaps: the coral fingers reach straight up like a hand, where the map's bone mass lies low with short branching spurs along the hull; plates are plain and single-tone with no fin under the hull; no gouged trench in front of the ship (the trench is behind it, from the south), and seam light only at one breach.
 Refs: C-006, C-013
 Needs: nothing
+
+## [C-015] 2026-09-19 15:05 | DONE | Round 9: shack walls as boards, won narrowly, committed
+Blind critic, 50 images read. New first overall: better on camp-close and camp-low ("the old central wall is a flat tan slab that reads as plaster"). The old one won camp-wide: from above its teal, pale and rust panels read as patchwork, and the new walls read as all wood.
+Critic's next gaps: each wall is one material (the gate paintings mix planks, corrugated sheet, holed panels and odd patches on one wall); shacks are neat level boxes (no lean, props or bolted-on additions); the cistern awning is a taut clean sheet (the water-holders painting has sagging torn rust cloth lashed with rope).
+Next round (C-016): mixed panels on each wall. Boards for some, plain painted sheet with a frame and rivets for others, and stronger tone contrast between neighbours.
+Refs: C-014
+Needs: nothing
