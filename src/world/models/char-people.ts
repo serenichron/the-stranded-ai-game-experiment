@@ -98,7 +98,7 @@ function build0(race: Race, body: Body, look: string): Build {
   if (race === 'sehari') {
     // lean, long-limbed; arms reach nearer the knee than a human's (canon)
     return f ? {
-      dims: { thigh: 0.47, shin: 0.46, meta: 0, footH: 0.07, hipW: 0.09, spineLen: 0.47, shoulderW: 0.16, upperArm: 0.43, foreArm: 0.42, neck: 0.17 },
+      dims: { thigh: 0.47, shin: 0.46, meta: 0, footH: 0.07, hipW: 0.09, spineLen: 0.47, shoulderW: 0.16, upperArm: 0.36, foreArm: 0.33, neck: 0.17 },
       chestW: 0.12, chestD: 0.085, waistW: 0.09, waistD: 0.07, hipW: 0.14, hipD: 0.1,
       neckR: 0.034, armR: 0.034, elbowR: 0.025, foreR: 0.028, wristR: 0.019,
       thighR: 0.07, kneeR: 0.042, calfR: 0.043, ankleR: 0.025,
@@ -106,7 +106,7 @@ function build0(race: Race, body: Body, look: string): Build {
       head: { w: 0.068, h: 0.105, d: 0.095, jaw: 0.1, brow: 0.6, cheek: 1.4, chin: 1.2 },
       height: 1.8,
     } : {
-      dims: { thigh: 0.49, shin: 0.48, meta: 0, footH: 0.07, hipW: 0.09, spineLen: 0.51, shoulderW: 0.185, upperArm: 0.45, foreArm: 0.44, neck: 0.18 },
+      dims: { thigh: 0.49, shin: 0.48, meta: 0, footH: 0.07, hipW: 0.09, spineLen: 0.51, shoulderW: 0.185, upperArm: 0.38, foreArm: 0.35, neck: 0.18 },
       chestW: 0.14, chestD: 0.095, waistW: 0.105, waistD: 0.08, hipW: 0.125, hipD: 0.095,
       neckR: 0.042, armR: 0.04, elbowR: 0.029, foreR: 0.033, wristR: 0.022,
       thighR: 0.072, kneeR: 0.046, calfR: 0.048, ankleR: 0.028,
@@ -380,10 +380,15 @@ function dressBody(c: Ctx): Pal {
     // women: an undyed bone wrap over the torso. Men: bare-chested under a wrap over one shoulder
     // (sehari-male-herd-protector.png). Both: baggy trousers gathered at the ankle, a teal sash.
     if (f) top(0.02, -0.05);
-    else c.key.push('bareM');
+    else c.key.push('bareM2');
+    {
+      const nb = norm([f ? -0.8 : 0.8, -0.6, 0]);
+      const c0 = dot3([0, yS * 0.55, 0], nb), w = f ? 0.045 : 0.06;
+      layer(c, ['chest', 'belly', 'yoke'], f ? 0.034 : 0.02, M.trim, [{ n: nb, o: c0 + w }, { n: [-nb[0], -nb[1], -nb[2]], o: -(c0 - w) }], 0.012);
+    }
     trousers(0.02, 0.84, 0.03);
-    band(0.07, 0.05, 0.03, M.sash);
-    return { top: 0xd9ccb2, bottom: 0xd4c6aa, sash: 0x4f8a86 };
+    band(0.08, 0.075, 0.04, M.sash);
+    return { top: 0xd9ccb2, bottom: 0xd4c6aa, sash: 0x4f8a86, trim: f ? 0x9d8a66 : 0xd9ccb2 };
   }
 
   // Iskari
@@ -538,6 +543,11 @@ function sculptHead(c: Ctx): { geoKey: string; prims: Prim[]; eyes: V3[]; eyeR: 
     for (const s of S) cp([s * w * 0.72, hy + h * 0.15, -d * 0.62], [s * w * 0.8, hy - h * 0.35, -d * 0.4], 0.0025, 0.0025, M.skin, 0.004, true);
   }
   // hair
+  const hairFace = (a: V3, s: V3, hairline: number) => {
+    // keep everything except the face below the hairline: the plane leans forward, so the back and nape stay
+    const n = norm([0, -0.55, -1]);
+    return add({ kind: 'ell', a, s, bone: -1, mat: M.hair, k: 0.012, clip: [{ n, o: dot3([0, hy + h * hairline, -d * 0.55], n) }] });
+  };
   const hair = (a: V3, s: V3, hairline: number, back = 0) => add({
     kind: 'ell', a, s, bone: -1, mat: M.hair, k: 0.012,
     // keep the hair above a hairline that dips from the forehead down to the nape
@@ -558,7 +568,7 @@ function sculptHead(c: Ctx): { geoKey: string; prims: Prim[]; eyes: V3[]; eyeR: 
       hair([0, hy + h * 0.12, 0.014], [w * 1.07, h * 0.96, d * 1.08], 0.55);
     }
   } else if (sehari) {
-    hair([0, hy + h * 0.1, 0.012], [w * 1.04, h * 0.97, d * 1.06], 0.8, 0.35);
+    hairFace([0, hy + h * 0.1, d * 0.3], [w * 1.08, h * 0.98, d * 1.14], 0.5);
     if (f) e([0, hy + h * 0.95, d * 0.4], [0.05, 0.045, 0.05], M.hair, 0.03); // topknot
   }
   const key = `head:${race}:${c.body}:${look}`;
@@ -677,7 +687,7 @@ function materials(c: Ctx, pal: Pal): THREE.Material[] {
     lip = smat('skin', shade(hex, 0, 0, -0.08), { rough: 0.6, scale: 6 });
   } else if (race === 'sehari') {
     // cool grey-lavender, cracked like dried clay; dark root markings on one arm and leg (canon)
-    const hex = shade(0xa89eb8, 0, 0, look === 'player' ? 0 : (r() - 0.5) * 0.05);
+    const hex = shade(0xa6a2b4, 0, 0, look === 'player' ? 0 : (r() - 0.5) * 0.05);
     skin = smat('sehari', hex, { rough: 0.85, scale: 5 });
     marked = smat('sehariRoots', hex, { rough: 0.85, scale: 3 });
     hair = smat('hair', 0x221c22, { rough: 0.95, scale: 10 });
@@ -1083,15 +1093,15 @@ function gear(c: Ctx, pal: Pal): void {
     // the front panel with its rust root motif, the sash ends
     flap(c, rig.hips, smat('sehariMotif', 0xffffff, { rough: 0.95, double: true, scale: 1 }), [0.03, 0.03, -B.hipD - 0.035], 0.24, f ? 0.56 : 0.48, { front: true, curve: 0.18, taper: 1.15, yaw: 0.15 });
     const sash = smat('cloth', pal.sash ?? 0x4f8a86, { rough: 0.95, double: true, scale: 4 });
-    flap(c, rig.hips, sash, [0.1, 0.05, -B.hipD * 0.9], 0.055, 0.4, { hang: 0.9, drag: 0.2, yaw: 0.35 });
+    put(rig.hips, ball(0.04, 8, 6), sash, [B.hipW * 0.7, 0.07, -B.hipD * 0.95], undefined, [1.2, 1, 0.7]);
+    flap(c, rig.hips, sash, [B.hipW * 0.62, 0.05, -B.hipD * 1.0], 0.08, 0.55, { hang: 0.9, drag: 0.2, yaw: 0.3, taper: 0.8 });
+    flap(c, rig.hips, sash, [B.hipW * 0.82, 0.05, -B.hipD * 0.9], 0.07, 0.42, { hang: 0.9, drag: 0.2, yaw: 0.5, taper: 0.8 });
     for (const s of S) put(s < 0 ? rig.lShin : rig.rShin, cyl(B.ankleR + 0.035, B.ankleR + 0.03, 0.05, 10), fibre, [0, -d.shin * 0.86, 0]);
     if (look === 'hunter') {
       const vest = smat('cloth', 0x5d6b5b, { rough: 0.95, double: true, scale: 3 });
       for (const s of S) flap(c, rig.spine, vest, [s * 0.075, yS - 0.02, -B.chestD - 0.03], 0.08, 0.44, { hang: 0.4, curve: 0.1 });
       bow(rig.spine, [0.02, yS * 0.55, B.chestD + 0.05]);
     }
-    if (!f) strap(c, 1, smat('cloth', 0xd9ccb2, { rough: 0.95, scale: 3 }), 0.11, 0.01);
-    else strap(c, -1, smat('cloth', 0x9d8a66, { rough: 0.95, scale: 3 }), 0.1, 0.03); // a darker fibre wrap, so her top reads as cloth
 
     return;
   }

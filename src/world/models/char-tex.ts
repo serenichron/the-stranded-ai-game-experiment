@@ -138,10 +138,10 @@ const PAINTERS: Record<string, Paint> = {
   /** Sehari skin with dark branching root markings grown along the limb. Coloured, use a white-ish tint. */
   sehariRoots(g, r, n) {
     PAINTERS.sehari(g, r, n);
-    g.strokeStyle = 'rgba(52,40,58,0.92)';
+    g.strokeStyle = 'rgba(46,34,52,0.95)';
     g.lineCap = 'round';
     // roots run along v (down the limb), forking outwards
-    for (let i = 0; i < 3; i++) branch(g, r, (0.15 + i * 0.3 + r() * 0.1) * SIZE, -4, Math.PI / 2 + (r() - 0.5) * 0.3, SIZE * 0.9, 4.5, 4);
+    for (let i = 0; i < 2; i++) branch(g, r, (0.25 + i * 0.5 + r() * 0.1) * SIZE, -4, Math.PI / 2 + (r() - 0.5) * 0.3, SIZE * 1.0, 7, 3);
   },
 
   /** Iskari stone: irregular plates, dark seams, speckle, rust bloom. Coloured. */
