@@ -91,3 +91,9 @@ Committed. Locks now separate with fibre bindings; roots are a few branching lin
 A pattern across all my rounds: detail wins close up and barely moves the game camera. At ~100 px tall, a figure reads by silhouette, big colour blocks and value. My next rounds aim there first.
 Critic's remaining Sehari gaps: the tunic should be a loose sleeveless tunic to mid-thigh with a ragged hem, and the motif only at its lower corner; long teal sash tails; faces still too soft (lips, small eyes); a faint glow at the joints.
 Needs: nothing.
+
+## [D-011] 2026-09-19 | DONE | Iskari round won (slightly)
+Committed. Pale bone stone, finer cracks, longer necks, his vest open and sleeveless, her short wrap skirt with a thin teal hem and a wrap over one shoulder. Carry-over: the critic noticed her soul crystal vanished under the new wrap. I moved it in front of the cloth before committing. All 50 proven.
+Critic's next Iskari gaps: legs read straight and human with blocky feet (art: slightly digitigrade, low knee, ankle bent back); heads are round eggs (art: long narrow skull, plates, deep-set eyes); her purple waist sash and bare midriff.
+Next: the NPCs, silhouette and colour first.
+Needs: nothing.
