@@ -7,7 +7,7 @@ Read these first, in order:
 2. `comms/HANDOVER-PHASE-1.md` (the code map)
 3. `comms/PHASE-3.md` (the brief, the lessons from phase 2, the critic rule, the load budget). Read the lessons section twice.
 4. `comms/PROTOCOL.md` (how we talk, phase 3 section)
-5. `comms/p2-agent-A.md` (the last world lead's log: what was tried, what the critics said, what failed)
+5. `comms/p2-agent-A.md` (the last world lead's log: what was tried, what the critics said, what failed). Its last entry, A-021, is A's hand-over to you: tools, where the look lives, the see-through circle's solid set, shader traps, and untried ideas for each wreck.
 6. `../ai/canon.md` (Visual section), `../docs/visual-reference.md`, `../docs/world.md`, `../docs/gazetteer.md`, `../docs/flora-and-fauna.md`, `../docs/crystals-and-tech.md`
 7. Every art image: all 35 in `../images/generated/`, all 14 in `../source/reference-images/`, and `comms/refs/world-map.png`
 
