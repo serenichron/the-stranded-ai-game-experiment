@@ -18,6 +18,7 @@ export const atmos = {
   uRimCol: { value: new THREE.Color() },
   uRimK: { value: 0.5 },
   uMottle: { value: 1 },                    // world-space colour variation, 0 = off
+  uBrush: { value: 1 },                     // brush strokes and warm-top bias in the albedo (diagnostic switch)
   uSurface: { value: 1 },                   // cracks on ground, stone and rock, 0 = off (Low quality)
 };
 

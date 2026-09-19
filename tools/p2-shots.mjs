@@ -32,6 +32,9 @@ export const SHOTS = {
   'ruin-nopaint': { at: [42, 19], zoom: 1.4, yaw: 0, setup: '__world.r.setPaint(0)' },
   'ruin-paint':  { at: [42, 19], zoom: 1.4, yaw: 0, setup: '__world.r.setPaint(0.75)' },
   'camp-nopaint': { at: [12, 43], zoom: 2.1, yaw: 0, setup: '__world.r.setPaint(0)' },
+  'camp-plain': { at: [12, 43], zoom: 2.1, yaw: 0, setup: '__world.r.setPaint(0); __world.atmos.uBrush.value = 0; __world.atmos.uSurface.value = 0' },
+  'ruin-plain': { at: [42, 19], zoom: 1.4, yaw: 0, setup: '__world.r.setPaint(0); __world.atmos.uBrush.value = 0; __world.atmos.uSurface.value = 0' },
+  'ruin-now':   { at: [42, 19], zoom: 1.4, yaw: 0, setup: '__world.r.setPaint(0.75); __world.atmos.uBrush.value = 1; __world.atmos.uSurface.value = 1' },
   'occ-hidden':  { at: [19, 37], zoom: 1.4, yaw: 0 },
   'niche':       { at: [48, 15], zoom: 1.5, yaw: 0, setup: "if (!__world.get('niche1')) __world.spawn('prop-niche', { x: 51, y: 14 }, { id: 'niche1', facing: 6 })" },
   // the activation code mid-run: the pulse leaves the court's west side for the niche

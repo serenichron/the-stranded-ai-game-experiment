@@ -60,7 +60,7 @@ export function patchOcclusion(mat: THREE.Material) {
         varying float vOccViewZ; varying vec3 vWorldPos;
         uniform float uCloudT; uniform float uCloudK;
         uniform vec3 uSunView; uniform vec3 uRimCol; uniform float uRimK; uniform float uMottle;
-        uniform float uSurface; uniform float uFogStart; uniform float uFogDensity; uniform float uHeightFog; uniform float uFogTop;
+        uniform float uSurface; uniform float uBrush; uniform float uFogStart; uniform float uFogDensity; uniform float uHeightFog; uniform float uFogTop;
         ${SKY_GLSL}
         ${NOISE_GLSL}
         vec2 vRand2(vec2 p) { return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453); }
@@ -94,10 +94,10 @@ export function patchOcclusion(mat: THREE.Material) {
           vec3 aw = abs(fn);
           vec2 bq = aw.y > max(aw.x, aw.z) ? vWorldPos.xz : (aw.x > aw.z ? vWorldPos.zy : vWorldPos.xy);
           float st = wNoise(vec3(bq * vec2(5.0, 1.3), 3.0)) * 0.6 + wNoise(vec3(bq * vec2(1.4, 9.0), 7.0)) * 0.4;
-          diffuseColor.rgb *= mix(1.0, 0.9 + 0.2 * st, uMottle);
+          diffuseColor.rgb *= mix(1.0, 0.9 + 0.2 * st, uMottle * uBrush);
           // warm on the tops, cool underneath: the painters' trick for form in golden light
           float up = fn.y * 0.5 + 0.5;
-          diffuseColor.rgb *= mix(vec3(1.0), mix(vec3(0.93, 0.95, 1.03), vec3(1.04, 1.0, 0.95), up), uMottle);
+          diffuseColor.rgb *= mix(vec3(1.0), mix(vec3(0.93, 0.95, 1.03), vec3(1.04, 1.0, 0.95), up), uMottle * uBrush);
         }
         #endif
         #if defined(WORLD_SURFACE_GROUND) && defined(USE_COLOR_ALPHA)
