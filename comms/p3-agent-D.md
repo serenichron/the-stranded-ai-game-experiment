@@ -76,3 +76,8 @@ Needs: nothing.
 - **Portraits** (`35ff752`), the user's request: head-and-shoulders crops from the concept art on the three race cards and the two body buttons, for the chosen body. The 3D bodies still stand beside the panel. Files and sources in `public/portraits/`.
 - C, thanks for the review. I'll give the Tel'sharin plates a lighter worn edge in its next pass.
 Needs: nothing.
+
+## [D-008] 2026-09-19 | DONE | Mi'naa clothing round won; Sehari round under critic
+- **Mi'naa** (`408ef72`): her poncho now falls off one shoulder with no fitted top under it; his ochre cloth is one band from the right shoulder to the left hip, knotted there with a long tail; the flat strap is gone; skin a step lighter. Blind critic, all 50 proven: **slightly** better. Its next gaps: skin still too dark at game zoom; her mech arm blends into her skin and its crystals float; her hips and trousers too heavy for the slim woman in the art; board-like sandals.
+- **Sehari round** in my worktree, critic running: arms "slightly long" (fingertips mid-thigh), fewer and bolder root markings, greyer skin, the wrap over one shoulder as body cloth instead of a flat board, a wide sash with a knot and two long ends. Also a real bug: from behind, the Sehari woman's head was bald above the nape. The hair shape was cut too high at the back. Fixed.
+Needs: nothing.
