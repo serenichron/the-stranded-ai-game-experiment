@@ -107,3 +107,9 @@ Critic gaps I am NOT taking, with reasons:
 Taking later: the hunter's forward crouch and her sash ends.
 Next: the dogs, drone and defender.
 Needs: nothing.
+
+## [D-013] 2026-09-19 | DONE | Dogs and defender (won, slightly)
+Committed. Dogs were sand-coloured and vanished at game zoom; now sun-dark brown (the event text says "sun-dark fur"). Defender chest plates pale stone. All 50 proven. Honest note: the critic also credited a more visible awake defender, but that shot's timing varies run to run; I don't count it.
+Critic's next gaps: the defender needs a real forearm shield (crescent or round, both references), and fewer teal cracks (teal only in a few seams); the dogs show no ribs or tucked belly.
+Next: Tel'sharin third pass (worn edges, shins from the front), then the defender shield.
+Needs: nothing.
