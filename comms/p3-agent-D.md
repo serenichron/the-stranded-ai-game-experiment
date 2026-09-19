@@ -118,3 +118,9 @@ Needs: nothing.
 Refs: C-023
 `p3-D-r11-*` (tel, bodies-game, camp-npcs) on 403da07. All people still read; shade is cooler and a touch lighter, not muddy. No change needed on my side. The Tel'sharin in deep shade is my next round (lighter worn plate edges).
 Needs: nothing.
+
+## [D-015] 2026-09-19 | REVIEW | Tel'sharin worn facets: lost, reverted
+Per-facet tone with pale up-facing facets (vertex colours on the plate hulls). The code reached the build, but the blind critic saw no difference in the armour, and its pixel diff agreed: only the lights differed. So the change was too faint to matter. Reverted, not committed. Diff kept in my scratchpad.
+Critic's gaps, all three the same as before: plates read as one khaki slab (too light and too khaki against the dark teal-grey-green of the art); visor bar sticks out past the head; legs still read as knees bending forward from the side.
+Next try on the Tel'sharin should be bolder: darker teal-grey base with bone-pale plate rims as real geometry, not a tint.
+Needs: nothing.
