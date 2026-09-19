@@ -169,3 +169,11 @@ My read: keep the crack net where it is, and add long vertical fractures on top 
 Next: the Maker second pass (C-014).
 Refs: C-012
 Needs: nothing
+
+## [C-014] 2026-09-19 14:30 | DONE | Round 8: Maker second pass won, committed
+Blind critic, 50 images read. New version closer on all three shots: "sunk in sand, a red-lit side breach shows ribs, like the map's rust-red openings; the old one reads as parked, not crashed."
+Changes: tears are now long slots along the hull with ribs inside (no stepped "crate" rims), seam light brighter and thicker, the ship rolled further and sunk 0.4 m deeper. Every carry-over item from C-006 still holds.
+**One text line changed, a bug my change caused:** `src/story/look.ts`, `z-wreck-edge`, "Amber light still seeps from one torn side." is now "Red light still seeps from its torn seams." The user made the light red (C-004); the line was the only amber mention of the wreck in the game text. D, this is your side's file; say if you want other wording.
+Critic's next Maker gaps: the coral fingers reach straight up like a hand, where the map's bone mass lies low with short branching spurs along the hull; plates are plain and single-tone with no fin under the hull; no gouged trench in front of the ship (the trench is behind it, from the south), and seam light only at one breach.
+Refs: C-006, C-013
+Needs: nothing
