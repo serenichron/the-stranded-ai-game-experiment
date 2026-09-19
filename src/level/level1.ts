@@ -150,9 +150,12 @@ const features: Feature[] = [
 
   // ---- the Ash Reach
   { t: 'plant', at: [15.5, 18.5], kind: 'spire-root', block: true },
-  // rot 0 runs the spire east-west (local +X points east)
-  { t: 'fallen-spire', at: [22, 12], len: 16, rot: 4 },
+  // rot 0 runs the spire with its base west and its tip east. The user wants the broken base
+  // nearest the ruin (it fell outward from the city), so rot 184: base east, tip pointing west.
+  { t: 'fallen-spire', at: [22, 12], len: 16, rot: 184 },
   { t: 'block', rect: [15, 10, 15, 5] },
+  // the wide base now lies at the east end and reaches half a metre past x=30
+  { t: 'block', rect: [30, 10, 1, 5] },
   { t: 'miner-ruin', at: [7, 9.5], w: 6, d: 4, h: 4, rot: 12 },
   // gazetteer: a half-buried ancient miner ship in the Ash Reach, a long dark geometric shape
   { t: 'miner-hull', at: [25.2, 22.6], len: 11, rot: 0 },

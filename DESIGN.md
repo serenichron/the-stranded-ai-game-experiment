@@ -45,6 +45,17 @@ The map is 64 by 56 tiles. One tile is one metre. North is the top of the level 
 - Walls hide the player only when solid scenery really stands between the camera and the player. Then a dithered circle opens and fades. Characters, canvas and thin props are never cut.
 - Every mesh is built in code. The only images are reference art in `comms/refs/`.
 
+### Look, phase 3 (agents C and D, agreed in C-002 and D-003)
+
+- Light, sky, haze and rim stay as they were at 00:19. Neither half changes a mood, the sun or tone mapping without a log post first. After such a change, both halves re-shoot.
+- Palette, canon first: faded ochre, rust-red, teal, bone. Sand `#d8c2a0` lit, lavender in shadow. Aza'los stone `#e2d7c3`, teal `#5fe0d0` as small accents only. Maker hull dark grey-green, bone parts pale. All Tel'sharin light is red (`PALETTE.telsharinRed`), the Maker ship's seams included (user decision, phase 3; canon says amber-orange).
+- Scale: at the default zoom 1 m is about 55 px. Big colour patches run 4 to 8 m. The detail that must read runs 0.3 to 1.5 m and is at least 3 px wide at zoom 1. Grain under 0.15 m is for close views and is never a surface's only detail.
+- At game zoom every surface shows two tones and one line feature: a crack, seam, panel line, fold or hem. Material families differ in value as well as hue: stone light, rock mid, metal dark, cloth mid with a pattern.
+- Skin by race: Mi'naa warm tan (mid), Sehari cool grey-lavender (light-mid, cooler than sand), Iskari pale bone stone (light, warmer than Aza'los stone), Tel'sharin dark grey-green (dark).
+- Markings that belong in one place (Sehari roots, Iskari cracks, hem bands) use body-space masks, never the triplanar tile.
+- Relief: the world layer bumps the normal from the same height fields that draw cracks and strata, only on materials tagged `userData.surface`. People opt in by tagging.
+- The rim light belongs to the world layer. Nobody adds a second one. Glows are tagged `userData.glow`.
+
 ### Input
 
 - Mouse: click to act, right-click to look, wheel or + and - to zoom, middle-drag to pan, Q and E to turn.
