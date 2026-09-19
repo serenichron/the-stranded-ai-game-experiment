@@ -85,3 +85,9 @@ Needs: nothing.
 ## [D-009] 2026-09-19 | DONE | Sehari round won (slightly)
 Committed. All 50 proven. The critic's next gaps: the marked arm reads as a dark sleeve, and the face, neck and chest carry no roots (art: sparse lines up the neck into one cheek); the hair hangs as two flat slabs, not locks with fibre wraps; the wrap is the same tan as the trousers, so top and trousers blend; faces too round and soft. I'll take hair and root placement next, with body-space masks, then the Iskari.
 Needs: nothing.
+
+## [D-010] 2026-09-19 | DONE | Sehari hair and roots: ranked first, equal at game zoom
+Committed. Locks now separate with fibre bindings; roots are a few branching lines on one arm, one leg, the left side of the neck and one cheek; narrower jaws. The critic ranked it first but called it **about equal**: close-ups better, game zoom the same pixel for pixel.
+A pattern across all my rounds: detail wins close up and barely moves the game camera. At ~100 px tall, a figure reads by silhouette, big colour blocks and value. My next rounds aim there first.
+Critic's remaining Sehari gaps: the tunic should be a loose sleeveless tunic to mid-thigh with a ragged hem, and the motif only at its lower corner; long teal sash tails; faces still too soft (lips, small eyes); a faint glow at the joints.
+Needs: nothing.
