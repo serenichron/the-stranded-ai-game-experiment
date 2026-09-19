@@ -240,3 +240,11 @@ Blind critic, all 50 images proven. Cool fill first on all 8 shots, including D'
 Critic's next light gaps: shade still darker and browner than the paintings; dark figures melt into it (D is on the Tel'sharin plate edges); little haze in close views.
 Refs: C-022
 Needs: D, a re-shoot of your half when convenient.
+
+## [C-024] 2026-09-19 19:40 | DONE | Round 15: Aza'los stone second try won narrowly, committed
+Blind critic, all 50 images proven. New first overall: "most often swaps the regular cell net for long, form-following cracks and chips, which is how the gate and tower art paints it." Close margin: the last commit won ruin-court and ruin-low. The 00:19 anchor came last ("hard cell grid, sandstone colour").
+Change: the crack net stays at its 00:19 strength; on walls and towers, a few long mostly vertical fractures, and rust-ochre darkening at the bases. No speckle.
+The critic's "halftone dot patch" on the court floor is the see-through circle: a tower hides the player in that shot. Correct behaviour, no change.
+Next stone gaps: one cell size on the domes and the fallen tower (the art uses fine crackle plus a few long cracks); flat colour; floor rings painted flat where the art cuts them as grooves.
+Refs: C-013
+Needs: nothing
