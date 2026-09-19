@@ -644,23 +644,43 @@ export function minaaShack(w: number, d: number, seed = 1): THREE.Object3D {
         xf(cg, mid.x + wl.n.x * 0.03, top / 2, mid.z + wl.n.z * 0.03, 0, Math.atan2(wl.n.x, wl.n.z), 0);
         kit.add(cg, matte2());
       } else {
-        // phase 3 (C-015): boards, not one flat slab. A dark backing shows in the gaps between them;
-        // each board has its own tone and length, darker and dustier at the foot.
-        const back = box(pw + 0.04, top, 0.02, 0, 0, 0, 0, 0, 0);
-        xf(back, mid.x - wl.n.x * 0.02, top / 2, mid.z - wl.n.z * 0.02, 0, ang, 0);
-        kit.add(paint(back, 0x2e2620, { seed, vary: 0.05, ao: 0 }), matte());
-        const nb = Math.max(2, Math.round(pw / rr(r, 0.2, 0.28)));
-        const bw = (pw + 0.04) / nb;
-        const lean = rr(r, -0.03, 0.03);
-        for (let k = 0; k < nb; k++) {
-          const bh = top - rr(r, 0, 0.14) * (r() < 0.4 ? 1 : 0);
-          const off = (k + 0.5) * bw - (pw + 0.04) / 2;
-          const g = box(bw - 0.025, bh, 0.045, 0, 0, 0, lean + rr(r, -0.01, 0.01), 0, rr(r, -0.012, 0.012));
-          xf(g, mid.x + dir.x * off + wl.n.x * rr(r, 0.005, 0.02), bh / 2, mid.z + dir.z * off + wl.n.z * rr(r, 0.005, 0.02), 0, ang, 0);
-          const bc = new THREE.Color(col).multiplyScalar(rr(r, 0.82, 1.12)).getHex();
-          kit.add(paint(g, bc, { seed: seed + Math.floor(u * 10) + k, vary: 0.1, ao: 0.55, aoHeight: 0.7, dust: PALETTE.sand }), matte());
+        // phase 3 (C-016): each wall mixes materials, like the hub-town gate paintings. Some panels are
+        // painted salvage sheet (the old coloured slabs, now framed by battens with a row of rivets),
+        // the rest are boards over a dark backing (C-015).
+        if (r() < 0.5) {
+          const g = box(pw + 0.04, top, 0.04, 0, 0, 0, rr(r, -0.03, 0.03), 0, rr(r, -0.025, 0.025));
+          xf(g, mid.x + wl.n.x * rr(r, 0, 0.02), top / 2, mid.z + wl.n.z * rr(r, 0, 0.02), 0, ang, 0);
+          kit.add(paint(g, col, { seed: seed + Math.floor(u * 10), vary: 0.16, ao: 0.5, aoHeight: 0.8, dust: PALETTE.sand, stain: PALETTE.rust, stainAmount: 0.35 }), matte());
+          const off = wl.n.clone().multiplyScalar(0.04);
+          for (const [ox, oy, bw2, bh2] of [[0, top - 0.05, pw + 0.04, 0.07], [0, 0.12, pw + 0.04, 0.07], [-(pw + 0.04) / 2 + 0.035, top / 2, 0.07, top], [(pw + 0.04) / 2 - 0.035, top / 2, 0.07, top]] as const) {
+            const bg = box(bw2, bh2, 0.03, 0, 0, 0, 0, 0, 0);
+            xf(bg, mid.x + dir.x * ox + off.x, oy, mid.z + dir.z * ox + off.z, 0, ang, 0);
+            kit.add(paint(bg, WOOD, { seed: seed + 7, vary: 0.15, ao: 0 }), matte());
+          }
+          for (let k = 0; k < Math.round(pw / 0.18); k++) {
+            const rx = -(pw + 0.04) / 2 + 0.1 + k * 0.18;
+            if (rx > (pw + 0.04) / 2 - 0.08) break;
+            kit.add(paint(xf(new THREE.SphereGeometry(0.018, 4, 3), mid.x + dir.x * rx + off.x * 1.2, top - 0.05, mid.z + dir.z * rx + off.z * 1.2), 0x3a342c, { seed, ao: 0 }), metal());
+          }
+        } else {
+          // phase 3 (C-015): boards, not one flat slab. A dark backing shows in the gaps between them;
+          // each board has its own tone and length, darker and dustier at the foot.
+          const back = box(pw + 0.04, top, 0.02, 0, 0, 0, 0, 0, 0);
+          xf(back, mid.x - wl.n.x * 0.02, top / 2, mid.z - wl.n.z * 0.02, 0, ang, 0);
+          kit.add(paint(back, 0x2e2620, { seed, vary: 0.05, ao: 0 }), matte());
+          const nb = Math.max(2, Math.round(pw / rr(r, 0.2, 0.28)));
+          const bw = (pw + 0.04) / nb;
+          const lean = rr(r, -0.03, 0.03);
+          for (let k = 0; k < nb; k++) {
+            const bh = top - rr(r, 0, 0.14) * (r() < 0.4 ? 1 : 0);
+            const off = (k + 0.5) * bw - (pw + 0.04) / 2;
+            const g = box(bw - 0.025, bh, 0.045, 0, 0, 0, lean + rr(r, -0.01, 0.01), 0, rr(r, -0.012, 0.012));
+            xf(g, mid.x + dir.x * off + wl.n.x * rr(r, 0.005, 0.02), bh / 2, mid.z + dir.z * off + wl.n.z * rr(r, 0.005, 0.02), 0, ang, 0);
+            const bc = new THREE.Color(pick(r, [WOOD, 0x8a6a44, 0x7a5a3e, 0x9a7a4e])).multiplyScalar(rr(r, 0.82, 1.12)).getHex();
+            kit.add(paint(g, bc, { seed: seed + Math.floor(u * 10) + k, vary: 0.1, ao: 0.55, aoHeight: 0.7, dust: PALETTE.sand }), matte());
+          }
         }
-      }
+          }
       if (r() < 0.3) {
         // a patch nailed over the panel
         const ps = rr(r, 0.3, 0.5), py = rr(r, 0.5, top - 0.4);
