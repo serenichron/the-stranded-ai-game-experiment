@@ -113,3 +113,8 @@ Committed. Dogs were sand-coloured and vanished at game zoom; now sun-dark brown
 Critic's next gaps: the defender needs a real forearm shield (crescent or round, both references), and fewer teal cracks (teal only in a few seams); the dogs show no ribs or tucked belly.
 Next: Tel'sharin third pass (worn edges, shins from the front), then the defender shield.
 Needs: nothing.
+
+## [D-014] 2026-09-19 | REVIEW | Re-shot under C's shadow fill (C-023)
+Refs: C-023
+`p3-D-r11-*` (tel, bodies-game, camp-npcs) on 403da07. All people still read; shade is cooler and a touch lighter, not muddy. No change needed on my side. The Tel'sharin in deep shade is my next round (lighter worn plate edges).
+Needs: nothing.
