@@ -9,7 +9,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { PALETTE } from './types';
 import {
   Kit, makeRng, rr, ri, lerp, clamp01, smooth, noise3, snoise3, displace, paintFn, sweep, lathe, loft,
-  matte, matte2, matteBack, metal, glow, withCrease, type Rng,
+  matte, matte2, matteBack, metal, glow, makeCrystal, withCrease, type Rng,
 } from './scn-kit';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -689,59 +689,145 @@ export function minerHull(length: number, seed = 1): THREE.Object3D {
 // ================================================================ Aza'los
 
 /**
- * An Aza'los star-vessel, grown not built: a long smooth seed-shaped shell of pale pearl stone,
- * crystal ridges along its flanks, two folded fin-wings, no engines and no weapons. Half sunk in
- * the sand. A crack runs down its side and teal light leaks from it, faint, centuries later.
+ * An Aza'los star-vessel, grown not built (phase 3 rebuild, C-010). Canon: smooth, flowing,
+ * crystalline, no engines or weapons, half-buried, teal seeping from cracks. The fallen-orbital title
+ * art (an Aza'los vessel, per the reference README) lies broken in two with teal crystal bursting
+ * from the break. So: a long pale hull with raised grown ribs that twist along it and meet at an
+ * upturned prow; the hull snapped two thirds back, the rear half rolled and pulled away; a cluster of
+ * teal crystal inside the break; the prow dug into the end of its furrow.
+ * Lies along +X, prow at -X. Origin on the ground at its middle.
  */
 export function azalosVessel(length: number, seed = 1): THREE.Object3D {
   const r = makeRng(seed);
   const kit = new Kit();
-  const L = Math.max(5, length), R = L * 0.16;
-  const pearl = new THREE.Color(0xdcd4c4), shade = new THREE.Color(0xa8b0a8), sand = new THREE.Color(PALETTE.sand);
-  const pts: THREE.Vector3[] = [];
-  for (let i = 0; i <= 8; i++) { const u = i / 8; pts.push(V((u - 0.5) * L, R * (0.1 + 0.35 * Math.sin(u * Math.PI)) - R * 0.25 * u, 0.05 * L * Math.sin(u * Math.PI * 2))); }
-  const crackA = rr(r, 0.1, 0.5);
+  const L = Math.max(6, length), R = L * 0.13;
+  const pearl = new THREE.Color(0xe0d8c6), shade = new THREE.Color(0xb4b2a4), groove = new THREE.Color(0x8e8a7c);
+  const rust = new THREE.Color(0xb07a52), sandC = new THREE.Color(0xd3b286);
+  const shellM = crystalShellMat();
+  // the centre line: the prow dips into the sand, the body rises a little, the tail sweeps up
+  const C = (t: number) => V((t - 0.5) * L, R * (0.25 + 0.3 * Math.sin(Math.PI * t)) - R * 0.5 * Math.pow(1 - smooth(0, 0.22, t), 2) + R * 0.25 * smooth(0.8, 1, t), 0.04 * L * Math.sin(t * Math.PI * 1.6));
+  const T0 = V(), Nn = V(), Bn = V();
+  const frame = (t: number) => {
+    const a = C(Math.max(0, t - 0.005)), b = C(Math.min(1, t + 0.005));
+    T0.subVectors(b, a).normalize(); Nn.crossVectors(T0, UP).normalize(); Bn.crossVectors(Nn, T0).normalize();
+  };
+  // body: a pointed prow (the ribs meet there), full at a third, tapering to a rounded tail
+  const body = (t: number) => Math.pow(smooth(0, 0.3, t), 0.8) * (1 - 0.55 * smooth(0.55, 1, t)) + 0.02;
+  // grown ribs: narrow raised ridges that twist slowly along the hull; 7 of them, uneven
+  const NR = 7;
+  const rib = (t: number, a: number) => {
+    const ph = a * NR + t * 4.2 + Math.sin(t * 7) * 0.4;
+    return Math.pow(Math.abs(Math.cos(ph / 2)), 8) * (0.8 + 0.4 * Math.sin(a * 3 + 1.3));
+  };
   const rad = (t: number, a: number) => {
-    const body = Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.05)), 0.55) * (1 - 0.25 * t);
-    const flute = 1 + 0.05 * Math.cos(a * 6 + t * 3);                      // shallow grown flutes
-    const flat = 1 - 0.18 * Math.max(0, -Math.sin(a));
-    return R * Math.max(0.02, body) * flute * flat;
+    const low = Math.sin(a) < 0 ? 0.62 : 1;                            // flatter underside
+    return R * body(t) * (1 + 0.17 * rib(t, a)) * low;
   };
-  const shell = sweep(pts, { segments: 44, radial: 20, radius: rad, up: UP, capStart: false });
-  displace(shell, R * 0.02, 1.5 / R, seed);
-  paintFn(shell, (x, y, z, out) => {
-    out.copy(pearl).lerp(shade, smooth(0.45, 0.8, noise3(x * 0.4, y * 0.4, z * 0.4, seed)) * 0.4);
-    out.multiplyScalar(0.8 + 0.25 * smooth(-R, R, y) + 0.05 * snoise3(x * 2, y * 2, z * 2, seed));
-    out.lerp(sand, (1 - smooth(-0.3, 0.6, y)) * 0.6);
-  });
-  kit.add(shell, crystalShellMat());
-  // crystal ridges: slim faceted keels flowing along the upper flanks
-  const curve = new THREE.CatmullRomCurve3(pts);
-  const frame = (t: number, a: number, k = 1) => {
-    const P = curve.getPointAt(t), T = curve.getTangentAt(t);
-    const N = new THREE.Vector3().crossVectors(T, UP).normalize(), B = new THREE.Vector3().crossVectors(N, T).normalize();
-    return P.addScaledVector(N, Math.cos(a) * rad(t, a) * k).addScaledVector(B, Math.sin(a) * rad(t, a) * k);
+  const P = (t: number, a: number, k = 1) => {
+    frame(t);
+    const rr0 = rad(t, a) * k;
+    return C(t).addScaledVector(Nn, Math.cos(a) * rr0).addScaledVector(Bn, Math.sin(a) * rr0 * 0.85);
   };
-  for (const a of [Math.PI / 2 - 0.55, Math.PI / 2 + 0.55]) {
-    const ridge: THREE.Vector3[] = [];
-    for (let k = 0; k <= 12; k++) ridge.push(frame(lerp(0.12, 0.85, k / 12), a, 1.01));
-    kit.add(sweep(ridge, { segments: 40, radial: 3, radius: (t) => R * 0.05 * Math.sin(Math.PI * t) + 0.01 }), glow(0x7fd8cc, 0.35));
+  const paintHull = (x: number, y: number, z: number, out: THREE.Color, t: number, a: number) => {
+    out.copy(pearl).lerp(shade, smooth(0.45, 0.8, noise3(x * 0.35, y * 0.35, z * 0.35, seed)) * 0.4);
+    out.lerp(groove, (1 - smooth(0.02, 0.35, rib(t, a))) * 0.3);                  // grooves between ribs darker
+    out.lerp(pearl.clone().multiplyScalar(1.05), smooth(0.5, 0.95, rib(t, a)) * 0.6); // rib crowns catch light
+    out.lerp(rust, smooth(0.66, 0.86, noise3(x * 0.8, y * 1.6, z * 0.8, seed + 4)) * 0.35); // mineral stains
+    out.lerp(sandC, (1 - smooth(-0.1, 0.9, y)) * 0.55);                          // sand-scoured low down
+  };
+
+  // ---- the two halves, each a shell with a jagged break edge; NT rings, NA columns
+  const NT = 90, NA = 48, tBreak = 0.6, gap = 0.035;
+  const jag = Array.from({ length: NA }, (_, j) => 0.022 * snoise3(j * 0.9, 0, 0, seed + 7) + 0.012 * snoise3(j * 3.1, 1, 0, seed + 8));
+  const cutFront = (j: number) => tBreak + jag[j];
+  const cutRear = (j: number) => tBreak + gap + jag[j] * 0.8 + 0.01;
+  const half = (front: boolean, M: THREE.Matrix4) => {
+    const rings: THREE.Vector3[][] = [], inner: THREE.Vector3[][] = [], cs: THREE.Vector3[] = [], ts: number[] = [];
+    for (let i = 0; i <= NT; i++) {
+      const t = i / NT; ts.push(t);
+      const ring: THREE.Vector3[] = [], inn: THREE.Vector3[] = [];
+      for (let j = 0; j < NA; j++) { const a = (j / NA) * Math.PI * 2; ring.push(P(t, a)); inn.push(P(t, a, 0.9)); }
+      rings.push(ring); inner.push(inn); cs.push(C(t));
+    }
+    const keep = (i: number, j: number) => { const t = (ts[i] + ts[i + 1]) / 2; return front ? t < cutFront(j) : t > cutRear(j); };
+    const shell = loft(rings, { centres: cs, skip: (i, j) => !keep(i, j) });
+    displace(shell, R * 0.012, 1.8 / R, seed);
+    const tAt = (x: number) => clamp01(x / L + 0.5);
+    paintFn(shell, (x, y, z, out) => { const t = tAt(x); frame(t); const d = V(x, y, z).sub(C(t)); paintHull(x, y, z, out, t, Math.atan2(d.dot(Bn), d.dot(Nn))); });
+    shell.applyMatrix4(M);
+    kit.add(shell, shellM);
+    const inn = loft(inner, { centres: cs, skip: (i, j) => !keep(i, j) });
+    kit.add(paintFn(inn.applyMatrix4(M), (_x, y, _z, out) => out.copy(groove).multiplyScalar(0.55 + 0.25 * smooth(-1, 3, y))), matteBack());
+    // the broken edge: a thick lip along the jagged cut, bright where it caught the light
+    const lip: THREE.Vector3[] = [];
+    for (let j = 0; j <= NA; j++) { const jj = j % NA, a = (jj / NA) * Math.PI * 2, t = front ? cutFront(jj) : cutRear(jj); lip.push(P(t, a, 0.95)); }
+    const lipG = sweep(lip, { segments: NA * 3, radial: 5, radius: () => R * 0.05 });
+    kit.add(paintFn(lipG.applyMatrix4(M), (_x, _y, _z, out) => out.copy(pearl).multiplyScalar(0.92)), shellM);
+    // teal seams in two grooves on the upper flanks (the old crystal ridges), stopping at the break
+    for (const a0 of [Math.PI / 2 - 0.62, Math.PI / 2 + 0.5]) {
+      const pts: THREE.Vector3[] = [];
+      const t0 = front ? 0.1 : tBreak + gap + 0.05, t1 = front ? tBreak - 0.04 : 0.9;
+      for (let k = 0; k <= 16; k++) { const t = lerp(t0, t1, k / 16); pts.push(P(t, a0 - t * 4.2 / NR, 1.005)); }
+      kit.add(sweep(pts, { segments: 48, radial: 3, radius: (u) => R * 0.018 * (0.5 + Math.sin(Math.PI * u)) }).applyMatrix4(M), glow(0x7fd8cc, 0.45));
+    }
+  };
+  const I4 = new THREE.Matrix4();
+  half(true, I4);
+  // the rear half: pulled back, rolled onto its flank, dropped into the sand
+  const pivot = C(tBreak);
+  const MR = new THREE.Matrix4().makeTranslation(pivot.x + 0.9, pivot.y - R * 0.18, pivot.z + 0.35)
+    .multiply(new THREE.Matrix4().makeRotationY(0.16))
+    .multiply(new THREE.Matrix4().makeRotationX(0.42))
+    .multiply(new THREE.Matrix4().makeRotationZ(-0.05))
+    .multiply(new THREE.Matrix4().makeTranslation(-pivot.x, -pivot.y, -pivot.z));
+  half(false, MR);
+
+  // ---- teal crystal inside the break: a cluster pointing out of the front half's broken end
+  const cryM = makeCrystalOnce();
+  frame(tBreak - 0.02);
+  const cc = C(tBreak - 0.03);
+  for (let i = 0; i < 9; i++) {
+    const a = rr(r, 0, Math.PI * 2), s = R * rr(r, 0.12, 0.3) * (i < 3 ? 1.5 : 1);
+    const dir = T0.clone().multiplyScalar(rr(r, 0.4, 1)).addScaledVector(Nn, Math.cos(a) * 0.6).addScaledVector(Bn, Math.sin(a) * 0.6 + 0.25).normalize();
+    const g = new THREE.OctahedronGeometry(1, 0).scale(s * 0.45, s * 2.2, s * 0.45);
+    g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(UP, dir));
+    const base = cc.clone().addScaledVector(Nn, Math.cos(a) * R * 0.35 * body(tBreak)).addScaledVector(Bn, Math.sin(a) * R * 0.3 * body(tBreak));
+    g.translate(base.x + dir.x * s, base.y + dir.y * s, base.z + dir.z * s);
+    kit.add(g, cryM);
   }
-  // folded fin-wings, like the petals of a closed seed
+  // shards spilled in the gap and on the sand, lying down (canon: no crystal stands out of the ground)
+  for (let i = 0; i < 6; i++) {
+    const g = new THREE.OctahedronGeometry(1, 0).scale(0.12, 0.45, 0.12).rotateZ(Math.PI / 2 + rr(r, -0.3, 0.3)).rotateY(r() * 6);
+    g.translate(pivot.x + rr(r, -0.6, 1.6), 0.1, pivot.z + rr(r, -R * 1.4, R * 1.4));
+    kit.add(g, cryM);
+  }
+  // ---- folded fin-wings on the front half, like the petals of a closed seed
   for (const s of [-1, 1]) {
-    const t = 0.55, root = frame(t, Math.PI / 2 + s * 1.2, 0.98);
-    const wing = sweep([root, root.clone().add(V(-L * 0.12, R * 0.35, s * R * 0.9)), root.clone().add(V(-L * 0.3, R * 0.15, s * R * 1.3))], { segments: 14, radial: 6, radius: (u) => R * 0.12 * (1 - u) + 0.02 });
+    const t = 0.42, root = P(t, Math.PI / 2 + s * 1.15, 0.97);
+    const wing = sweep([root, root.clone().add(V(-L * 0.08, R * 0.3, s * R * 0.65)), root.clone().add(V(-L * 0.2, R * 0.12, s * R * 0.95))], { segments: 16, radial: 6, radius: (u) => R * 0.1 * (1 - u) + 0.02 });
     wing.scale(1, 0.55, 1);
-    paintFn(wing, (x, y, z, out) => out.copy(pearl).multiplyScalar(0.85 + 0.15 * noise3(x, y, z, seed + 5)));
-    kit.add(wing, crystalShellMat());
+    kit.add(paintFn(wing, (x, y, z, out) => out.copy(pearl).multiplyScalar(0.86 + 0.14 * noise3(x, y, z, seed + 5))), shellM);
   }
-  // the crack down the flank, teal leaking from it
-  const crack: THREE.Vector3[] = [];
-  // a jagged crack, not a wave: straight runs with sudden turns
-  let ca = crackA;
-  for (let k = 0; k <= 12; k++) { if (k % 2) ca += rr(r, -0.35, 0.35); crack.push(frame(lerp(0.28, 0.74, k / 12), ca, 1.005)); }
-  kit.add(sweep(crack, { segments: 36, radial: 4, radius: (t) => R * 0.018 * (0.4 + Math.sin(Math.PI * t)) }), glow(PALETTE.teal, 1.3));
+  // ---- sand heaped at the prow (it ploughed the furrow) and drifted into the break
+  const packed = new THREE.Color(0xbc9c74);
+  const drift = (x: number, z: number, sx: number, sy: number, sz: number, s: number) => {
+    const g = new THREE.IcosahedronGeometry(1, 2);
+    displace(g, 0.14, 1.6, s);
+    g.scale(sx, sy, sz).translate(x, 0.5 - sy * 0.4, z);
+    kit.add(paintFn(g, (x2, y2, z2, out) => out.copy(packed).lerp(sandC, smooth(0.3, 0.8, y2) * 0.7).multiplyScalar(0.96 + 0.08 * snoise3(x2 * 3, y2 * 3, z2 * 3, s))), matte());
+  };
+  drift(-L / 2 - 0.4, 0, 2.2, 0.75, R * 1.3, seed + 60);
+  drift(-L / 2 + 1.6, R * 0.9, 1.8, 0.45, 1.2, seed + 61);
+  drift(pivot.x + 0.5, -R * 0.9, 1.6, 0.4, 1.3, seed + 62);
+  drift(pivot.x + 0.4, R * 1.1, 1.4, 0.35, 1.0, seed + 63);
   return kit.build('azalos-vessel');
+}
+
+let _vcry: THREE.MeshStandardMaterial | null = null;
+/** Teal crystal for the vessel's break: lit from inside, not as bright as a lamp. */
+function makeCrystalOnce() {
+  if (!_vcry) { _vcry = makeCrystal(PALETTE.teal, 0.9); _vcry.userData.glow = true; }
+  return _vcry;
 }
 
 let _miner: THREE.MeshStandardMaterial | null = null;
