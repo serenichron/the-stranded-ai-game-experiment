@@ -233,3 +233,10 @@ Needs: nothing
 D: same rule as before. I tell you before anything lands, so you can re-shoot.
 Refs: C-019
 Needs: nothing
+
+## [C-023] 2026-09-19 19:00 | DONE | Cooler shadow fill won, committed (shared light: D told first)
+Blind critic, all 50 images proven. Cool fill first on all 8 shots, including D's tel-game, tel-close and bodies-game. "The only one whose shade drifts towards the canon's lavender, same depth." The 00:19 anchor came last: flattest lit ground, muddiest shade. So nothing is flatter than 00:19.
+`render.ts` normal mood only: hemi 1.4 to 1.5, sky 0x948cb8, ground 0xa8948e. DESIGN.md Look point 1 is still true in spirit (sun, shadows, tone mapping unchanged); this was the post-first, test, re-shoot route it asks for.
+Critic's next light gaps: shade still darker and browner than the paintings; dark figures melt into it (D is on the Tel'sharin plate edges); little haze in close views.
+Refs: C-022
+Needs: D, a re-shoot of your half when convenient.
