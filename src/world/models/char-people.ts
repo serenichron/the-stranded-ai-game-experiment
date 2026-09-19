@@ -103,7 +103,7 @@ function build0(race: Race, body: Body, look: string): Build {
       neckR: 0.034, armR: 0.034, elbowR: 0.025, foreR: 0.028, wristR: 0.019,
       thighR: 0.07, kneeR: 0.042, calfR: 0.043, ankleR: 0.025,
       muscle: 0.3, bust: 0.045, hand: 1, finger: 1.45,
-      head: { w: 0.068, h: 0.105, d: 0.095, jaw: 0.1, brow: 0.6, cheek: 1.4, chin: 1.2 },
+      head: { w: 0.066, h: 0.108, d: 0.095, jaw: 0.0, brow: 0.4, cheek: 1.6, chin: 1.0 },
       height: 1.8,
     } : {
       dims: { thigh: 0.49, shin: 0.48, meta: 0, footH: 0.07, hipW: 0.09, spineLen: 0.51, shoulderW: 0.185, upperArm: 0.38, foreArm: 0.35, neck: 0.18 },
@@ -111,7 +111,7 @@ function build0(race: Race, body: Body, look: string): Build {
       neckR: 0.042, armR: 0.04, elbowR: 0.029, foreR: 0.033, wristR: 0.022,
       thighR: 0.072, kneeR: 0.046, calfR: 0.048, ankleR: 0.028,
       muscle: 0.55, bust: 0, hand: 1.1, finger: 1.45,
-      head: { w: 0.071, h: 0.11, d: 0.098, jaw: 0.4, brow: 0.9, cheek: 1.4, chin: 1.2 },
+      head: { w: 0.069, h: 0.113, d: 0.098, jaw: 0.15, brow: 0.6, cheek: 1.6, chin: 1.0 },
       height: 1.9,
     };
   }
@@ -215,6 +215,7 @@ function sculptBody(c: Ctx): void {
   cap(c, [-d.shoulderW * 0.72, yS + 0.005, 0.015], [d.shoulderW * 0.72, yS + 0.005, 0.015], 0.04 + 0.01 * m, 0.04 + 0.01 * m, J.spine, skin, 0.06, 'yoke');
   cap(c, [0, yS - 0.04, 0.012], [0, yS + d.neck * 0.55, 0.004], B.neckR * 1.15, B.neckR, J.spine, skin, 0.05, 'neck');
   cap(c, [0, yS + d.neck * 0.35, 0.004], [0, yS + d.neck + 0.03, 0.012], B.neckR, B.neckR * 0.95, J.head, skin, 0.04, 'neck');
+  if (c.race === 'sehari') cap(c, [-B.neckR * 0.45, yS - 0.02, 0.0], [-B.neckR * 0.5, yS + d.neck * 0.9, -0.004], B.neckR * 0.72, B.neckR * 0.62, J.spine, M.marked, 0.03);
   // arms
   for (const s of S) {
     const [arm, fore] = s < 0 ? [J.lArm, J.lFore] : [J.rArm, J.rFore];
@@ -510,6 +511,7 @@ function sculptHead(c: Ctx): { geoKey: string; prims: Prim[]; eyes: V3[]; eyeR: 
   e([0, hy - h * 0.82, -d * 0.66], [0.02 + 0.006 * H.jaw, 0.018 * H.chin, 0.02], M.skin, 0.025);
   // cheekbones and brow
   for (const s of S) e([s * w * 0.58, hy - h * 0.12, -d * 0.6], [0.022 * H.cheek, 0.016, 0.022], M.skin, 0.025);
+  if (sehari) e([-w * 0.62, hy - h * 0.2, -d * 0.35], [w * 0.36, h * 0.42, d * 0.5], M.marked, 0.02);
   cp([-w * 0.55, hy + h * 0.2, -d * 0.84], [w * 0.55, hy + h * 0.2, -d * 0.84], 0.009 + 0.006 * H.brow, 0.009 + 0.006 * H.brow, M.skin, 0.03);
   // eye sockets
   const eyes: V3[] = [];
@@ -689,7 +691,7 @@ function materials(c: Ctx, pal: Pal): THREE.Material[] {
     // cool grey-lavender, cracked like dried clay; dark root markings on one arm and leg (canon)
     const hex = shade(0xa6a2b4, 0, 0, look === 'player' ? 0 : (r() - 0.5) * 0.05);
     skin = smat('sehari', hex, { rough: 0.85, scale: 5 });
-    marked = smat('sehariRoots', hex, { rough: 0.85, scale: 3 });
+    marked = smat('sehariRoots', hex, { rough: 0.85, scale: 1.6 });
     hair = smat('hair', 0x221c22, { rough: 0.95, scale: 10 });
     nail = smat('', 0x2a2226, { rough: 0.5 });
     lip = smat('sehari', shade(hex, 0, 0, -0.1), { rough: 0.8, scale: 5 });
@@ -1072,17 +1074,28 @@ function gear(c: Ctx, pal: Pal): void {
     const hairM = c.mats[M.hair];
     // dreadlocks: loose to the chest for him; for her gathered into a topknot, a tail arcing out behind
     if (f) {
-      for (let i = 0; i < 9; i++) lock(c, hd, hairM, [(i - 4) * 0.012, hy + H.h * 0.95, H.d * 0.55], 0.4 + r() * 0.1, 0.019, [-0.35 + i * 0.02, (i - 4) * 0.05], 0.75);
+      for (let i = 0; i < 9; i++) lock(c, hd, hairM, [(i - 4) * 0.012, hy + H.h * 0.95, H.d * 0.55], 0.4 + r() * 0.1, 0.017, [-0.35 + i * 0.02, (i - 4) * 0.05], 0.75);
+      for (const sd of S) for (let k = 0; k < 2; k++) {
+        const a = sd * (1.25 + k * 0.35);
+        lock(c, hd, hairM, [Math.sin(a) * H.w * 1.0, hy + H.h * 0.35, Math.cos(a) * H.d * 0.7], 0.22 + r() * 0.1, 0.013, [0.05, -0.35 * Math.sin(a)], 0.75);
+      }
       put(hd, cyl(0.03, 0.03, 0.028, 10), fibre, [0, hy + H.h * 0.9, H.d * 0.42], [0.5, 0, 0]);
     } else {
       // clumped dreads with fibre bindings, some falling in front of the shoulders (sehari-male-herd-protector.png)
       const fibreB = smat('cloth', 0xb89a62, { rough: 0.95, scale: 5 });
-      for (let i = 0; i < 17; i++) {
-        const a = -2.3 + (i / 16) * 4.6;
-        const len = 0.34 + r() * 0.16;
-        const p: [number, number, number] = [Math.sin(a) * H.w * 0.98, hy + H.h * 0.45, Math.cos(a) * H.d * 0.72 + 0.01];
-        lock(c, hd, hairM, p, len, 0.022 + r() * 0.006, [-0.25 * Math.cos(a) - (Math.abs(a) > 1.6 ? 0.25 : 0), -0.3 * Math.sin(a)], 0.75);
-        if (i % 3 === 0) put(hd, cyl(0.027, 0.027, 0.02, 8), fibreB, [p[0] * 1.02, p[1] - 0.07, p[2] * 1.02]);
+      for (let i = 0; i < 12; i++) {
+        const a = -2.4 + (i / 11) * 4.8 + (r() - 0.5) * 0.18;
+        const len = 0.26 + r() * 0.22;
+        const r0 = 0.013 + r() * 0.006;
+        const p: [number, number, number] = [Math.sin(a) * H.w * 1.0, hy + H.h * (0.4 + r() * 0.15), Math.cos(a) * H.d * 0.78 + 0.01];
+        const rest: [number, number] = [-0.3 * Math.cos(a) - (Math.abs(a) > 1.6 ? 0.3 : 0) + (r() - 0.5) * 0.15, -0.45 * Math.sin(a)];
+        lock(c, hd, hairM, p, len, r0, rest, 0.75);
+        // a fibre binding a third of the way down, on every other lock
+        if (i % 2 === 0) {
+          const pv = swayPivot(hd, p, rest);
+          put(pv, cyl(r0 + 0.005, r0 + 0.005, 0.022, 8), fibreB, [0, -len * 0.35, 0]).userData.keep = true;
+          c.sway.push({ pivot: pv, hang: 0.75, rest, drag: 0.1, stiff: 45, damp: 5, flutter: 0.2 });
+        }
       }
     }
     // river stone on a cord, crystal pouch at the hip (held close, never set in the body: canon)

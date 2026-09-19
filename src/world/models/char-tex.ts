@@ -137,7 +137,12 @@ const PAINTERS: Record<string, Paint> = {
 
   /** Sehari skin with dark branching root markings grown along the limb. Coloured, use a white-ish tint. */
   sehariRoots(g, r, n) {
-    PAINTERS.sehari(g, r, n);
+    const cl = cells(r, 21);
+    field(g, (u, v) => {
+      const e = cl(u, v).edge;
+      const crack = e < 0.05 ? 0.72 + e * 4 : 1;
+      return (0.9 + 0.1 * n.fbm(u * 24, v * 24)) * crack;
+    });
     g.strokeStyle = 'rgba(46,34,52,0.95)';
     g.lineCap = 'round';
     // roots run along v (down the limb), forking outwards
