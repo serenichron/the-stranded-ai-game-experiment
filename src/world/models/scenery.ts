@@ -644,9 +644,22 @@ export function minaaShack(w: number, d: number, seed = 1): THREE.Object3D {
         xf(cg, mid.x + wl.n.x * 0.03, top / 2, mid.z + wl.n.z * 0.03, 0, Math.atan2(wl.n.x, wl.n.z), 0);
         kit.add(cg, matte2());
       } else {
-        const g = box(pw + 0.04, top, 0.05, 0, 0, 0, rr(r, -0.03, 0.03), 0, rr(r, -0.025, 0.025));
-        xf(g, mid.x + wl.n.x * rr(r, 0, 0.03), top / 2, mid.z + wl.n.z * rr(r, 0, 0.03), 0, ang, 0);
-        kit.add(paint(g, col, { seed: seed + Math.floor(u * 10), vary: 0.12, ao: 0.4, aoHeight: 0.8, dust: PALETTE.sand }), matte());
+        // phase 3 (C-015): boards, not one flat slab. A dark backing shows in the gaps between them;
+        // each board has its own tone and length, darker and dustier at the foot.
+        const back = box(pw + 0.04, top, 0.02, 0, 0, 0, 0, 0, 0);
+        xf(back, mid.x - wl.n.x * 0.02, top / 2, mid.z - wl.n.z * 0.02, 0, ang, 0);
+        kit.add(paint(back, 0x2e2620, { seed, vary: 0.05, ao: 0 }), matte());
+        const nb = Math.max(2, Math.round(pw / rr(r, 0.2, 0.28)));
+        const bw = (pw + 0.04) / nb;
+        const lean = rr(r, -0.03, 0.03);
+        for (let k = 0; k < nb; k++) {
+          const bh = top - rr(r, 0, 0.14) * (r() < 0.4 ? 1 : 0);
+          const off = (k + 0.5) * bw - (pw + 0.04) / 2;
+          const g = box(bw - 0.025, bh, 0.045, 0, 0, 0, lean + rr(r, -0.01, 0.01), 0, rr(r, -0.012, 0.012));
+          xf(g, mid.x + dir.x * off + wl.n.x * rr(r, 0.005, 0.02), bh / 2, mid.z + dir.z * off + wl.n.z * rr(r, 0.005, 0.02), 0, ang, 0);
+          const bc = new THREE.Color(col).multiplyScalar(rr(r, 0.82, 1.12)).getHex();
+          kit.add(paint(g, bc, { seed: seed + Math.floor(u * 10) + k, vary: 0.1, ao: 0.55, aoHeight: 0.7, dust: PALETTE.sand }), matte());
+        }
       }
       if (r() < 0.3) {
         // a patch nailed over the panel
