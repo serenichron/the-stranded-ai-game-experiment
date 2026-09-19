@@ -27,6 +27,8 @@ export const SHOTS = {
   'scar':        { at: [24, 6], zoom: 1.6, yaw: 0 },
   // phase 3: the fallen Aza'los tower between the north sand and the ruin
   'spire':       { at: [24, 15], zoom: 0.8, yaw: 0 },
+  // phase 3: the Maker ship from the gap, low, so its silhouette shows against the sky
+  'maker-low':   { at: [42, 36], zoom: 2.2, yaw: 3 },
   // the see-through circle: behind a shack it should open, in the open it should not
   // low views: zoomed right in, the camera drops and the horizon shows
   'camp-low':    { at: [13, 44], zoom: 2.4, yaw: 1 },
@@ -81,6 +83,8 @@ try {
       w.cam.snapTo?.(w.tileToWorld({ x: s.at[0], y: s.at[1] }));
     }, s);
     if (s.setup) await page.evaluate(s.setup);
+    // P3_SETUP: extra JS for every shot, for A/B runs of a switch (e.g. "__world.atmos.uRelief.value = 1")
+    if (process.env.P3_SETUP) await page.evaluate(process.env.P3_SETUP);
     await page.waitForTimeout(s.wait ?? 2500);
     const f = s.wait ? 0 : await fps();
     const info = await page.evaluate(() => ({ calls: __world.r.renderer.info.render.calls, tris: __world.r.renderer.info.render.triangles }));

@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { PALETTE } from './types';
 import {
-  Kit, makeRng, rr, ri, lerp, clamp01, smooth, noise3, snoise3, displace, paintFn, sweep, lathe,
+  Kit, makeRng, rr, ri, lerp, clamp01, smooth, noise3, snoise3, displace, paintFn, sweep, lathe, loft,
   matte, matteBack, metal, glow, withCrease, type Rng,
 } from './scn-kit';
 
@@ -24,13 +24,324 @@ const boneMat = () => _boneMat ??= withCrease(new THREE.MeshStandardMaterial({ v
 // ================================================================ Maker
 
 /**
- * The Maker wreck, drawn from the world map (comms/refs/world-map.png, centre): two halves grown
- * into one. The fore half is angular armour: faceted sage-grey plates that overlap like sleeves
- * and taper to a blade prow, rust-brown ribs showing through the gaps, amber leaking from the
- * deepest seams. The aft half is pale bone-coral, pierced with oval holes, ending in curved
- * finger-prongs that reach up and back. Lies along +X, prow at -X dug into the sand.
+ * The Maker wreck, phase 3 rebuild from the ship beside the rift on the world map
+ * (comms/refs/world-map.png, test-output/crop-maker.png). The user: "looks nothing like the map".
+ * The map ship is a long, low arrowhead, wide and flat in section, not a round tube:
+ *   - fore 60%: faceted dark grey-green armour plates with real thickness, overlapping like scales
+ *     (each rear edge lifted over the next plate), a blade prow dug into the sand;
+ *   - torn holes along the hull: plate torn, the hull under it torn smaller, ribs and a dark inside;
+ *   - Tel'sharin light (red, user decision C-004) leaking from the seams under the plate steps and
+ *     round the torn rims;
+ *   - aft 40%: the metal grows into pale porous bone-coral, ending in ribbed finger-prongs that curl
+ *     up and back, with coral spines rising from the upper back;
+ *   - rolled onto its west flank and sunk, sand drifted against the low side and the prow.
+ * Lies along +X, prow at -X. The deck faces +Z. Origin on the ground at its middle.
  */
 export function makerWreck(length: number, seed = 1): THREE.Object3D {
+  const r = makeRng(seed);
+  const kit = new Kit();
+  const L = Math.max(8, length);
+  const x0 = -L / 2;
+  const uJoin = 0.6;
+  const Wmax = L * 0.13, Hmax = L * 0.085;
+  const hullC = new THREE.Color(0x56675b), hullDark = new THREE.Color(0x323d35), verdi = new THREE.Color(0x7f9788);
+  const wornC = new THREE.Color(0x9aa894), rustC = new THREE.Color(0x7a4a30), rustDark = new THREE.Color(0x3a2418);
+  const boneC = new THREE.Color(0xbdb59e), boneDark = new THREE.Color(0x877f69), boneGreen = new THREE.Color(0x8d9a86);
+  const red = glow(PALETTE.telsharinRed, 1.5);
+
+  // ---- the hull surface: centre line, plan width W(u), height H(u), a faceted 10-sided section
+  const xAt = (u: number) => x0 + u * L;
+  const yc = (u: number) => Hmax * 0.1 - Hmax * 0.8 * Math.pow(1 - smooth(0, 0.3, u), 2) + Hmax * 0.3 * smooth(0.6, 1, u);
+  const zc = (u: number) => 0.035 * L * Math.sin(u * Math.PI * 1.3);
+  const W = (u: number) => (u <= uJoin
+    ? Wmax * (0.05 + 0.95 * Math.pow(smooth(0, 0.52, u), 0.75)) * (1 + 0.1 * smooth(0.46, 0.58, u))
+    : Wmax * 1.1 * (1 - 0.58 * smooth(uJoin, 1, u)));
+  const H = (u: number) => Hmax * (0.14 + 0.86 * smooth(0, 0.45, u)) * (1 - 0.45 * smooth(0.78, 1, u));
+  // [z factor, y factor] round the section; the dorsal ridge sits a little off centre (asymmetric)
+  const PROF: [number, number][] = [[0.08, 1], [0.47, 0.8], [0.83, 0.42], [1, 0.02], [0.72, -0.42], [0, -0.55], [-0.72, -0.42], [-1, 0.02], [-0.8, 0.44], [-0.42, 0.82]];
+  const NP = PROF.length;
+  const centre = (u: number) => V(xAt(u), yc(u), zc(u));
+  /** A point on the hull at length fraction u, section index jf (0..10, wraps), radial scale k. */
+  const S = (u: number, jf: number, k: number, round = 0) => {
+    const j = ((jf % NP) + NP) % NP, j0 = Math.floor(j), f = j - j0, a = PROF[j0], b = PROF[(j0 + 1) % NP];
+    let pz = lerp(a[0], b[0], f), py = lerp(a[1], b[1], f);
+    if (round > 0) { // blend towards an ellipse for the grown rear
+      const ang = Math.atan2(py, pz), rz = Math.cos(ang), ry = Math.sin(ang) * (py > 0 ? 1 : 0.6);
+      pz = lerp(pz, rz, round); py = lerp(py, ry, round);
+    }
+    const side = pz < 0 ? 0.9 : 1; // one flank a little narrower
+    return V(xAt(u), yc(u) + py * H(u) * k, zc(u) + pz * W(u) * k * side);
+  };
+
+  // ---- torn holes, in (u, section index) space, jagged by noise
+  const holes = [
+    { u: 0.31, j: 1.0, ru: 0.05, rj: 0.95 },  // the back torn open (old item 4)
+    { u: 0.17, j: 2.5, ru: 0.03, rj: 0.55 },
+    { u: 0.43, j: 7.6, ru: 0.035, rj: 0.6 },
+    { u: 0.53, j: 9.1, ru: 0.026, rj: 0.55 },
+    { u: 0.08, j: 3.3, ru: 0.02, rj: 0.35 },
+  ];
+  for (let i = 0; i < 4; i++) holes.push({ u: rr(r, 0.12, 0.56), j: rr(r, 0, 10), ru: rr(r, 0.01, 0.016), rj: rr(r, 0.18, 0.3) });
+  const holeField = (u: number, j: number) => {
+    let m = 9;
+    for (const h of holes) {
+      let dj = Math.abs(j - h.j) % NP; dj = Math.min(dj, NP - dj);
+      m = Math.min(m, Math.hypot((u - h.u) / h.ru, dj / h.rj));
+    }
+    return m * (1 + 0.28 * snoise3(u * 60, j * 2.2, 0, seed + 3));
+  };
+
+  // ---- a slab builder: a patch of the hull surface with thickness, walls on every open edge
+  const bufs = new Map<THREE.Material, { pos: number[]; col: number[] }>();
+  const bufFor = (m: THREE.Material) => { let b = bufs.get(m); if (!b) bufs.set(m, (b = { pos: [], col: [] })); return b; };
+  const _a = V(), _b = V(), _n = V();
+  const tri = (b: { pos: number[]; col: number[] }, p: THREE.Vector3[], c: THREE.Color[], dir: THREE.Vector3) => {
+    _a.subVectors(p[1], p[0]); _b.subVectors(p[2], p[0]); _n.crossVectors(_a, _b);
+    const o = _n.dot(dir) < 0 ? [0, 2, 1] : [0, 1, 2];
+    for (const i of o) { b.pos.push(p[i].x, p[i].y, p[i].z); b.col.push(c[i].r, c[i].g, c[i].b); }
+  };
+  const quad = (b: { pos: number[]; col: number[] }, p: THREE.Vector3[], c: THREE.Color[], dir: THREE.Vector3) => {
+    tri(b, [p[0], p[1], p[2]], [c[0], c[1], c[2]], dir);
+    tri(b, [p[0], p[2], p[3]], [c[0], c[2], c[3]], dir);
+  };
+  const hullPaint = (p: THREE.Vector3, wear: number, out: THREE.Color) => {
+    const n1 = noise3(p.x * 0.35, p.y * 0.35, p.z * 0.35, seed), n2 = noise3(p.x * 1.3, p.y * 2.6, p.z * 1.3, seed + 5);
+    out.copy(hullC).lerp(hullDark, smooth(0.35, 0.75, n1) * 0.55);
+    out.lerp(verdi, smooth(0.62, 0.85, n2) * 0.5);                            // oxidised streaks
+    out.lerp(rustC, smooth(0.7, 0.9, noise3(p.x * 0.9, p.y * 0.9, p.z * 0.9, seed + 9)) * 0.55);
+    out.lerp(wornC, wear * 0.75);                                                // worn plate edges catch the light
+    out.multiplyScalar(0.92 + 0.12 * snoise3(p.x * 6, p.y * 6, p.z * 6, seed + 2));
+  };
+  type Slab = { ns: number; nt: number; j: (s: number) => number; u: (t: number) => number; k: (s: number, t: number) => number; thick: number; round?: (t: number) => number; skip?: (s: number, t: number) => boolean; paint: (p: THREE.Vector3, s: number, t: number, outer: boolean, out: THREE.Color) => void; mat: THREE.Material; lip?: [THREE.Color, THREE.Color]; jitter?: number; wrap?: boolean };
+  const slab = (o: Slab) => {
+    const b = bufFor(o.mat);
+    // jitter moves inner grid vertices off the grid lines, so cut edges come out ragged, not stepped
+    const jit = (i: number, jj: number, c: number) => (o.jitter && jj > 0 && jj < o.nt && (o.wrap || (i > 0 && i < o.ns)) ? snoise3((i % o.ns) * 0.71 + c * 13, jj * 0.53, c, seed + 99) * o.jitter : 0);
+    const P = (i: number, jj: number, outer: boolean) => { const s = (i + jit(i, jj, 0)) / o.ns, t = (jj + jit(i, jj, 1)) / o.nt, u = o.u(t); return S(u, o.j(s), o.k(s, t) - (outer ? 0 : o.thick), o.round?.(t) ?? 0); };
+    const C = (i: number, jj: number, outer: boolean, p: THREE.Vector3) => { const c = new THREE.Color(); o.paint(p, i / o.ns, jj / o.nt, outer, c); return c; };
+    const present = (i: number, jj: number) => i >= 0 && jj >= 0 && i < o.ns && jj < o.nt && !(o.skip && o.skip((i + 0.5) / o.ns, (jj + 0.5) / o.nt));
+    for (let jj = 0; jj < o.nt; jj++) for (let i = 0; i < o.ns; i++) {
+      if (!present(i, jj)) continue;
+      const cm = centre(o.u((jj + 0.5) / o.nt));
+      const corners = [[i, jj], [i + 1, jj], [i + 1, jj + 1], [i, jj + 1]];
+      const po = corners.map(([a, c]) => P(a, c, true)), pi = corners.map(([a, c]) => P(a, c, false));
+      const mo = po.reduce((m, v) => m.add(v), V()).multiplyScalar(0.25);
+      quad(b, po, po.map((p, q) => C(corners[q][0], corners[q][1], true, p)), mo.clone().sub(cm));
+      quad(b, pi, pi.map((p, q) => C(corners[q][0], corners[q][1], false, p)), cm.clone().sub(mo));
+      // walls where the neighbour is missing: the plate's cut or torn edge, lit like a lip
+      const nb = [[i, jj - 1, 0, 1], [i + 1, jj, 1, 2], [i, jj + 1, 2, 3], [i - 1, jj, 3, 0]];
+      for (const [ni, nj, e0, e1] of nb) {
+        if (present(ni, nj)) continue;
+        const w = [po[e0], po[e1], pi[e1], pi[e0]];
+        const dir = w[0].clone().add(w[1]).multiplyScalar(0.5).sub(mo);
+        const lip = o.lip ? o.lip[0] : new THREE.Color().copy(wornC).lerp(rustC, 0.35), deep = o.lip ? o.lip[1] : new THREE.Color().copy(rustDark);
+        quad(b, w, [lip, lip, deep, deep], dir);
+      }
+    }
+  };
+
+  // ---- the armour: five plate bands, seven panels round each, scales lifted at their rear edge
+  const cuts = [0, 0.13, 0.25, 0.36, 0.47, uJoin];
+  const panels: [number, number][] = [[0.02, 1.98], [2.02, 2.98], [3.02, 3.98], [4.02, 5.98], [6.02, 6.98], [7.02, 7.98], [8.02, 9.98]];
+  const hm = hardMetal();
+  for (let bnd = 0; bnd < cuts.length - 1; bnd++) {
+    const ua = cuts[bnd] + (bnd ? 0.004 : 0.012), ub = cuts[bnd + 1] + (bnd < cuts.length - 2 ? 0.014 : 0.0);
+    for (const [ja, jb] of panels) {
+      const ns = Math.max(3, Math.round((jb - ja) * 4)), nt = Math.max(4, Math.round((ub - ua) * 70));
+      slab({
+        ns, nt, mat: hm, thick: 0.035, jitter: 0.3,
+        j: (s) => lerp(ja, jb, s), u: (t) => lerp(ua, ub, t),
+        // lift towards the rear edge, and a shallow ridge down each plate: knuckled, grown plates
+        k: (s, t) => 1 + 0.055 * t * t + 0.012 * Math.sin(s * Math.PI),
+        skip: (s, t) => holeField(lerp(ua, ub, t), lerp(ja, jb, s)) < 1,
+        paint: (p, s, t, outer, out) => {
+          if (!outer) { out.copy(rustDark); return; }
+          const edge = 1 - smooth(0, 0.16, Math.min(s, 1 - s, t * 1.6, 1 - t));
+          const rim = 1 - smooth(1, 1.4, holeField(lerp(ua, ub, t), lerp(ja, jb, s)));
+          hullPaint(p, Math.max(edge * 0.7, rim), out);
+          if (rim > 0.3) out.lerp(rustC, (rim - 0.3) * 0.6);
+        },
+      });
+    }
+  }
+  // the hull under the plates: torn smaller than the plate above it, so each hole shows a stepped rim
+  const uu0 = 0.01, uu1 = uJoin + 0.03, NU = 64, NJ = 40;
+  slab({
+    ns: NJ, nt: NU, mat: hm, thick: 0.05, jitter: 0.4, wrap: true,
+    j: (s) => s * NP, u: (t) => lerp(uu0, uu1, t), k: () => 0.94,
+    skip: (s, t) => holeField(lerp(uu0, uu1, t), s * NP) < 0.72,
+    paint: (p, _s, _t, outer, out) => { out.copy(outer ? rustC : rustDark).lerp(rustDark, 0.35 + 0.3 * noise3(p.x * 2, p.y * 2, p.z * 2, seed + 7)); },
+  });
+  // the dark inside, seen through the holes
+  {
+    const rings: THREE.Vector3[][] = [];
+    for (let i = 0; i <= 30; i++) { const u = lerp(uu0, uu1, i / 30), ring: THREE.Vector3[] = []; for (let j = 0; j < 20; j++) ring.push(S(u, (j / 20) * NP, 0.86)); rings.push(ring); }
+    kit.add(paintFn(loft(rings, { centres: rings.map((_, i) => centre(lerp(uu0, uu1, i / 30))) }), (_x, y, _z, out) => out.copy(rustDark).multiplyScalar(0.45 + 0.25 * smooth(-1, 1.5, y))), matteBack());
+  }
+  // ribs inside, every half metre, seen through the holes and the plate gaps
+  for (let u = 0.05; u < uJoin; u += 0.028) {
+    const ring: THREE.Vector3[] = [];
+    for (let j = 0; j <= 20; j++) ring.push(S(u, (j / 20) * NP, 0.905));
+    kit.add(paintFn(sweep(ring, { segments: 30, radial: 4, radius: () => 0.07 }), (_x, _y, _z, out) => out.copy(rustC).multiplyScalar(0.85)), metal());
+  }
+  // red light in the seams under each lifted plate edge (upper side only), and round the big tears
+  for (let bnd = 1; bnd < cuts.length - 1; bnd++) {
+    if (r() < 0.25) continue;
+    const u = cuts[bnd] + 0.002, ja = rr(r, 8.2, 9.6), jb = ja + rr(r, 1.4, 3.2), pts: THREE.Vector3[] = [];
+    for (let k = 0; k <= 8; k++) pts.push(S(u, lerp(ja, jb, k / 8), 1.0));
+    kit.add(sweep(pts, { segments: 16, radial: 4, radius: () => 0.045 }), red);
+  }
+  // round the big tears the light follows the torn edge itself (found by searching the jagged field),
+  // just under the plate, and only along part of it, so it reads as a leak and not a drawn ring
+  for (const h of holes.slice(0, 3)) {
+    const pts: THREE.Vector3[] = [], a0 = rr(r, 0, 6.28), span = rr(r, 1.6, 2.6);
+    for (let k = 0; k <= 14; k++) {
+      const a = a0 + (k / 14) * span, ca = Math.cos(a), sa = Math.sin(a);
+      let lo = 0.2, hi = 2.2;
+      for (let it = 0; it < 14; it++) { const m = (lo + hi) / 2; if (holeField(h.u + ca * h.ru * m, h.j + sa * h.rj * m) < 1) lo = m; else hi = m; }
+      pts.push(S(h.u + ca * h.ru * lo * 0.97, h.j + sa * h.rj * lo * 0.97, 0.985));
+    }
+    kit.add(sweep(pts, { segments: 28, radial: 4, radius: (t) => 0.035 * (0.5 + Math.sin(Math.PI * t)) }), red);
+  }
+  // the blade prow, pushed into the sand: a faceted wedge off the first section
+  {
+    const tip = V(x0 - L * 0.07, yc(0) - Hmax * 0.35, zc(0));
+    const top = S(0.03, 0, 1.05), lc = S(0.03, 3, 1.05), rc = S(0.03, 7, 1.05), keel = S(0.03, 5, 1.05);
+    const b = bufFor(hm), cols = (p: THREE.Vector3) => { const c = new THREE.Color(); hullPaint(p, 0.2, c); return c; };
+    const mid = centre(0.03);
+    for (const f of [[tip, top, lc], [tip, rc, top], [tip, lc, keel], [tip, keel, rc]]) {
+      const m = f[0].clone().add(f[1]).add(f[2]).multiplyScalar(1 / 3);
+      tri(b, f, f.map(cols), m.sub(mid.clone().lerp(tip, 0.5)));
+    }
+  }
+
+  // ---- the grown rear: the metal becomes an openwork bone-coral shell (the map draws it pale
+  // grey-green and full of holes; phase 2's smooth white bulb read as a whale's carcass)
+  const b0 = 0.55;
+  // pores in metres, so they stay round however the section stretches; bigger towards the tail
+  const perim = (u: number) => 2.6 * (W(u) + H(u));
+  const pores = Array.from({ length: 46 }, (_, i) => {
+    const u = lerp(0.61, 0.99, (i + r()) / 46);
+    return { u, j: rr(r, 0, NP), rad: lerp(0.3, 0.75, smooth(0.62, 1, u)) * rr(r, 0.7, 1.25) };
+  });
+  const poreField = (u: number, j: number) => {
+    let m = 9;
+    const pm = perim(u) / NP;
+    for (const h of pores) {
+      let dj = Math.abs(j - h.j) % NP; dj = Math.min(dj, NP - dj);
+      m = Math.min(m, Math.hypot((u - h.u) * L, dj * pm) / h.rad);
+    }
+    return m * (1 + 0.2 * snoise3(u * 40, j * 1.7, 3, seed + 11));
+  };
+  const boneM = boneMat();
+  const bonePaint = (p: THREE.Vector3, u: number, rim: number, out: THREE.Color) => {
+    out.copy(boneC).lerp(boneDark, smooth(0.4, 0.8, noise3(p.x * 0.8, p.y * 0.8, p.z * 0.8, seed)) * 0.55);
+    out.lerp(boneGreen, 0.35 + (1 - smooth(b0 + 0.03, 0.74, u)) * 0.5);     // grey-green, greener where it grew from the metal
+    out.lerp(hullC, (1 - smooth(b0, b0 + 0.05, u)) * 0.85);
+    out.lerp(boneDark, rim * 0.4);                                           // pores darken at their lips
+    out.multiplyScalar(0.86 + 0.12 * snoise3(p.x * 5, p.y * 5, p.z * 5, seed + 1));
+  };
+  slab({
+    ns: 84, nt: 64, mat: boneM, thick: 0.14, jitter: 0.45, wrap: true,
+    j: (s) => s * NP, u: (t) => lerp(b0, 1, t),
+    round: (t) => smooth(0, 0.35, t) * 0.8,
+    // coral ridges running aft, lumps, and a swelling collar where bone meets metal
+    k: (s, t) => {
+      const u = lerp(b0, 1, t), jf = s * NP;
+      return 1.03 + 0.045 * Math.abs(Math.sin(jf * Math.PI * 1.6 + u * 9)) + 0.05 * snoise3(u * 14, jf * 0.9, 1, seed + 21) + 0.07 * (1 - smooth(b0, b0 + 0.06, u));
+    },
+    skip: (s, t) => poreField(lerp(b0, 1, t), s * NP) < 1,
+    lip: [boneC.clone().multiplyScalar(0.95), boneDark.clone().multiplyScalar(0.7)],
+    paint: (p, s, t, outer, out) => {
+      const u = lerp(b0, 1, t);
+      if (!outer) { out.copy(boneDark).multiplyScalar(0.6); return; }
+      bonePaint(p, u, 1 - smooth(1, 1.5, poreField(u, s * NP)), out);
+    },
+  });
+  // the dim inside of the bone, seen through the pores (brown, not black: light gets in)
+  {
+    const rings: THREE.Vector3[][] = [], cs: THREE.Vector3[] = [];
+    for (let i = 0; i <= 24; i++) { const u = lerp(b0, 1, i / 24), ring: THREE.Vector3[] = []; for (let j = 0; j < 24; j++) ring.push(S(u, (j / 24) * NP, 0.8, smooth(0, 0.35, i / 24) * 0.8)); rings.push(ring); cs.push(centre(u)); }
+    kit.add(paintFn(loft(rings, { centres: cs }), (_x, y, _z, out) => out.copy(boneDark).lerp(rustDark, 0.5).multiplyScalar(0.55 + 0.3 * smooth(-1, 2.5, y))), matteBack());
+  }
+
+  // ---- coral: gnarled, knuckled, thick at the root, ringed like the map's fingers
+  const coral = (pts: THREE.Vector3[], rad0: number, s: number, rings = 6) => {
+    const cr = makeRng(s);
+    const jig = pts.map((p, i) => (i === 0 ? p.clone() : p.clone().add(V(rr(cr, -1, 1), rr(cr, -1, 1), rr(cr, -1, 1)).multiplyScalar(rad0 * 0.6))));
+    const g = sweep(jig, { segments: 30, radial: 8, radius: (t) => rad0 * (1 - 0.7 * Math.pow(t, 0.8)) * (1 + 0.28 * Math.pow(Math.max(0, Math.sin(t * Math.PI * rings)), 3)) });
+    displace(g, rad0 * 0.12, 3 / rad0, s);
+    kit.add(paintFn(g, (x, y, z, o2) => o2.copy(boneC).lerp(boneGreen, 0.3).lerp(boneDark, 0.45 * noise3(x * 2, y * 2, z * 2, s)).multiplyScalar(0.84 + 0.18 * smooth(0, 6, y))), boneM);
+    const tipP = jig[jig.length - 1];
+    kit.add(paintFn(new THREE.IcosahedronGeometry(rad0 * 0.3, 1).translate(tipP.x, tipP.y, tipP.z), (_x, _y, _z, o2) => o2.copy(boneC)), boneM);
+    return jig;
+  };
+  // finger-prongs from the rear rim, curling up and back, of different lengths like a claw
+  const nf = ri(r, 5, 6);
+  for (let i = 0; i < nf; i++) {
+    const jf = lerp(7.4, 12.4, i / (nf - 1)) + rr(r, -0.2, 0.2);
+    const base = S(0.97, jf, 0.95, 0.8), c = centre(0.97), out = base.clone().sub(c).normalize();
+    const len = Hmax * rr(r, 1.0, 1.7) * (out.y > 0.6 ? 1.3 : 0.85);
+    const p1 = base.clone().add(V(len * 0.35, len * 0.05, 0)).addScaledVector(out, len * 0.3);
+    const p2 = base.clone().add(V(len * 0.62, len * 0.45, 0)).addScaledVector(out, len * 0.45);
+    const p3 = base.clone().add(V(len * 0.55, len * 0.9, 0)).addScaledVector(out, len * 0.3);
+    const j = coral([base, p1, p2, p3], Hmax * 0.24, seed + i, 5);
+    if (r() < 0.7) coral([j[2], j[2].clone().add(V(len * 0.3, len * 0.15, 0)).addScaledVector(out, len * 0.25), j[2].clone().add(V(len * 0.42, len * 0.45, 0)).addScaledVector(out, len * 0.2)], Hmax * 0.1, seed + 50 + i, 3);
+  }
+  // spines rising from the upper back, leaning aft, the biggest near the join, each from a bone collar
+  for (let k = 0; k < 4; k++) {
+    const u = lerp(0.4, 0.64, k / 3) + rr(r, -0.015, 0.015), jf = rr(r, -0.6, 0.9);
+    const base = S(u, jf, 0.97, u > b0 ? 0.5 : 0), h = Hmax * rr(r, 1.0, 1.6) * (k === 2 ? 1.3 : 1);
+    const lean = rr(r, 0.35, 0.6);
+    coral([base, base.clone().add(V(h * 0.12, h * 0.45, 0)), base.clone().add(V(h * lean * 0.6, h * 0.85, rr(r, -0.2, 0.2))), base.clone().add(V(h * lean, h * 1.05, 0))], Hmax * 0.16, seed + 70 + k, 5);
+    const collar = new THREE.IcosahedronGeometry(Hmax * 0.26, 2).scale(1.5, 0.55, 1.1);
+    displace(collar, Hmax * 0.05, 2, seed + 80 + k);
+    kit.add(paintFn(collar.translate(base.x, base.y, base.z), (x, y, z, o2) => bonePaint(V(x, y, z), 0.62, 0.2, o2)), boneM);
+  }
+
+  // ---- roll the whole ship onto its +Z flank and dip the nose, then sink it
+  const roll = 0.28, pitch = 0.03;
+  const M = new THREE.Matrix4().makeTranslation(0, 0.95, 0)
+    .multiply(new THREE.Matrix4().makeRotationX(roll))
+    .multiply(new THREE.Matrix4().makeRotationZ(pitch));
+  for (const [mat, b] of bufs) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(b.pos, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(b.col, 3));
+    kit.add(g, mat);
+  }
+  const built = kit.build('maker-wreck');
+  built.traverse((o) => { if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).geometry.applyMatrix4(M); });
+
+  // ---- sand drifted up the low flank and over the prow; plates thrown off in the crash
+  const extra = new Kit();
+  const ground = 0.6; // levelbuild sinks the wreck 0.6 m, so local y 0.6 is the ground
+  for (let i = 0; i < 9; i++) {
+    const u = i < 7 ? lerp(0.04, 0.9, i / 6) : (i === 7 ? -0.02 : 0.02), side = i < 7 ? 1 : (i === 7 ? 0 : -1);
+    const g = new THREE.IcosahedronGeometry(1, 2);
+    displace(g, 0.18, 1.6, seed + 60 + i);
+    // low drifts in the ground's own colours (terrain packed 0xbc9c74 to sand 0xd3b286), so they
+    // read as the ground heaped up against the hull and not as pale blobs laid on it
+    const sx = rr(r, 1.8, 2.8), sy = rr(r, 0.3, 0.5), sz = rr(r, 1.0, 1.4);
+    g.scale(sx, sy, sz).translate(xAt(u) + (i >= 7 ? -1.2 : 0), ground - sy * 0.45, side * W(Math.max(0.05, u)) * 0.95 + (side ? 0.5 : 0));
+    const packed = new THREE.Color(0xbc9c74), sandC = new THREE.Color(0xd3b286);
+    extra.add(paintFn(g, (x, y, z, out) => out.copy(packed).lerp(sandC, smooth(ground - 0.1, ground + 0.4, y) * 0.7).multiplyScalar(0.96 + 0.08 * snoise3(x * 3, y * 3, z * 3, seed))), matte());
+  }
+  for (let i = 0; i < 8; i++) {
+    const w = rr(r, 0.5, 1.2), d = rr(r, 0.35, 0.8);
+    const g = new THREE.BoxGeometry(w, 0.07, d, 4, 1, 2).toNonIndexed();
+    const p = g.attributes.position as THREE.BufferAttribute;
+    for (let v = 0; v < p.count; v++) p.setY(v, p.getY(v) + (p.getX(v) / w) ** 2 * 0.25); // bent plates
+    g.rotateX(rr(r, -0.4, 0.4)).rotateY(r() * 6).translate(rr(r, x0, x0 + L * 0.6), ground + 0.05, (r() < 0.5 ? -1 : 1) * rr(r, Wmax * 1.3, Wmax * 2.4));
+    extra.add(paintFn(g, (x, y, z, out) => hullPaint(V(x, y, z), 0.3, out)), hardMetal());
+  }
+  const extraG = extra.build('maker-wreck-sand');
+  for (const c of [...extraG.children]) built.add(c);
+  return built;
+}
+
+/** The phase 2 Maker wreck, kept for side-by-side shots only (not used in the level). */
+export function makerWreckP2(length: number, seed = 1): THREE.Object3D {
   const r = makeRng(seed);
   const kit = new Kit();
   const L = Math.max(8, length), R = L * 0.085;
