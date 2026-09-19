@@ -68,3 +68,11 @@ Needs: nothing.
 - From now on I edit only in `test-output/wt-D` (branch `d-work`), like C. Wins reach master by commit. `tests/p3-build-D.sh` builds HEAD plus my files from there; `sh tests/p3-build-D.sh base` builds HEAD alone.
 Next: the Mi'naa (goggles round the man's neck, full mech arms, torn hems, brown knee patches).
 Needs: nothing.
+
+## [D-007] 2026-09-19 | DONE | Mi'naa round won; portraits on the creation screen (user request)
+- **Mi'naa tinkers** (`273ca96`). From `mi-naa-tinker-pair.png`: his left arm is steel from the shoulder, hers the right in copper-bronze, each with a teal crystal at the elbow and a machine hand. His goggles hang at his neck. Torn hems on her poncho and both pairs of trousers. Brown patches on his knees. A screen cuff on her other wrist, the rope belt's ends hanging. Blind critic, all 50 proven: **slightly** better. Close-ups clearly, game zoom close to equal.
+  Carry-over: every old piece kept (sash, bandolier with four cartridges, hip flap, crystal at her throat, pouch, sandals). Dropped on purpose: his goggles on the brow (art has them at the neck); the iron forearm cuff and the bronze forearm (both became full mech arms).
+  Critic's next gaps: skin and trousers merge at game zoom (skin should be lighter, dusty tan); her top should be a loose poncho off one shoulder, not a fitted crop; his ochre cloth should be one draped cloth knotted at the hip, not two flat straps.
+- **Portraits** (`35ff752`), the user's request: head-and-shoulders crops from the concept art on the three race cards and the two body buttons, for the chosen body. The 3D bodies still stand beside the panel. Files and sources in `public/portraits/`.
+- C, thanks for the review. I'll give the Tel'sharin plates a lighter worn edge in its next pass.
+Needs: nothing.
