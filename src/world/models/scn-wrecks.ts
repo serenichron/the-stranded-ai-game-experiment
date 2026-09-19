@@ -47,7 +47,7 @@ export function makerWreck(length: number, seed = 1): THREE.Object3D {
   const hullC = new THREE.Color(0x56675b), hullDark = new THREE.Color(0x323d35), verdi = new THREE.Color(0x7f9788);
   const wornC = new THREE.Color(0x9aa894), rustC = new THREE.Color(0x7a4a30), rustDark = new THREE.Color(0x3a2418);
   const boneC = new THREE.Color(0xbdb59e), boneDark = new THREE.Color(0x877f69), boneGreen = new THREE.Color(0x8d9a86);
-  const red = glow(PALETTE.telsharinRed, 1.5);
+  const red = glow(PALETTE.telsharinRed, 2.3);
 
   // ---- the hull surface: centre line, plan width W(u), height H(u), a faceted 10-sided section
   const xAt = (u: number) => x0 + u * L;
@@ -74,14 +74,16 @@ export function makerWreck(length: number, seed = 1): THREE.Object3D {
   };
 
   // ---- torn holes, in (u, section index) space, jagged by noise
+  // the map draws long rust-red slots down the hull with ribs inside (C-014): stretched along it,
+  // narrow round it; one wide tear across the back is kept (old item 4)
   const holes = [
-    { u: 0.31, j: 1.0, ru: 0.05, rj: 0.95 },  // the back torn open (old item 4)
-    { u: 0.17, j: 2.5, ru: 0.03, rj: 0.55 },
-    { u: 0.43, j: 7.6, ru: 0.035, rj: 0.6 },
-    { u: 0.53, j: 9.1, ru: 0.026, rj: 0.55 },
-    { u: 0.08, j: 3.3, ru: 0.02, rj: 0.35 },
+    { u: 0.31, j: 0.9, ru: 0.055, rj: 0.8 },  // the back torn open (old item 4)
+    { u: 0.22, j: 2.4, ru: 0.09, rj: 0.26 },
+    { u: 0.4, j: 7.7, ru: 0.1, rj: 0.28 },
+    { u: 0.47, j: 2.9, ru: 0.06, rj: 0.22 },
+    { u: 0.12, j: 8.4, ru: 0.05, rj: 0.2 },
   ];
-  for (let i = 0; i < 4; i++) holes.push({ u: rr(r, 0.12, 0.56), j: rr(r, 0, 10), ru: rr(r, 0.01, 0.016), rj: rr(r, 0.18, 0.3) });
+  for (let i = 0; i < 3; i++) holes.push({ u: rr(r, 0.14, 0.54), j: rr(r, 0, 10), ru: rr(r, 0.025, 0.04), rj: rr(r, 0.12, 0.18) });
   const holeField = (u: number, j: number) => {
     let m = 9;
     for (const h of holes) {
@@ -169,7 +171,7 @@ export function makerWreck(length: number, seed = 1): THREE.Object3D {
   slab({
     ns: NJ, nt: NU, mat: hm, thick: 0.05, jitter: 0.4, wrap: true,
     j: (s) => s * NP, u: (t) => lerp(uu0, uu1, t), k: () => 0.94,
-    skip: (s, t) => holeField(lerp(uu0, uu1, t), s * NP) < 0.72,
+    skip: (s, t) => holeField(lerp(uu0, uu1, t), s * NP) < 0.93,
     paint: (p, _s, _t, outer, out) => { out.copy(outer ? rustC : rustDark).lerp(rustDark, 0.35 + 0.3 * noise3(p.x * 2, p.y * 2, p.z * 2, seed + 7)); },
   });
   // the dark inside, seen through the holes
@@ -189,7 +191,7 @@ export function makerWreck(length: number, seed = 1): THREE.Object3D {
     if (r() < 0.25) continue;
     const u = cuts[bnd] + 0.002, ja = rr(r, 8.2, 9.6), jb = ja + rr(r, 1.4, 3.2), pts: THREE.Vector3[] = [];
     for (let k = 0; k <= 8; k++) pts.push(S(u, lerp(ja, jb, k / 8), 1.0));
-    kit.add(sweep(pts, { segments: 16, radial: 4, radius: () => 0.045 }), red);
+    kit.add(sweep(pts, { segments: 16, radial: 4, radius: () => 0.07 }), red);
   }
   // round the big tears the light follows the torn edge itself (found by searching the jagged field),
   // just under the plate, and only along part of it, so it reads as a leak and not a drawn ring
@@ -300,8 +302,8 @@ export function makerWreck(length: number, seed = 1): THREE.Object3D {
   }
 
   // ---- roll the whole ship onto its +Z flank and dip the nose, then sink it
-  const roll = 0.28, pitch = 0.03;
-  const M = new THREE.Matrix4().makeTranslation(0, 0.95, 0)
+  const roll = 0.34, pitch = 0.035;
+  const M = new THREE.Matrix4().makeTranslation(0, 0.55, 0)
     .multiply(new THREE.Matrix4().makeRotationX(roll))
     .multiply(new THREE.Matrix4().makeRotationZ(pitch));
   for (const [mat, b] of bufs) {

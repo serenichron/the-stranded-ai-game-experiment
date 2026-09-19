@@ -37,7 +37,7 @@ export const LOOK: Record<string, string> = {
   'inner-door': 'A smooth door with no marks at all. Teal threads run from it down into the floor.',
   'symbol-door': 'A round door of pale stone, covered in rings of curved marks. No handle. No seam.',
   'archive': 'A curved niche in the wall. Something thin and pale rests inside.',
-  'z-wreck-edge': 'The Maker wreck: bone and coral grown into dark green metal. Amber light still seeps from one torn side.',
+  'z-wreck-edge': 'The Maker wreck: bone and coral grown into dark green metal. Red light still seeps from its torn seams.',
   'z-crack': 'A crack in the west ridge, a shoulder wide. Old bolts are hammered into the rock.',
   'z-spire-root': 'A lone spire-root, twisted and woody. Nothing else grows for fifty paces.',
   'z-scar-view': 'Far to the north, a long red-brown wound in the land. The Scar.',
