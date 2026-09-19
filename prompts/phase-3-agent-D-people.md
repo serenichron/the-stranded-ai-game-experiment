@@ -20,7 +20,9 @@ Read these first, in order:
 
 "Well textured" means skin, cloth, stone and metal each show variation, wear and markings at game zoom. Markings sit where canon puts them. Sehari root markings are dark and branching, on the skin of one arm and one leg.
 
-Start with the gaps the last critic named. They are listed in `PHASE-3.md`: the Tel'sharin head and legs, the Mi'naa goggles, mech arm and poncho, the Sehari roots, colour, arms, hair and sash, and slimmer Iskari. The unused `buildPerson` and `dress*` code in `characters.ts` still has the old goggles, poncho and Sehari wrap. Read it before rebuilding them.
+Before the models, fix the character creation screen. The user says the race tiles are big, mostly empty, and need a lot of scrolling. The note in `PHASE-3.md` says where the problem is.
+
+Then start on the gaps the last critic named. They are listed in `PHASE-3.md`: the Tel'sharin head and legs, the Mi'naa goggles, mech arm and poncho, the Sehari roots, colour, arms, hair and sash, and slimmer Iskari. The unused `buildPerson` and `dress*` code in `characters.ts` still has the old goggles, poncho and Sehari wrap. Read it before rebuilding them.
 
 The user liked the people's textures at 00:20 last night (`test-output/p2-B-r2-*.png`), but not those bodies. The 00:20 texture strength is restored. Keep it as your floor for texture: nothing you ship may look flatter.
 

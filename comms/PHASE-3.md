@@ -45,6 +45,8 @@ A blind critic read all 50 images, then ranked current people above both 00:20 a
 
 These count as fixing existing models. None of them adds an object: goggles and a poncho are part of a Mi'naa model.
 
+**A note from the user, for agent D, do this first:** the character creation screen looks worse than before phase 2, at least the race selector. The user says the tiles are big, have a lot of empty space in them, and need a lot of scrolling. The cause is agent B's phase 2 change. On the Origin and Role steps the panel docks left, so the six bodies can stand in the world on the right, and the cards stack in one tall column. See `src/ui/style.css` from the comment "creation: bodies in the world" (about line 2757), and `src/ui/creation.ts`. Make the cards compact: less empty space, no scrolling at 1600x900. Keep the six bodies visible beside the panel. Shoot the creation screen for both steps before and after. This is a fix to an existing screen, so it is in scope, and agent D owns these two files for it.
+
 ## The last critic's gaps, world
 
 Agent A's last scores: the wrecks 2 to 3, the far camp view 4. The Maker wreck still reads as a tube from the default camera. Check the wrecks against the map (`comms/refs/world-map.png`), `scene-crashed-starvessel-night.png` and `title-fallen-orbital-and-the-span.png`.
@@ -122,7 +124,7 @@ The shot list is phase 2's, same names, with `p3-` in front: `test-output/p3-<ag
 
 | | Agent C: world | Agent D: people |
 |---|---|---|
-| Owns | `src/engine/`, `src/level/`, `src/world/models/` except character files, `tools/` | `src/world/models/char-*.ts`, `characters.ts`, `dev/`, `tests/` |
+| Owns | `src/engine/`, `src/level/`, `src/world/models/` except character files, `tools/` | `src/world/models/char-*.ts`, `characters.ts`, `dev/`, `tests/`, and for the creation screen fix only, `src/ui/creation.ts` and the creation styles in `src/ui/style.css` |
 | Works on | Terrain, rock and stone textures, the ruin, the camp, the three wrecks, the Scar, flora and crystal materials, light response | The six player bodies, every NPC, the Tel'sharin, the dogs, the drone, the defender. Anatomy, faces, hands, feet, skin, cloth, hair, markings. |
 
 Shared, announce before changing: `src/core/contracts.ts`, light and tone mapping (both halves must look like one game), `DESIGN.md` Look section.
