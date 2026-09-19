@@ -9,7 +9,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { PALETTE } from './types';
 import {
   Kit, makeRng, rr, ri, lerp, clamp01, smooth, noise3, snoise3, displace, paintFn, sweep, lathe, loft,
-  matte, matteBack, metal, glow, withCrease, type Rng,
+  matte, matte2, matteBack, metal, glow, withCrease, type Rng,
 } from './scn-kit';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -456,73 +456,234 @@ const hardMetal = () => _hard ??= withCrease(new THREE.MeshStandardMaterial({ ve
 // ================================================================ Miner
 
 /**
- * A miner hull, half buried: a chain of dark grey-brown box modules joined by collar rings, panel
- * lines and hatches, a rust bloom where the paint is gone, an engine block at the stern with three
- * nozzles. Canon: blocky, utilitarian, modular sections, visible engines. The world map draws them
- * as long chains of boxes.
+ * A miner hull, half buried (phase 3 rebuild, C-007). The world map (crop-wrecks-west.png) draws the
+ * miner ships grey-olive and angular: a chamfered hull in segments, a raised spine, tall tail fins,
+ * one end torn open with the tan inside showing. Canon: blocky, angular, visible engines, modular,
+ * dark grey-brown. Every panel is a real plate with a seam round it, so the low sun catches the edges.
+ * Lies along +X, the torn bow at -X, engines at +X. Origin on the ground at its middle.
  */
 export function minerHull(length: number, seed = 1): THREE.Object3D {
   const r = makeRng(seed);
   const kit = new Kit();
-  const metal = minerMat;
-  const L = Math.max(5, length);
-  // the map paints them grey-brown and mid-toned, not black
-  const base = new THREE.Color(0x857a6c), dark = new THREE.Color(0x4a423a), rustC = new THREE.Color(0x8e5a3c), paintC = new THREE.Color(0x9a8c74);
-  const paintMod = (g: THREE.BufferGeometry, s: number, w: number, h: number) => paintFn(g, (x, y, z, out) => {
-    out.copy(base).lerp(paintC, smooth(0.4, 0.7, noise3(x * 0.6, y * 0.6, z * 0.6, s)) * 0.6);
-    out.lerp(rustC, smooth(0.55, 0.85, noise3(x * 1.4, y * 1.4, z * 1.4, s + 1)) * 0.65);
-    // panel lines: dark grooves on a rough grid
-    const px = Math.abs(((x / (w / 3)) % 1 + 1) % 1 - 0.5), py = Math.abs(((y / (h / 2)) % 1 + 1) % 1 - 0.5);
-    out.lerp(dark, (smooth(0.46, 0.5, px) + smooth(0.46, 0.5, py)) * 0.4);
-    out.multiplyScalar(0.8 + 0.2 * smooth(-h / 2, h / 2, y));
-  });
-  const n = Math.max(3, Math.round(L / 2.4));
-  const modL = L / n - 0.25;
+  const mat = minerMat();
+  const L = Math.max(6, length);
+  const olive = new THREE.Color(0x8c8870), oliveDark = new THREE.Color(0x58554a), paintC = new THREE.Color(0xa8a288);
+  const rustC = new THREE.Color(0x8e5a3c), rustDark = new THREE.Color(0x4a2c1c), tan = new THREE.Color(0xb88d5c), inside = new THREE.Color(0x2c2620);
+  const hullPaint = (x: number, y: number, z: number, out: THREE.Color, wear = 0) => {
+    out.copy(olive).lerp(oliveDark, smooth(0.4, 0.8, noise3(x * 0.4, y * 0.4, z * 0.4, seed)) * 0.5);
+    out.lerp(paintC, smooth(0.62, 0.8, noise3(x * 0.25, y * 0.9, z * 0.25, seed + 3)) * 0.6);    // old paint in patches
+    out.lerp(rustC, smooth(0.62, 0.88, noise3(x * 1.2, y * 1.2, z * 1.2, seed + 1)) * 0.7);     // rust bloom
+    out.lerp(rustC, smooth(0.55, 0.0, y + 0.4) * 0.4);                                           // rust low down, where sand sat
+    out.lerp(paintC, wear * 0.6);
+    out.multiplyScalar(0.92 + 0.12 * snoise3(x * 5, y * 5, z * 5, seed + 2));
+  };
+  // the section: a chamfered box, 8 corners (z, y), wider than tall
+  const HW = 1.25, HH = 1.05, CH = 0.42;
+  const SEC: [number, number][] = [[-HW + CH, HH], [HW - CH, HH], [HW, HH - CH], [HW, -HH + CH], [HW - CH, -HH], [-HW + CH, -HH], [-HW, -HH + CH], [-HW, HH - CH]];
+  // the section is convex, so a face's outward direction is its midpoint seen from the axis
+  const outward = (k: number) => { const a = SEC[k], b = SEC[(k + 1) % 8]; return V(0, (a[1] + b[1]) / 2, (a[0] + b[0]) / 2).normalize(); };
+  /** A plate: a quad on the hull face k, from x a..b and face fraction s0..s1, standing out by `lift`, `thick` deep. */
+  const plate = (k: number, a: number, b: number, s0: number, s1: number, lift: number, thick: number) => {
+    const A = SEC[k], B = SEC[(k + 1) % 8], n = outward(k);
+    const at = (x: number, s: number, d: number) => V(x, lerp(A[1], B[1], s), lerp(A[0], B[0], s)).addScaledVector(n, d);
+    const o = [at(a, s0, lift), at(b, s0, lift), at(b, s1, lift), at(a, s1, lift)];
+    const i = [at(a, s0, lift - thick), at(b, s0, lift - thick), at(b, s1, lift - thick), at(a, s1, lift - thick)];
+    const box = new THREE.BufferGeometry();
+    const pos: number[] = [];
+    const q = (p: THREE.Vector3[]) => { pos.push(p[0].x, p[0].y, p[0].z, p[1].x, p[1].y, p[1].z, p[2].x, p[2].y, p[2].z, p[0].x, p[0].y, p[0].z, p[2].x, p[2].y, p[2].z, p[3].x, p[3].y, p[3].z); };
+    q(o); q([o[0], o[1], i[1], i[0]]); q([o[1], o[2], i[2], i[1]]); q([o[2], o[3], i[3], i[2]]); q([o[3], o[0], i[0], i[3]]);
+    box.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    return orientOut(box, n);
+  };
+  // flip any face that points into the hull (face normal against the plate's outward direction)
+  const orientOut = (g: THREE.BufferGeometry, n: THREE.Vector3) => {
+    const p = g.attributes.position as THREE.BufferAttribute, e1 = V(), e2 = V(), fn = V(), c = V();
+    const centroid = V();
+    for (let i = 0; i < p.count; i++) centroid.add(V(p.getX(i), p.getY(i), p.getZ(i)));
+    centroid.multiplyScalar(1 / p.count).addScaledVector(n, -0.5);
+    for (let t = 0; t < p.count; t += 3) {
+      const a = V(p.getX(t), p.getY(t), p.getZ(t)), b = V(p.getX(t + 1), p.getY(t + 1), p.getZ(t + 1)), cc = V(p.getX(t + 2), p.getY(t + 2), p.getZ(t + 2));
+      e1.subVectors(b, a); e2.subVectors(cc, a); fn.crossVectors(e1, e2);
+      c.copy(a).add(b).add(cc).multiplyScalar(1 / 3).sub(centroid);
+      if (fn.dot(c) < 0) { p.setXYZ(t + 1, cc.x, cc.y, cc.z); p.setXYZ(t + 2, b.x, b.y, b.z); }
+    }
+    return g;
+  };
+
+  // ---- modules: 4, the chain buckled at each joint
+  const nMod = 4, gap = 0.34, modL = (L - 1.4 - gap * (nMod - 1)) / nMod;
   let x = -L / 2;
-  const sink = rr(r, 0.9, 1.3);
-  for (let i = 0; i < n; i++) {
-    const w = modL, h = rr(r, 2.0, 2.6) - (i === 0 ? 0.3 : 0), d = rr(r, 2.2, 2.6);
-    const tilt = (i - n / 2) * 0.02 + rr(r, -0.03, 0.03);
-    const g = new RoundedBoxGeometry(w, h, d, 2, 0.12);
-    displace(g, 0.03, 1.2, seed + i);
-    g.rotateZ(tilt).rotateX(rr(r, -0.05, 0.05)).translate(x + w / 2, h / 2 - sink + i * 0.08, rr(r, -0.1, 0.1));
-    kit.add(paintMod(g.toNonIndexed(), seed + i, w, h), metal());
-    // a collar ring to the next module
-    if (i < n - 1) {
-      const c = new THREE.CylinderGeometry(0.85, 0.85, 0.35, 12).rotateZ(Math.PI / 2).translate(x + w + 0.12, h * 0.45 - sink, 0);
-      kit.add(paintMod(c.toNonIndexed(), seed + 20 + i, 0.35, 1.7), metal());
+  const modFrames: THREE.Matrix4[] = [];
+  let yaw = 0, pitch = 0.05;
+  for (let m = 0; m < nMod; m++) {
+    const x0 = x, x1 = x + modL;
+    const parts: THREE.BufferGeometry[] = [];
+    const cols: ((x: number, y: number, z: number, out: THREE.Color) => void)[] = [];
+    const tornBow = m === 0;
+    // the core under the plates: darker, so every seam between plates shows as a dark line
+    const core = new THREE.BufferGeometry(), cp: number[] = [];
+    for (let k = 0; k < 8; k++) {
+      const A = SEC[k], B = SEC[(k + 1) % 8], a0 = x0 + (tornBow ? 0.9 : 0), a1 = x1;
+      const P = [V(a0, A[1], A[0]), V(a1, A[1], A[0]), V(a1, B[1], B[0]), V(a0, B[1], B[0])].map((v) => V(v.x, v.y * 0.985, v.z * 0.985));
+      cp.push(P[0].x, P[0].y, P[0].z, P[1].x, P[1].y, P[1].z, P[2].x, P[2].y, P[2].z, P[0].x, P[0].y, P[0].z, P[2].x, P[2].y, P[2].z, P[3].x, P[3].y, P[3].z);
     }
-    // hatches and a ladder on some modules
-    if (r() < 0.6) {
-      const hatch = new RoundedBoxGeometry(0.7, 0.9, 0.08, 1, 0.04).translate(x + w * rr(r, 0.3, 0.7), h * 0.5 - sink + 0.1, d / 2 + 0.03);
-      kit.add(paintFn(hatch.toNonIndexed(), (_x, _y, _z, out) => out.copy(dark).lerp(rustC, 0.3)), metal());
+    core.setAttribute('position', new THREE.Float32BufferAttribute(cp, 3));
+    parts.push(orientCore(core)); cols.push((_x, _y, _z, out) => out.copy(oliveDark).multiplyScalar(0.55));
+    // plates: 2 or 3 along each face, split across the wide faces; the torn bow loses plates
+    const along = modL > 2.2 ? 3 : 2;
+    for (let k = 0; k < 8; k++) {
+      const across = k === 0 || k === 3 || k === 7 || k === 4 ? 2 : 1;
+      for (let i = 0; i < along; i++) for (let j = 0; j < across; j++) {
+        const a = lerp(x0, x1, i / along) + 0.045, b = lerp(x0, x1, (i + 1) / along) - 0.045;
+        if (tornBow && (a < x0 + 0.9 || (k <= 2 && i === 1 && r() < 0.7))) continue;   // torn away
+        if (!tornBow && r() < 0.05) continue;                                          // a lost plate
+        const s0 = j / across + 0.04, s1 = (j + 1) / across - 0.04;
+        parts.push(plate(k, a, b, s0, s1, 0.05 + rr(r, -0.012, 0.012), 0.07));
+        const px = (a + b) / 2, wear = r() < 0.3 ? 0.4 : 0;
+        cols.push((xx, yy, zz, out) => hullPaint(xx + px, yy, zz, out, wear));
+      }
     }
-    x += w + 0.25;
+    // a hatch on the south flank of the second and third modules
+    if (m === 1 || m === 2) {
+      const hx = lerp(x0, x1, rr(r, 0.35, 0.65));
+      parts.push(plate(3, hx - 0.38, hx + 0.38, 0.22, 0.8, 0.1, 0.05)); cols.push((_x, _y, _z, out) => out.copy(oliveDark).lerp(rustC, 0.35));
+    }
+    // the dorsal spine on the middle modules: a narrow raised box with its own plates
+    if (m === 1 || m === 2) {
+      const sp = new THREE.BoxGeometry(modL * 0.86, 0.36, 0.9).toNonIndexed().translate((x0 + x1) / 2, HH + 0.18, rr(r, -0.1, 0.1));
+      parts.push(sp); cols.push((xx, yy, zz, out) => hullPaint(xx, yy, zz, out, 0.2));
+      for (let i = 0; i < 3; i++) {
+        const vx = lerp(x0, x1, 0.2 + i * 0.3);
+        parts.push(new THREE.BoxGeometry(0.28, 0.12, 0.7).toNonIndexed().translate(vx, HH + 0.42, 0)); cols.push((_x, _y, _z, out) => out.copy(oliveDark));
+      }
+    }
+    // the torn bow: ribs across the open end, the dark inside, and a lit tan bulkhead further in
+    if (tornBow) {
+      for (let i = 0; i < 3; i++) {
+        const rx = x0 + 0.15 + i * 0.32, ring: THREE.Vector3[] = [];
+        for (let k = 0; k <= 8; k++) { const c = SEC[k % 8]; ring.push(V(rx, c[1] * 0.93, c[0] * 0.93)); }
+        const rib = sweep(ring, { segments: 24, radial: 4, radius: () => 0.07 });
+        parts.push(rib); cols.push((_x, _y, _z, out) => out.copy(rustC).multiplyScalar(0.8));
+      }
+      const wallG = new THREE.BufferGeometry(), wp: number[] = [];
+      const bx = x0 + 1.25;
+      for (let k = 0; k < 8; k++) { const A = SEC[k], B = SEC[(k + 1) % 8]; wp.push(bx, 0, 0, bx, A[1] * 0.95, A[0] * 0.95, bx, B[1] * 0.95, B[0] * 0.95); }
+      wallG.setAttribute('position', new THREE.Float32BufferAttribute(wp, 3));
+      parts.push(orientTo(wallG, V(-1, 0, 0))); cols.push((_x, y, _z, out) => out.copy(tan).lerp(rustDark, smooth(0.6, -0.8, y) * 0.6));
+      // the inside of the hull, seen past the torn plates
+      const inG = new THREE.BufferGeometry(), ip: number[] = [];
+      for (let k = 0; k < 8; k++) {
+        const A = SEC[k], B = SEC[(k + 1) % 8];
+        const P = [V(x0, A[1] * 0.96, A[0] * 0.96), V(bx, A[1] * 0.96, A[0] * 0.96), V(bx, B[1] * 0.96, B[0] * 0.96), V(x0, B[1] * 0.96, B[0] * 0.96)];
+        ip.push(P[0].x, P[0].y, P[0].z, P[2].x, P[2].y, P[2].z, P[1].x, P[1].y, P[1].z, P[0].x, P[0].y, P[0].z, P[3].x, P[3].y, P[3].z, P[2].x, P[2].y, P[2].z);
+      }
+      inG.setAttribute('position', new THREE.Float32BufferAttribute(ip, 3));
+      parts.push(inG); cols.push((_x, y, _z, out) => out.copy(inside).lerp(tan, smooth(-0.5, 1.2, y) * 0.3));
+    }
+    // this module's frame: the chain buckles a few degrees at each joint, and sinks towards the bow
+    const M = new THREE.Matrix4().makeTranslation(x0, 0, 0)
+      .multiply(new THREE.Matrix4().makeRotationY(yaw))
+      .multiply(new THREE.Matrix4().makeRotationZ(pitch))
+      .multiply(new THREE.Matrix4().makeRotationX(rr(r, -0.06, 0.06)))
+      .multiply(new THREE.Matrix4().makeTranslation(-x0, 0, 0));
+    modFrames.push(M);
+    parts.forEach((p, i) => {
+      p.applyMatrix4(M);
+      const f = cols[i];
+      // the torn bow's bulkhead and inside are seen from both sides
+      kit.add(paintFn(p, (xx, yy, zz, out) => f(xx, yy, zz, out)), m === 0 && i >= parts.length - 2 ? matte2() : mat);
+    });
+    // the collar to the next module: a short, smaller section with a tan band (the map's joints)
+    if (m < nMod - 1) {
+      const cx = x1 + gap / 2, ring: THREE.Vector3[][] = [];
+      for (const dx of [-gap / 2 - 0.1, gap / 2 + 0.1]) ring.push(SEC.map(([z, y]) => V(cx + dx, y * 0.9, z * 0.9)));
+      const col = loft(ring, { closed: true });
+      col.applyMatrix4(M);
+      kit.add(paintFn(col, (_x, _y, _z, out) => out.copy(tan).lerp(rustC, 0.3)), mat);
+    }
+    yaw += rr(r, -0.07, 0.07);
+    pitch -= rr(r, 0.015, 0.035);
+    x = x1 + gap;
   }
-  // swept fins on the first module and the stern, as the map draws them
-  for (const [fx, side] of [[-L / 2 + 0.8, 1], [-L / 2 + 0.8, -1], [L / 2 - 0.6, 1], [L / 2 - 0.6, -1]] as const) {
-    const b = 1.2 - sink;
-    const g = new THREE.ExtrudeGeometry(new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(1.5, 0), new THREE.Vector2(1.8, 1.6)]), { depth: 0.08, bevelEnabled: false });
-    g.rotateX(side * Math.PI / 2).translate(fx - 0.9, b + 0.1, side * 1.15);
-    kit.add(paintMod(g.toNonIndexed(), seed + 70, 1.5, 1.6), metal());
+  // core faces point away from the hull axis (y = 0, z = 0)
+  function orientCore(g: THREE.BufferGeometry) {
+    const p = g.attributes.position as THREE.BufferAttribute, e1 = V(), e2 = V(), fn = V(), c = V();
+    for (let t = 0; t < p.count; t += 3) {
+      const a = V(p.getX(t), p.getY(t), p.getZ(t)), b = V(p.getX(t + 1), p.getY(t + 1), p.getZ(t + 1)), cc = V(p.getX(t + 2), p.getY(t + 2), p.getZ(t + 2));
+      e1.subVectors(b, a); e2.subVectors(cc, a); fn.crossVectors(e1, e2);
+      c.set(0, a.y + b.y + cc.y, a.z + b.z + cc.z);
+      if (fn.dot(c) < 0) { p.setXYZ(t + 1, cc.x, cc.y, cc.z); p.setXYZ(t + 2, b.x, b.y, b.z); }
+    }
+    return g;
   }
-  // the engine block at the stern: three nozzles, blackened inside
-  const ex = L / 2 + 0.2;
-  const eb = new RoundedBoxGeometry(1.2, 2.2, 2.6, 2, 0.15).translate(ex, 1.1 - sink + 0.3, 0);
-  kit.add(paintMod(eb.toNonIndexed(), seed + 40, 1.2, 2.2), metal());
-  for (const [zy, zz] of [[0.3, -0.75], [0.3, 0.75], [1.3, 0]] as const) {
-    const noz = lathe([[0.45, 0], [0.38, 0.3], [0.5, 0.9], [0.56, 1.0], [0.5, 1.0], [0.44, 0.9], [0.32, 0.3], [0.001, 0.2]], 14);
-    noz.rotateZ(-Math.PI / 2).translate(ex + 0.55, zy - sink + 0.3 + 0.6, zz);
-    kit.add(paintFn(noz, (x2, _y, _z, out) => out.copy(base).lerp(dark, smooth(ex + 1.2, ex + 1.5, x2) * 0.8).lerp(rustC, 0.25)), metal());
+  function orientTo(g: THREE.BufferGeometry, n: THREE.Vector3) {
+    const p = g.attributes.position as THREE.BufferAttribute, e1 = V(), e2 = V(), fn = V();
+    for (let t = 0; t < p.count; t += 3) {
+      const a = V(p.getX(t), p.getY(t), p.getZ(t)), b = V(p.getX(t + 1), p.getY(t + 1), p.getZ(t + 1)), cc = V(p.getX(t + 2), p.getY(t + 2), p.getZ(t + 2));
+      e1.subVectors(b, a); e2.subVectors(cc, a); fn.crossVectors(e1, e2);
+      if (fn.dot(n) < 0) { p.setXYZ(t + 1, cc.x, cc.y, cc.z); p.setXYZ(t + 2, b.x, b.y, b.z); }
+    }
+    return g;
   }
-  // sand drifted against the upwind side
-  for (let i = 0; i < 5; i++) {
-    const g = new THREE.IcosahedronGeometry(1, 1);
-    displace(g, 0.25, 1.5, seed + 60 + i);
-    g.scale(rr(r, 1.4, 2.2), rr(r, 0.5, 0.8), rr(r, 0.9, 1.3)).translate(lerp(-L / 2, L / 2, i / 4), -0.3, -1.6 + rr(r, -0.3, 0.2));
-    kit.add(paintFn(g, (_x, _y, _z, out) => out.setHex(PALETTE.sand).multiplyScalar(0.95)), matte());
+
+  // ---- the stern: engine block, three nozzles, two tall fins and two swept wings
+  const last = modFrames[nMod - 1];
+  const ex = x;
+  const eb = new THREE.BoxGeometry(1.1, 2.0, 2.3, 2, 2, 2).toNonIndexed().translate(ex + 0.35, 0, 0);
+  const sternParts: [THREE.BufferGeometry, (x: number, y: number, z: number, o: THREE.Color) => void, THREE.Material][] = [];
+  sternParts.push([eb, (xx, yy, zz, o) => hullPaint(xx, yy, zz, o, 0.1), mat]);
+  for (const [zy, zz] of [[-0.45, -0.62], [-0.45, 0.62], [0.5, 0]] as const) {
+    const noz = lathe([[0.42, 0], [0.36, 0.25], [0.48, 0.8], [0.54, 0.95], [0.48, 0.95], [0.4, 0.82], [0.3, 0.3], [0.001, 0.2]], 14);
+    noz.rotateZ(-Math.PI / 2).translate(ex + 0.9, zy, zz);
+    sternParts.push([noz, (x2, _y, _z, o) => o.copy(olive).lerp(rustDark, smooth(ex + 1.5, ex + 1.85, x2) * 0.9).lerp(rustC, 0.25), mat]);
   }
-  return kit.build('miner-hull');
+  const fin = (h: number, len: number) => new THREE.ExtrudeGeometry(new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(len, 0), new THREE.Vector2(len * 0.95, h * 0.35), new THREE.Vector2(len * 0.55, h)]), { depth: 0.1, bevelEnabled: false });
+  // tall tail fins, splayed: the map's ships all carry them
+  for (const side of [-1, 1]) {
+    const f = fin(rr(r, 1.5, 1.9), 1.9).toNonIndexed();
+    f.translate(-1.9, 0, -0.05).rotateX(side * 0.28).translate(ex + 0.5, HH - 0.1, side * 0.55);
+    sternParts.push([f, (xx, yy, zz, o) => hullPaint(xx, yy, zz, o, 0.25), mat]);
+  }
+  // swept wings, low on the flanks; one snapped short
+  for (const side of [-1, 1]) {
+    const f = fin(side > 0 ? 1.0 : 1.7, 2.1).toNonIndexed();
+    f.translate(-2.1, 0, -0.05).rotateX(side * Math.PI / 2).translate(ex + 0.4, -0.35, side * HW);
+    sternParts.push([f, (xx, yy, zz, o) => hullPaint(xx, yy, zz, o, 0.15), mat]);
+  }
+  for (const [g, f, m] of sternParts) { g.applyMatrix4(last); kit.add(paintFn(g, f), m); }
+
+  const built = kit.build('miner-hull');
+  // half buried: the whole ship sinks, nose deeper (done by the module pitch), and rolls a little
+  const sink = rr(r, 0.75, 0.95);
+  const W0 = new THREE.Matrix4().makeTranslation(0, HH - sink, 0).multiply(new THREE.Matrix4().makeRotationX(0.12));
+  built.traverse((o) => { if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).geometry.applyMatrix4(W0); });
+
+  // ---- sand heaped against both flanks and over the bow; panels thrown off lying about
+  const extra = new Kit();
+  const packed = new THREE.Color(0xbc9c74), sandC = new THREE.Color(0xd3b286);
+  // low drifts, mostly on the upwind (north-west, -Z) flank: the ground heaped against the hull
+  for (let i = 0; i < 6; i++) {
+    const g = new THREE.IcosahedronGeometry(1, 2);
+    displace(g, 0.12, 1.6, seed + 60 + i);
+    const side = i < 4 ? -1 : 1, u = i < 4 ? lerp(-0.42, 0.3, i / 3) : lerp(-0.2, 0.2, i - 4);
+    g.scale(rr(r, 1.4, 2.0), rr(r, 0.22, 0.34), rr(r, 0.7, 0.95)).translate(u * L, -0.12, side * (HW + 0.35));
+    extra.add(paintFn(g, (xx, y, zz, out) => out.copy(packed).lerp(sandC, smooth(-0.2, 0.3, y) * 0.7).multiplyScalar(0.96 + 0.08 * snoise3(xx * 3, y * 3, zz * 3, seed))), matte());
+  }
+  const bowDrift = new THREE.IcosahedronGeometry(1, 2);
+  displace(bowDrift, 0.2, 1.4, seed + 90);
+  bowDrift.scale(1.3, 0.45, 1.5).translate(-L / 2 - 0.3, -0.12, 0.1);
+  extra.add(paintFn(bowDrift, (xx, y, zz, out) => out.copy(packed).lerp(sandC, smooth(-0.2, 0.4, y) * 0.7).multiplyScalar(0.96 + 0.08 * snoise3(xx * 3, y * 3, zz * 3, seed))), matte());
+  for (let i = 0; i < 7; i++) {
+    const w = rr(r, 0.5, 1.1), d = rr(r, 0.4, 0.9);
+    const g = new THREE.BoxGeometry(w, 0.06, d, 3, 1, 2).toNonIndexed();
+    const p = g.attributes.position as THREE.BufferAttribute;
+    for (let v = 0; v < p.count; v++) p.setY(v, p.getY(v) + (p.getX(v) / w) ** 2 * 0.2);
+    g.rotateX(rr(r, -0.3, 0.3)).rotateY(r() * 6).translate(rr(r, -L / 2 - 1.5, L / 2), 0.03, (r() < 0.5 ? -1 : 1) * rr(r, HW + 1.2, HW + 3.2));
+    extra.add(paintFn(g, (xx, yy, zz, out) => hullPaint(xx, yy, zz, out, 0.2)), mat);
+  }
+  const eg = extra.build('miner-hull-sand');
+  for (const c of [...eg.children]) built.add(c);
+  return built;
 }
 
 // ================================================================ Aza'los
