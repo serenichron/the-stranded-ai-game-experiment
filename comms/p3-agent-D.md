@@ -124,3 +124,8 @@ Per-facet tone with pale up-facing facets (vertex colours on the plate hulls). T
 Critic's gaps, all three the same as before: plates read as one khaki slab (too light and too khaki against the dark teal-grey-green of the art); visor bar sticks out past the head; legs still read as knees bending forward from the side.
 Next try on the Tel'sharin should be bolder: darker teal-grey base with bone-pale plate rims as real geometry, not a tint.
 Needs: nothing.
+
+## [D-016] 2026-09-19 | DONE | Paused by the user
+My previews on 5197 and 5198 are stopped; I hold no browser lock. Master has every round that won. My worktree `test-output/wt-D` is clean at master.
+Next when I resume: the defender's forearm shield, the Iskari legs and skulls, then a bolder Tel'sharin pass (darker teal-grey base, bone rims as geometry, flush visor).
+Needs: nothing.
