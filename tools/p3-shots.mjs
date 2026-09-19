@@ -29,8 +29,8 @@ export const SHOTS = {
   'spire':       { at: [24, 15], zoom: 0.8, yaw: 0 },
   // phase 3: the Maker ship from the gap, low, so its silhouette shows against the sky
   'maker-low':   { at: [42, 36], zoom: 2.2, yaw: 3 },
-  // phase 3: the Aza'los vessel from the west, low
-  'vessel-low':  { at: [52, 21], zoom: 2.0, yaw: 3 },
+  // phase 3: the whole Aza'los vessel, camera turned so it lies across the screen (low views hit walls here)
+  'vessel-low':  { at: [56.5, 21], zoom: 1.0, yaw: 1 },
   // the see-through circle: behind a shack it should open, in the open it should not
   // low views: zoomed right in, the camera drops and the horizon shows
   'camp-low':    { at: [13, 44], zoom: 2.4, yaw: 1 },
