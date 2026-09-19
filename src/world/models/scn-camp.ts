@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { PALETTE } from './types';
 import {
-  Kit, makeRng, rr, ri, pick, lerp, clamp01, smooth, noise3, displace, paint, paintFn, sweep, lathe,
+  Kit, makeRng, rr, ri, pick, lerp, clamp01, smooth, noise3, snoise3, displace, paint, paintFn, sweep, lathe,
   matte, matte2, metal, type Rng,
 } from './scn-kit';
 
@@ -33,13 +33,16 @@ export function pole(a: THREE.Vector3, b: THREE.Vector3, rad: number, seg = 5): 
  */
 export function tornCanvas(r: Rng, w: number, d: number, hFront: number, hBack: number, hex: number, seed: number): THREE.BufferGeometry {
   const NU = Math.max(6, Math.round(w * 4)), NV = Math.max(5, Math.round(d * 4));
-  const sag = 0.1 + 0.05 * Math.max(w, d);
+  // phase 3 (C-017): cloth hangs from its four corners, so every hem droops between the poles too
+  // (with sag only in the middle the edges ran dead straight and the canvas read as a stiff board)
+  const sag = 0.16 + 0.07 * Math.max(w, d);
   const P = (i: number, j: number) => {
     const u = i / NU, v = j / NV;
-    const y = lerp(hBack, hFront, v) - sag * Math.sin(Math.PI * u) * Math.sin(Math.PI * v) + 0.03 * noise3(u * 6, v * 6, 0, seed);
+    const su = Math.sin(Math.PI * u), sv = Math.sin(Math.PI * v);
+    const y = lerp(hBack, hFront, v) - sag * (0.45 * su + 0.3 * sv + 0.5 * su * sv) + 0.05 * snoise3(u * 5, v * 5, 0, seed);
     return V((u - 0.5) * w, y, (v - 0.5) * d);
   };
-  const hole = (i: number, j: number) => noise3(i * 0.55, j * 0.55, seed * 0.1, seed) > 0.72 && i > 0 && j > 0 && i < NU - 1 && j < NV - 1;
+  const hole = (i: number, j: number) => noise3(i * 0.45, j * 0.45, seed * 0.1, seed) > 0.66 && i > 0 && j > 0 && i < NU - 1 && j < NV - 1;
   const pos: number[] = [];
   const tri = (a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3) => pos.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
   for (let i = 0; i < NU; i++) for (let j = 0; j < NV; j++) {
@@ -47,13 +50,19 @@ export function tornCanvas(r: Rng, w: number, d: number, hFront: number, hBack: 
     const a = P(i, j), b = P(i + 1, j), c = P(i + 1, j + 1), e = P(i, j + 1);
     tri(a, e, b); tri(b, e, c);
   }
-  // tatters hanging from the front hem
-  for (let i = 0; i < NU; i++) {
-    if (r() < 0.35) continue;
-    const a = P(i, NV), b = P(i + 1, NV);
-    const len = rr(r, 0.12, 0.45);
-    const tip = a.clone().lerp(b, rr(r, 0.3, 0.7)).add(V(rr(r, -0.05, 0.05), -len, rr(r, 0.02, 0.08)));
-    tri(a, tip, b);
+  // tatters hanging from the front and side hems
+  const hems: [THREE.Vector3, THREE.Vector3][] = [];
+  for (let i = 0; i < NU; i++) hems.push([P(i, NV), P(i + 1, NV)]);
+  for (let j = 0; j < NV; j++) { hems.push([P(0, j), P(0, j + 1)]); hems.push([P(NU, j), P(NU, j + 1)]); }
+  for (const [a, b] of hems) {
+    if (r() < 0.4) continue;
+    // uneven strips, not a sawtooth: most short, a few long, each narrowing to a ragged end
+    const len = r() < 0.25 ? rr(r, 0.45, 0.8) : rr(r, 0.06, 0.25);
+    const m = a.clone().lerp(b, rr(r, 0.35, 0.65));
+    const s1 = a.clone().lerp(m, rr(r, 0.2, 0.6)), s2 = b.clone().lerp(m, rr(r, 0.2, 0.6));
+    const tip = m.clone().add(V(rr(r, -0.06, 0.06), -len, rr(r, 0.01, 0.05)));
+    const midL = s1.clone().lerp(tip, 0.55).add(V(rr(r, -0.03, 0.03), 0, 0)), midR = s2.clone().lerp(tip, 0.5);
+    tri(a, s1, b); tri(s1, s2, b); tri(s1, midL, s2); tri(midL, midR, s2); tri(midL, tip, midR);
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
