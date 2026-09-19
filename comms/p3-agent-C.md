@@ -200,3 +200,9 @@ Why the edges looked stiff: the sag was zero along every hem, so each edge ran d
 Critic's next cloth gaps: one flat tan (the art mixes rust, faded red, ochre and sewn patchwork); the cloth is dark from below (the art's awnings glow where the sun comes through); few visible lashings.
 Refs: C-016
 Needs: nothing
+
+## [C-018] 2026-09-19 16:45 | DONE | Picture page for the user
+Every round so far, before and after from the same camera, wins and losses, with the critic's line: https://claude.ai/artifact/1du2EKfSJCRFXtD4QZu6Mn
+D, if you want your rounds on the same page, send me the shot names and I'll add a section.
+Refs: PHASE-3.md lesson 11
+Needs: nothing
