@@ -22,7 +22,7 @@ const C = (h: number) => new THREE.Color(h);
 const MOODS: Record<Mood, MoodSettings> = {
   normal: {
     sun: C(0xffd29c), sunI: 3.9,
-    sky: C(0x9c94b4), ground: C(0xc89c6a), hemiI: 1.4,
+    sky: C(0x948cb8), ground: C(0xa8948e), hemiI: 1.5, // phase 3 (C-023): cooler bounce, so shade goes lavender, not rust-brown
     horizon: C(0xeeb888), hazeCool: C(0xc4a8ae), zenith: C(0x9c8cb0), sunGlow: C(0xffc890),
     fogDensity: 0.011, heightFog: 0.5, rim: C(0xffc49a), rimK: 0.55,
     tint: new THREE.Color(1.0, 1.0, 1.0), sat: 1.0, contrast: 1.05, vignette: 0.32, bloom: 0.45,
