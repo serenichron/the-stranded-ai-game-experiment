@@ -52,14 +52,15 @@ function build0(race: Race, body: Body, look: string): Build {
   const f = body === 'female';
   const heavy = look === 'hadda' || look === 'tarn' || look === 'digger';
   if (race === 'telsharin') {
-    // telsharin-warden-pair-*.png: tall, lean, long arms, backward-bending legs on long feet
+    // telsharin-warden-pair-*.png: tall and lean, a narrow waist between chest armour and hip armour,
+    // long arms, backward-bending legs on long feet. This is the dark core: armour plates sit on top.
     return {
-      dims: { thigh: 0.5, shin: 0.5, meta: 0.3, footH: 0.04, hipW: 0.12, spineLen: 0.64, shoulderW: 0.25, upperArm: 0.42, foreArm: 0.42, neck: 0.12 },
-      chestW: 0.25, chestD: 0.16, waistW: 0.13, waistD: 0.1, hipW: 0.16, hipD: 0.115,
-      neckR: 0.05, armR: 0.075, elbowR: 0.06, foreR: 0.07, wristR: 0.045,
-      thighR: 0.11, kneeR: 0.07, calfR: 0.078, ankleR: 0.045,
-      muscle: 0.2, bust: 0, hand: 1.3, finger: 1.6,
-      head: { w: 0.14, h: 0.15, d: 0.15, jaw: 1, brow: 0, cheek: 0, chin: 0 },
+      dims: { thigh: 0.5, shin: 0.5, meta: 0.3, footH: 0.04, hipW: 0.115, spineLen: 0.62, shoulderW: 0.215, upperArm: 0.4, foreArm: 0.4, neck: 0.14 },
+      chestW: 0.19, chestD: 0.13, waistW: 0.085, waistD: 0.07, hipW: 0.13, hipD: 0.1,
+      neckR: 0.036, armR: 0.042, elbowR: 0.038, foreR: 0.04, wristR: 0.028,
+      thighR: 0.07, kneeR: 0.05, calfR: 0.045, ankleR: 0.032,
+      muscle: 0.1, bust: 0, hand: 1.25, finger: 1.5,
+      head: { w: 0.092, h: 0.12, d: 0.11, jaw: 1, brow: 0, cheek: 0, chin: 0 },
       height: 2.1,
     };
   }
@@ -137,14 +138,14 @@ function build0(race: Race, body: Body, look: string): Build {
 
 // ================================================================= material slots
 
-const M = {
+export const M = {
   skin: 0, marked: 1, top: 2, bottom: 3, leather: 4, sash: 5, hair: 6, nail: 7, metal: 8, brass: 9, robe: 10, trim: 11, lip: 12,
 } as const;
 const NMAT = 13;
 
 // ================================================================= the sculpt context
 
-interface Ctx {
+export interface Ctx {
   race: Race; body: Body; look: string; f: boolean; B: Build; rig: Rig; r: () => number;
   /** Bind-pose joint positions, body space. */
   j: Record<string, V3>;
@@ -290,18 +291,7 @@ function dressBody(c: Ctx): Pal {
   };
 
   if (race === 'telsharin') {
-    // the chest plate is torn open on the left: bone ribs and a sternum show in the hole (warden art)
-    c.prims.push({ kind: 'ell', a: [-B.chestW * 0.38, yS * 0.62, -B.chestD * 0.95], s: [0.085, 0.11, 0.07], bone: J.spine, mat: M.marked, k: 0.02, sub: true });
-    for (let i = 0; i < 4; i++) {
-      const y = yS * 0.5 + i * 0.05;
-      c.prims.push({ kind: 'cap', a: [-B.chestW * 0.7, y, -B.chestD * 0.45], b: [-0.01, y + 0.015, -B.chestD * 0.8], r: 0.011, bone: J.spine, mat: M.nail, k: 0.01 });
-    }
-    c.prims.push({ kind: 'cap', a: [0, yS * 0.45, -B.chestD * 0.82], b: [0, yS * 0.78, -B.chestD * 0.86], r: 0.018, bone: J.spine, mat: M.nail, k: 0.01 });
-    // armour ridges: a raised plate edge across the chest and round the waist
-    c.prims.push({ kind: 'ell', a: [0, yS * 0.4, 0.004], s: [B.chestW * 0.9, 0.025, B.chestD * 0.93], bone: J.spine, mat: M.marked, k: 0.01 });
-    band(0.06, 0.04, 0.02, M.marked);
-    // a big pauldron on the right shoulder
-    c.prims.push({ kind: 'ell', a: plus(shoulder(1), -0.01, 0.03, 0), s: [0.1, 0.07, 0.1], rot: [0, 0, -0.4], bone: J.rArm, mat: M.skin, k: 0.015 });
+    // the armour, and the bone ribs where the left chest plate is torn away, are rigid (char-telsharin.ts)
     return { top: 0x8a9c86, bottom: 0x8a9c86 };
   }
   if (look === 'defender') {
@@ -421,11 +411,9 @@ function sculptHead(c: Ctx): { geoKey: string; prims: Prim[]; eyes: V3[]; eyeR: 
   const cp = (a: V3, b: V3, r: number, r2: number, mat: number, k: number, sub = false) => add({ kind: 'cap', a, b, r, r2, bone: -1, mat, k, sub });
   const w = H.w, h = H.h, d = H.d;
   if (race === 'telsharin') {
-    add({ kind: 'box', a: [0, hy + h * 0.1, 0.005], s: [w * 0.9, h * 0.95, d * 0.95], r: 0.035, rot: [0.15, 0, 0], bone: -1, mat: M.skin, k: 0.01 });
-    add({ kind: 'box', a: [0, hy + h * 0.85, 0.01], s: [w * 0.6, h * 0.25, d * 0.7], r: 0.02, rot: [0.3, 0.78, 0], bone: -1, mat: M.skin, k: 0.02 });
-    e([0, hy - h * 0.45, -d * 0.2], [w * 0.75, h * 0.45, d * 0.75], M.marked, 0.03);
-    add({ kind: 'box', a: [0, hy + h * 0.05, -d * 0.92], s: [w * 0.9, h * 0.22, 0.03], r: 0.01, bone: -1, mat: M.marked, k: 0.01 });
-    return { geoKey: 'head:telsharin', prims: P, eyes: [], eyeR: 0 };
+    // only the dark socket under the helmet; the faceted dome is a rigid hull (char-telsharin.ts)
+    e([0, hy - h * 0.55, 0.0], [w * 0.62, h * 0.5, d * 0.62], M.skin, 0.03);
+    return { geoKey: 'head:telsharin2', prims: P, eyes: [], eyeR: 0 };
   }
   const iskari = race === 'iskari', sehari = race === 'sehari';
   // skull and cranium: Iskari and Sehari skulls sweep further back
@@ -501,9 +489,18 @@ function sculptHand(c: Ctx, s: number): Prim[] {
   const P: Prim[] = [];
   const k = B.hand, fl = B.finger;
   if (race === 'telsharin') {
-    P.push({ kind: 'box', a: [0, -0.05, 0], s: [0.016, 0.045, 0.034], r: 0.01, bone: -1, mat: M.marked, k: 0.01 });
-    for (const z of [-0.022, 0, 0.022]) P.push({ kind: 'cap', a: [0, -0.09, z], b: [s * 0.02, -0.21, z * 1.3], r: 0.009, r2: 0.004, bone: -1, mat: M.nail, k: 0.006 });
-    P.push({ kind: 'cap', a: [0, -0.04, -0.03], b: [s * 0.02, -0.12, -0.06], r: 0.009, r2: 0.004, bone: -1, mat: M.nail, k: 0.008 });
+    // a long mechanical hand: plated palm, three jointed fingers and a thumb, bone claw tips (warden art)
+    P.push({ kind: 'box', a: [0, -0.05, 0], s: [0.017, 0.05, 0.036], r: 0.01, bone: -1, mat: M.marked, k: 0.01 });
+    [-0.024, 0, 0.024].forEach((z, i) => {
+      const L = [0.1, 0.115, 0.1][i];
+      const a: V3 = [0, -0.1, z], m1: V3 = [s * 0.012, -0.1 - L * 0.5, z * 1.1], m2: V3 = [s * 0.03, -0.1 - L * 0.9, z * 1.15];
+      P.push({ kind: 'cap', a, b: m1, r: 0.0105, r2: 0.009, bone: -1, mat: M.marked, k: 0.004 });
+      P.push({ kind: 'cap', a: m1, b: m2, r: 0.009, r2: 0.0075, bone: -1, mat: M.marked, k: 0.004 });
+      P.push({ kind: 'ell', a: m1, s: [0.012, 0.011, 0.012], bone: -1, mat: M.skin, k: 0.004 });
+      P.push({ kind: 'cap', a: m2, b: [s * 0.045, -0.1 - L * 1.12, z * 1.2], r: 0.007, r2: 0.0015, bone: -1, mat: M.nail, k: 0.004 });
+    });
+    P.push({ kind: 'cap', a: [s * 0.006, -0.03, -0.034], b: [s * 0.02, -0.1, -0.06], r: 0.011, r2: 0.008, bone: -1, mat: M.marked, k: 0.008 });
+    P.push({ kind: 'cap', a: [s * 0.02, -0.1, -0.06], b: [s * 0.03, -0.13, -0.066], r: 0.007, r2: 0.0015, bone: -1, mat: M.nail, k: 0.004 });
     return P;
   }
   const skinMat = race === 'sehari' && s < 0 ? M.marked : M.skin;
@@ -532,10 +529,17 @@ function sculptFoot(c: Ctx, s: number): Prim[] {
   const fh = B.dims.footH;
   const skinMat = race === 'sehari' && s > 0 ? M.marked : M.skin;
   if (race === 'telsharin') {
+    // a long plated metatarsal, three forward toes and a back spur, each ending in bone (warden art)
     const L = B.dims.meta;
-    P.push({ kind: 'cap', a: [0, 0, 0], b: [0, -L, 0], r: 0.045, r2: 0.035, bone: -1, mat: M.marked, k: 0.02 });
-    for (const yaw of [-0.55, 0, 0.55]) P.push({ kind: 'cap', a: [0, -L, 0], b: [Math.sin(yaw) * 0.19, -L - 0.02, -Math.cos(yaw) * 0.19], r: 0.02, r2: 0.006, bone: -1, mat: M.nail, k: 0.015 });
-    P.push({ kind: 'cap', a: [0, -L, 0], b: [0, -L - 0.02, 0.1], r: 0.016, r2: 0.005, bone: -1, mat: M.nail, k: 0.01 });
+    P.push({ kind: 'cap', a: [0, 0, 0], b: [0, -L, 0], r: 0.04, r2: 0.032, bone: -1, mat: M.marked, k: 0.02 });
+    P.push({ kind: 'ell', a: [0, -L, -0.01], s: [0.042, 0.03, 0.05], bone: -1, mat: M.skin, k: 0.015 });
+    for (const yaw of [-0.5, 0, 0.5]) {
+      const mid: V3 = [Math.sin(yaw) * 0.1, -L - 0.022, -Math.cos(yaw) * 0.1];
+      const tip: V3 = [Math.sin(yaw) * 0.19, -L - 0.03, -Math.cos(yaw) * 0.19];
+      P.push({ kind: 'cap', a: [0, -L, -0.01], b: mid, r: 0.018, r2: 0.014, bone: -1, mat: M.marked, k: 0.01 });
+      P.push({ kind: 'cap', a: mid, b: tip, r: 0.014, r2: 0.004, bone: -1, mat: M.nail, k: 0.006 });
+    }
+    P.push({ kind: 'cap', a: [0, -L, 0], b: [0, -L - 0.028, 0.1], r: 0.015, r2: 0.004, bone: -1, mat: M.nail, k: 0.01 });
     return P;
   }
   if (race === 'iskari') {
@@ -586,10 +590,10 @@ function materials(c: Ctx, pal: Pal): THREE.Material[] {
     nail = smat('', 0x2a2226, { rough: 0.5 });
     lip = smat('sehari', shade(hex, 0, 0, -0.1), { rough: 0.8, scale: 5 });
   } else if (race === 'telsharin') {
-    // oxidised grey-green Maker metal in flat facets, darker plating, pitted bone (canon, locked)
-    // dark gunmetal with a green cast, rust and pitting (telsharin-warden-pair-variant-a.png)
-    skin = smat('metal', 0x7a7c72, { rough: 0.55, metal: 0.15, flat: true, scale: 3 });
-    marked = smat('metal', 0x4a4a42, { rough: 0.6, metal: 0.15, flat: true, scale: 3 });
+    // the dark core under the armour, plated fingers and feet, pitted bone (canon, locked;
+    // telsharin-warden-pair-variant-a/b/c.png). The armour plates themselves are in char-telsharin.ts.
+    skin = smat('maker', 0x474c44, { rough: 0.7, metal: 0.1, flat: true, scale: 4 });
+    marked = smat('warden', 0x7c8a80, { rough: 0.55, metal: 0.15, flat: true, scale: 5 });
     nail = smat('bone', 0xd2c4a2, { rough: 0.9, flat: true, scale: 4 });
     hair = lip = skin;
   } else if (look === 'defender') {
@@ -1232,103 +1236,6 @@ export function buildDefender(opts: ModelOpts): Model {
         if (ctl.anim() === 'sleep') ctl.play('idle');
       } else if (s === 'dead') state = 'dead';
     };
-  });
-}
-
-// ================================================================= the Tel'sharin, sculpted
-
-/** States: 'awake' | 'starving' | 'asleep' (hibernating). The game lights it red (designer call). */
-export function buildTelsharinSculpted(opts: ModelOpts): Model {
-  return buildSculpted('telsharin', 'male', 'telsharin', opts, 'telsharin', undefined, (spec, c) => {
-    const { rig, B } = c;
-    const yS = B.dims.spineLen;
-    const seam = glow(c.glows, PALETTE.telsharinRed, 1.6, false, 0x4a0e08);
-    const bone = smat('bone', 0xd2c4a2, { rough: 0.9, flat: true, scale: 4 });
-    const dk = smat('maker', 0x55624f, { rough: 0.65, metal: 0.1, flat: true, scale: 3 });
-    const H = B.head, hy = H.h * 0.72;
-    // three light slits across the visor, one longer: asymmetric (canon: horizontal slits with light)
-    for (const [y, w, x] of [[0.03, 0.15, 0.01], [0.0, 0.1, -0.02], [-0.03, 0.06, 0.03]] as Array<[number, number, number]>) {
-      lit(put(rig.head, box(w, 0.012, 0.02), seam, [x, hy + y + H.h * 0.05, -H.d * 0.99]));
-    }
-    // red light leaking at the joints, the torn chest, the spine
-    lit(put(rig.spine, ico(0.05, 0), seam, [-B.chestW * 0.38, yS * 0.62, -B.chestD * 0.62]));
-    lit(put(rig.spine, box(0.03, yS * 0.7, 0.02), seam, [0, yS * 0.45, B.chestD + 0.005]));
-    for (const j of [rig.lFore, rig.rFore, rig.lShin, rig.rShin]) lit(put(j, ball(0.024, 6, 4), seam, [0, 0.005, -0.05]));
-    lit(put(rig.hips, cyl(0.125, 0.125, 0.012, 16), seam, [0, 0.085, 0], undefined, [1.25, 1, 0.85]));
-    // a sensor pod on the left shoulder, bone horns grown through the dome, coral knots
-    put(rig.spine, cyl(0.035, 0.035, 0.09, 10), dk, [-0.24, yS + 0.06, 0.04], [Math.PI / 2, 0, 0]);
-    lit(put(rig.spine, cyl(0.02, 0.02, 0.092, 10), seam, [-0.24, yS + 0.06, 0.04], [Math.PI / 2, 0, 0]));
-    put(rig.head, cone(0.028, 0.18, 5), bone, [-0.05, hy + H.h * 0.95, 0.04], [-0.9, 0, 0.35]);
-    for (let i = 0; i < 5; i++) put(rig.spine, cone(0.014 + i * 0.002, 0.08, 4), bone, [0.3 + i * 0.012, yS + 0.08 - i * 0.02, 0.05 + i * 0.015], [-0.4 + i * 0.2, 0, -0.5 - i * 0.2]);
-    // the right forearm: a heavy gauntlet with three red studs
-    put(rig.rFore, tube('tel-gauntlet2', B.dims.foreArm, [[0, 0.07], [0.35, 0.085], [0.85, 0.08], [1, 0.055]], 8), c.mats[0]);
-    for (let i = 0; i < 3; i++) lit(put(rig.rFore, box(0.018, 0.018, 0.018), seam, [0.07, -0.12 - i * 0.07, -0.05]));
-    // feeding tubes from a seam under the chest: limp, twitching when starving, reaching out on attack
-    const tubes = new THREE.Object3D();
-    tubes.position.set(0, yS * 0.42, -B.chestD * 0.95);
-    rig.spine.add(tubes);
-    const base = [-0.05, -0.017, 0.017, 0.05], len = [0.42, 0.36, 0.46, 0.38];
-    const pivots: THREE.Object3D[] = [];
-    for (let i = 0; i < 4; i++) {
-      const pv = new THREE.Object3D();
-      pv.rotation.order = 'YXZ';
-      pv.position.x = base[i];
-      tubes.add(pv);
-      const m = put(pv, tube('tel-feed-' + i, len[i], [[0, 0.016], [0.8, 0.012], [1, 0.009]], 6), i % 2 ? bone : dk);
-      m.userData.keep = true;
-      lit(put(pv, ball(0.013, 5, 4), seam, [0, -len[i], 0]));
-      pivots.push(pv);
-    }
-    let state: 'awake' | 'asleep' | 'starving' = 'awake';
-    let level = 1;
-    spec.post = (o, cx) => {
-      const k = cx.clock;
-      if (cx.anim === 'idle' || cx.anim === 'talk') {
-        // twitches: a dead thing kept moving by machinery
-        const tw = Math.pow(Math.max(0, Math.sin(k * 0.9) * Math.sin(k * 2.7 + 1)), 8);
-        add(o, J.head, 0, 0.5 * tw, -0.2 * tw);
-        if (state === 'starving') {
-          add(o, J.head, 0.04 * Math.sin(k * 31) * Math.sin(k * 3), 0.05 * Math.sin(k * 17));
-          add(o, J.spine, -0.1);
-          o[44] += 0.12 * (0.5 + 0.5 * Math.sin(k * 1.7));
-        }
-      }
-      if (cx.anim === 'attack') {
-        const T = [0, 0.35, 0.5, 0.7, 1];
-        add(o, J.spine, kf(cx.p, T, [0, 0.15, -0.35, -0.3, 0]));
-        add(o, J.rArm, kf(cx.p, T, [0, 1.6, 0.6, 0.5, 0]), 0, kf(cx.p, T, [0, 0.3, -0.2, -0.2, 0]));
-        add(o, J.head, kf(cx.p, T, [0, 0.1, 0.3, 0.3, 0]));
-        o[44] += kf(cx.p, T, [0, 0.1, 1, 1, 0]);
-      }
-    };
-    spec.frame = (cur, cx) => {
-      const ext = Math.max(0, Math.min(1, cur[44]));
-      const k = cx.clock;
-      for (let i = 0; i < 4; i++) {
-        const tw = state === 'starving' ? 0.35 * Math.pow(Math.abs(Math.sin(k * (4 + i * 1.7) + i)), 6) * Math.sign(Math.sin(k * 9 + i)) : 0;
-        pivots[i].rotation.x = 0.15 + (Math.PI / 2 - 0.3) * ext + 0.06 * Math.sin(k * (1.3 + i * 0.4) + i * 2) + tw;
-        pivots[i].rotation.y = base[i] * 3 * (1 - ext) + tw * 0.6;
-        pivots[i].scale.y = 0.8 + 1.1 * ext;
-      }
-    };
-    spec.glowLevel = (k, dt) => {
-      let want = 0.88 + 0.12 * Math.sin(k * 1.3);
-      if (state === 'asleep') want = 0.03;
-      level += (want - level) * Math.min(1, dt * 1.5);
-      if (state === 'starving') {
-        const f = Math.sin(k * 13.1) * Math.sin(k * 7.7 + 1.3) * Math.sin(k * 3.1);
-        return f > 0.12 ? 1 : 0.2 + 0.15 * Math.abs(Math.sin(k * 40));
-      }
-      return level;
-    };
-    spec.restAnim = () => (state === 'asleep' ? 'sleep' : 'idle');
-    spec.setState = (st, ctl) => {
-      const was = state;
-      if (st === 'asleep' || st === 'hibernating') { state = 'asleep'; if (ctl.anim() !== 'die') ctl.play('sleep'); }
-      else if (st === 'awake' || st === 'starving') { state = st; if (was === 'asleep' && ctl.anim() === 'sleep') ctl.play('wake'); }
-    };
-    spec.seat = undefined;
-    spec.scale = 1.05;
   });
 }
 

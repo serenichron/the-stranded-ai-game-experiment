@@ -324,6 +324,41 @@ const PAINTERS: Record<string, Paint> = {
     g.globalCompositeOperation = 'source-over';
   },
 
+  /**
+   * Tel'sharin armour (telsharin-warden-pair-variant-c-weathered.png): oxidised grey-green with
+   * rust blooms, dark shot pits with a bright rim, and pale scratches. Near-white: tint the base.
+   */
+  warden(g, r, n) {
+    field(g, (u, v) => 0.7 + 0.36 * n.fbm(u * 6, v * 6, 5), [0.98, 1.0, 1.0]);
+    g.globalCompositeOperation = 'multiply';
+    for (let i = 0; i < 16; i++) {
+      const x = r() * SIZE, y = r() * SIZE, rad = 10 + r() * 26;
+      const grd = g.createRadialGradient(x, y, 0, x, y, rad);
+      grd.addColorStop(0, i % 3 ? 'rgba(160,86,48,0.85)' : 'rgba(110,150,130,0.6)');
+      grd.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = grd;
+      wrapped(g, (dx) => { for (const dy of [-SIZE, 0, SIZE]) g.fillRect(x - rad + dx, y - rad + dy, rad * 2, rad * 2); });
+    }
+    g.globalCompositeOperation = 'source-over';
+    // shot pits: a dark hole with a rusty ring and a pale lip
+    for (let i = 0; i < 5; i++) {
+      const x = r() * SIZE, y = r() * SIZE, rad = 1.8 + r() * 2.5;
+      g.fillStyle = 'rgba(150,80,45,0.55)';
+      g.beginPath(); g.arc(x, y, rad * 2, 0, Math.PI * 2); g.fill();
+      g.fillStyle = 'rgba(230,225,210,0.6)';
+      g.beginPath(); g.arc(x - 0.8, y - 0.8, rad * 1.25, 0, Math.PI * 2); g.fill();
+      g.fillStyle = 'rgba(20,16,14,0.95)';
+      g.beginPath(); g.arc(x, y, rad, 0, Math.PI * 2); g.fill();
+    }
+    // scratches and edge wear
+    g.strokeStyle = 'rgba(235,235,220,0.4)';
+    for (let i = 0; i < 50; i++) {
+      const x = r() * SIZE, y = r() * SIZE, a = r() * Math.PI, l = 6 + r() * 24;
+      g.lineWidth = 0.6 + r() * 0.8;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
+    }
+  },
+
   /** Bone and coral: pitted, porous, with growth lines. */
   bone(g, r, n) {
     field(g, (u, v) => {

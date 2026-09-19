@@ -18,7 +18,8 @@ import { J, add, kf, makeCharModel, makeRig, restPose, type CharSpec, type Dims,
 import { column, headGeo, panel, skirt, swayPivot, tmat, tube, type HeadShape, type Sway } from './char-parts';
 import { tex } from './char-tex';
 import { buildDog, buildDrone, buildTelsharin } from './char-creatures';
-import { buildSculpted, buildDefender as buildSculptedDefender, buildTelsharinSculpted } from './char-people';
+import { buildSculpted, buildDefender as buildSculptedDefender } from './char-people';
+import { buildTelsharinSculpted } from './char-telsharin';
 
 export type Body = 'male' | 'female';
 type Race = 'minaa' | 'sehari' | 'iskari';

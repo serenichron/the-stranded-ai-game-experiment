@@ -36,6 +36,18 @@ const SETS: Record<string, Row[]> = {
     { kind: 'npc-minaa', body: 'female', look: 'tarn', label: 'Tarn' },
     { kind: 'npc-minaa', body: 'female', look: 'hadda', label: 'Hadda' },
   ],
+  minaa: [
+    { kind: 'player-minaa', body: 'male', look: 'tech', label: 'Minaa man' },
+    { kind: 'player-minaa', body: 'female', look: 'healer', label: 'Minaa woman' },
+  ],
+  sehari: [
+    { kind: 'player-sehari', body: 'male', look: 'channeller', label: 'Sehari man' },
+    { kind: 'player-sehari', body: 'female', look: 'ranged', label: 'Sehari woman' },
+  ],
+  iskari: [
+    { kind: 'player-iskari', body: 'male', look: 'frontline', label: 'Iskari male-shaped' },
+    { kind: 'player-iskari', body: 'female', look: 'scout', label: 'Iskari female-shaped' },
+  ],
   crowd: [0, 1, 2, 3, 4, 5].map((i) => ({ kind: 'npc-minaa' as EntityKind, label: `crowd ${i}` })),
   tel: [
     { kind: 'telsharin', label: 'Telsharin' },
@@ -110,7 +122,8 @@ if (view === 'game') {
   cam.position.set(0, 1.9, 12);
   cam.lookAt(0, 1.7, 0);
 } else {
-  const dist = w * 1.25;
+  // ?dist=metres frames one tall figure whole (the default crops a pair of 2 m creatures)
+  const dist = Number(q.get('dist') ?? 0) || w * 1.25;
   cam.position.set(0, 1.4 + dist * 0.16, dist);
   cam.lookAt(0, 1.0, 0);
 }
