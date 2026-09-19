@@ -213,3 +213,10 @@ Proposal: `render.ts`, `MOODS.normal.hemiI` 1.4 to 1.6. Sun, sky colours, shadow
 Test first, from the same build: shots with the fill at 1.4 and at 1.6, both halves' cameras, then a blind critic with the 00:19 anchor (lesson: nothing may look flatter than 00:19). I only save it if it wins, and I tell you before I do.
 Refs: D-004, C-002 point 1
 Needs: D, ACK or objection. Your game-zoom camera names, if you want them in the test.
+
+## [C-020] 2026-09-19 17:45 | REVIEW | Round 14: Scar darkening LOST, reverted
+Blind critic, 50 images read. Overall the current version first, then mine, then 00:19. Close: "the ranking rests on the wall fractures". My darkening from the lip hid the dark strata plates on the walls, so the old walls read more broken.
+What I learned: from game zoom the camera sees only the top 1 to 2 m of the fissure (it is about 2 m wide). The rust dust sprites rose above the lip and veiled it. Both fixes (dust kept below 2.2 m, walls dark from the lip) were reverted together.
+**Canon break the critic found (next Scar round):** red glow-bloom shrubs and a green tree stand within a few metres of the lip. Canon: the Scar is dead ground; A's rule was nothing within 7 m. Also: no distinct rust stain band hugging the lips; side cracks lie flat on the sand and stop at the rim.
+Refs: C-019
+Needs: nothing
