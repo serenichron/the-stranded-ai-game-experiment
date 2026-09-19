@@ -144,36 +144,43 @@ export function buildTelsharinSculpted(opts: ModelOpts): Model {
     for (const s of [-1, 1]) {
       const arm = s < 0 ? rig.lArm : rig.rArm, fore = s < 0 ? rig.lFore : rig.rFore;
       const big = s > 0;
-      const pr: V3 = big ? [0.115, 0.075, 0.11] : [0.085, 0.058, 0.085];
+      const pr: V3 = big ? [0.1, 0.066, 0.1] : [0.075, 0.05, 0.075];
       P(arm, chunk(`tel-paul${s}`, [s * 0.025, 0.0, 0], pr, [{ n: [0, -1, 0], o: big ? 0.035 : 0.025 }, { n: [-s, 0, 0], o: 0.05 }], [9, 6], 0.06), plate);
       if (big) P(arm, chunk('tel-paul2', [0.035, -0.06, 0], [0.095, 0.05, 0.095], [{ n: [0, -1, 0], o: 0.085 }, { n: [0, 1, 0], o: 0.02 }, { n: [-1, 0, 0], o: 0.03 }], [9, 5], 0.05), plate2);
-      P(arm, limbPlate(`tel-uarm${s}`, -0.08, -d.upperArm + 0.06, B.armR + 0.024, B.armR + 0.022), plate);
+      P(arm, limbPlate(`tel-uarm${s}`, -0.08, -d.upperArm + 0.06, B.armR + 0.013, B.armR + 0.012), plate);
       put(fore, ball(B.elbowR + 0.012, 8, 6), core, [0, 0, 0]);
       lit(put(fore, ring(B.elbowR + 0.013, 0.005, 4, 12), seam, [0, 0, 0], [0, 0, Math.PI / 2]));
       if (big) {
         // the right forearm: a heavy gauntlet with three red studs
-        P(fore, limbPlate('tel-gaunt', -0.04, -d.foreArm + 0.02, B.foreR + 0.045, B.foreR + 0.04, 0, [8, 6], 0.1), plate2);
+        P(fore, limbPlate('tel-gaunt', -0.04, -d.foreArm + 0.02, B.foreR + 0.036, B.foreR + 0.032, 0, [8, 6], 0.08), plate2);
         for (let i = 0; i < 3; i++) lit(put(fore, box(0.016, 0.016, 0.016), seam, [0.075, -0.1 - i * 0.075, -0.04]));
       } else {
-        P(fore, limbPlate('tel-fore-1', -0.05, -d.foreArm + 0.04, B.foreR + 0.022, B.foreR + 0.02), plate);
+        P(fore, limbPlate('tel-fore-1', -0.05, -d.foreArm + 0.04, B.foreR + 0.012, B.foreR + 0.011), plate);
       }
     }
-    // the sensor pod on the left shoulder
-    put(rig.spine, cyl(0.035, 0.035, 0.09, 10), plate2, [-d.shoulderW - 0.02, yS + 0.07, 0.04], [Math.PI / 2, 0, 0]);
-    lit(put(rig.spine, cyl(0.02, 0.02, 0.092, 10), seam, [-d.shoulderW - 0.02, yS + 0.07, 0.04], [Math.PI / 2, 0, 0]));
+    // the sensor pod on the left shoulder: a block with three lenses facing forward (variant a)
+    const pod = new THREE.Object3D();
+    pod.position.set(-d.shoulderW - 0.01, yS + 0.08, 0.03);
+    pod.rotation.set(0.1, 0.25, 0);
+    rig.spine.add(pod);
+    P(pod, chunk('tel-pod', [0, 0, 0.01], [0.055, 0.05, 0.05], [], [6, 4], 0.05), plate2);
+    for (const [x, y] of [[-0.022, 0.015], [0.022, 0.015], [0, -0.02]] as Array<[number, number]>) {
+      put(pod, cyl(0.017, 0.017, 0.03, 10), core, [x, y, -0.045], [Math.PI / 2, 0, 0]);
+      lit(put(pod, cyl(0.01, 0.01, 0.032, 8), seam, [x, y, -0.047], [Math.PI / 2, 0, 0]));
+    }
     // bone coral grown out through the right shoulder
     for (let i = 0; i < 5; i++) put(rig.spine, cone(0.014 + i * 0.002, 0.09, 4), bone, [d.shoulderW + 0.06 + i * 0.01, yS + 0.08 - i * 0.02, 0.06 + i * 0.015], [-0.4 + i * 0.2, 0, -0.5 - i * 0.2]);
 
     // ---- legs: thigh plates, knee caps pointing forward, shin plates running back, glowing hocks
     for (const s of [-1, 1]) {
       const leg = s < 0 ? rig.lLeg : rig.rLeg, shin = s < 0 ? rig.lShin : rig.rShin, foot = s < 0 ? rig.lFoot : rig.rFoot;
-      P(leg, limbPlate(`tel-thigh${s}`, -0.03, -d.thigh + 0.05, B.thighR + 0.032, B.thighR + 0.034, -0.008, [8, 6], 0.1), plate);
+      P(leg, limbPlate(`tel-thigh${s}`, -0.03, -d.thigh + 0.05, B.thighR + 0.016, B.thighR + 0.02, -0.008, [8, 6], 0.06), plate);
       P(shin, chunk(`tel-knee${s}`, [0, -0.005, -B.kneeR - 0.01], [0.058, 0.075, 0.048], [], [6, 5], 0.1), plate2);
       lit(put(shin, ball(0.02, 6, 4), seam, [s * 0.045, -0.02, -0.02]));
-      P(shin, limbPlate(`tel-shin${s}`, -0.07, -d.shin + 0.05, B.calfR + 0.028, B.calfR + 0.032, 0.004, [7, 6], 0.1), plate);
+      P(shin, limbPlate(`tel-shin${s}`, -0.07, -d.shin + 0.05, B.calfR + 0.012, B.calfR + 0.016, 0.006, [7, 6], 0.06), plate);
       put(foot, ball(B.ankleR + 0.014, 8, 6), core, [0, 0, 0]);
       lit(put(foot, ring(B.ankleR + 0.015, 0.005, 4, 12), seam, [0, 0, 0], [0, 0, Math.PI / 2]));
-      P(foot, limbPlate(`tel-meta${s}`, -0.03, -d.meta + 0.03, 0.05, 0.05, 0, [6, 5], 0.08), plate2);
+      P(foot, limbPlate(`tel-meta${s}`, -0.03, -d.meta + 0.03, 0.034, 0.038, 0, [6, 5], 0.06), plate2);
     }
 
     // ---- feeding tubes from under the chest plate: limp, twitching when starving, reaching out on attack
@@ -197,8 +204,8 @@ export function buildTelsharinSculpted(opts: ModelOpts): Model {
     // ---- stance: upright and lean as in the warden art, a slight stoop, head pushed forward
     spec.rest = spec.rest.slice() as Float32Array;
     const setR = (j: number, x: number, y = 0, z = 0) => { spec.rest[j * 3] = x; spec.rest[j * 3 + 1] = y; spec.rest[j * 3 + 2] = z; };
-    setR(J.lLeg, 0.5, 0, -0.08); setR(J.lShin, -1.15); setR(J.lFoot, 0.9);
-    setR(J.rLeg, 0.42, 0, 0.08); setR(J.rShin, -1.05); setR(J.rFoot, 0.88);
+    setR(J.lLeg, 0.62, 0, -0.08); setR(J.lShin, -1.45); setR(J.lFoot, 1.08);
+    setR(J.rLeg, 0.55, 0, 0.08); setR(J.rShin, -1.35); setR(J.rFoot, 1.04);
     setR(J.spine, -0.2, 0.06, -0.03); setR(J.head, 0.28, 0, -0.08);
     setR(J.lArm, 0.1, 0, -0.12); setR(J.lFore, 0.3); setR(J.rArm, 0.14, 0, 0.14); setR(J.rFore, 0.35);
 
