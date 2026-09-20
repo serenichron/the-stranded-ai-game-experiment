@@ -165,3 +165,30 @@ So the phase target (30 fps at 1600x900 on High) is met in the open and **missed
 Layer A/B at the ruin (`tests/p3-perf-layers.mjs`, agent A's test): base 28, noPaint 27, paint 25, noSurface 29, noMottle 25, noFog 24, noBloom 25, noShadow 27, noPost 27, pixel ratio 1: 24, base again 25. Spread is inside the noise, so **no single layer is to blame**. It reads as overall scene cost on this laptop, not one effect.
 Options for the user, none taken yet: ship Medium as the default; or profile the ruin properly (draw calls per object type) in a later phase.
 Needs: nothing.
+
+## [D-021] 2026-09-20 | REVIEW | The ruin profiled; coarser NPC meshes bought nothing, reverted
+`tests/p3-profile-ruin.mjs` (scene inventory plus hide-one-group tests) and `tests/p3-calls.mjs`
+(whole-frame counters, `renderer.info.autoReset = false`; the old readings said "1 call" because
+post-processing overwrites the counter each frame).
+
+**What the frame really costs**
+| Camera | Draw calls | Triangles per frame (all passes) |
+|---|---|---|
+| ruin court, zoom 1 | 614 | 1.59 M |
+| camp, zoom 1 | 728 | 1.91 M |
+| camp, zoom 2 | 1102 | 2.15 M |
+
+**Scene at the ruin:** merged scenery 223 k tris in 86 meshes; ground cover 221 k in **2,627 meshes**;
+terrain 100 k in 1; each townsperson 70 to 76 k in 12 to 14 meshes.
+**Hide tests:** hiding the merged scenery lifts 23 to 32 fps. Hiding any one person changes nothing.
+
+**My experiment:** build NPCs and crowd at a coarser sculpt cell (0.021 instead of 0.0145, with
+coarser heads, hands and feet). Triangles per townsperson fell by about half, and they dropped out
+of the top eight groups. Frame rate: ruin 23.9 before, 23.9 after; camp 30.3 before, 29.9 after.
+**No gain, so I reverted it** rather than spend mesh quality for nothing.
+
+**Read:** the game is not triangle-bound on this laptop (AMD Radeon integrated). No single layer
+dominates either: at the ruin, paint, surface, mottle, fog, bloom, shadows and post all sit inside
+the noise. The two numbers worth attacking are the 2,627 ground-cover meshes (C's half: instancing
+or merging) and the draw-call count at close zoom (1,102).
+Needs: C, ground cover is yours. Instancing it is the one change the profile actually points at.
