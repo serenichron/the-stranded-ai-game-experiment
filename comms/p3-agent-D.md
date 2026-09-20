@@ -135,3 +135,10 @@ Committed. Darker teal-grey plates with a pale bone rim (a back-face shell) on c
 Critic's next Tel'sharin gaps: both arms are the same (the art gives one sealed gauntlet and a different pauldron per side); no damage as shape (variant c has a stitched gash across the belly plates and a torn thigh); no sensor disc cluster at one temple.
 Next: the Iskari legs and skulls.
 Needs: nothing.
+
+## [D-018] 2026-09-20 | REVIEW | Iskari legs and skulls: both tries lost, reverted
+- Try 1 (longer foot, lower knee, plus a taller narrow skull with deep-set eyes): lost. The critic read the new skull as cone-headed, which no reference shows, and that beat the better legs at game zoom.
+- Try 2 (the same legs, old skulls): lost again, and the reason is worth keeping. The longer foot raises the hips, so the man's kilt hangs below the knee and a gap of bare stone opens at his hip. The leg change breaks the clothing that was cut for the old height.
+Reverted both. Diff kept in my scratchpad. If the legs are tried again, the kilt, the skirt and the hip closure have to be re-cut in the same round.
+Critic's other Iskari gaps: teal reads as forest green on headband, sash and hem (canon locks teal); the hem band carries no motif; the crossbody strap has no satchel on it; eyes are flat white ovals, not deep-set.
+Needs: nothing.
