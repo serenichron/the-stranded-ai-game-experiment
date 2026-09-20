@@ -414,13 +414,20 @@ function dressBody(c: Ctx): Pal {
       layer(c, ['chest', 'yoke'], 0.018, M.top, [{ n: nb, o: c0 + w }, { n: [-nb[0], -nb[1], -nb[2]], o: -(c0 - w) }], 0.012);
     }
     band(0.05, 0.035, 0.03, M.sash);
-    return { top: 0xe0d6c0, bottom: 0xe0d6c0, sash: 0x6a6080, trim: 0x3f7a74 };
+    // a row of small marks along the hem band: Aza'los-made, not rag (iskari-menders-pair.png)
+    for (let i = 0; i < 12; i++) {
+      const ang = (i / 12) * Math.PI * 2;
+      const rr = B.hipW * 1.315 + 0.006;
+      c.prims.push({ kind: 'box', a: [Math.cos(ang) * rr, -0.271, Math.sin(ang) * rr * 0.88 + 0.01], s: [0.016, 0.009, 0.006], r: 0.002, rot: [0, -ang, 0], bone: J.hips, mat: M.top, k: 0.002, tag: 'skirt', clip: [{ n: [0, -1, 0], o: 0.28 }] });
+    }
+    c.key.push('hemMarks');
+    return { top: 0xe0d6c0, bottom: 0xe0d6c0, sash: 0x6a6080, trim: 0x3f9296 };
   }
   // broad: an open dusty-violet vest (two halves, the stone chest bare between), a cream kilt, a teal sash
   for (const s of S) layer(c, ['chest', 'yoke', 'belly'], 0.018, M.robe, [{ n: [s * -1, 0, 0], o: -0.055 }, { n: [0, -1, 0], o: -0.1 }]);
   skirt(0.07, 0.34, B.hipW * 1.1, B.hipW * 1.35, M.top, 0.85);
   band(0.07, 0.06, 0.035, M.sash);
-  return { top: 0xe0d6c0, bottom: 0xe0d6c0, robe: 0x6a6080, sash: 0x4f8a86 };
+  return { top: 0xe0d6c0, bottom: 0xe0d6c0, robe: 0x6a6080, sash: 0x469aa0 };
 }
 
 /** Mismatched brown patches sewn over both knees (mi-naa-tinker-pair.png, the man). */
@@ -1175,16 +1182,17 @@ function gear(c: Ctx, pal: Pal): void {
   const leather2 = smat('leather', 0x6b4a30, { rough: 0.8, scale: 5 });
   if (f) {
     // teal headband, a satchel on a strap
-    const hb = smat('cloth', 0x4f8a86, { rough: 0.95, double: true, scale: 4 });
+    const hb = smat('cloth', 0x469aa0, { rough: 0.95, double: true, scale: 4 });
     put(hd, ring(H.w * 1.02, 0.014, 6, 20), hb, [0, hy + H.h * 0.42, 0.005], [Math.PI / 2 + 0.1, 0, 0], [1, H.d / H.w * 1.05, 1.6]);
     flap(c, hd, hb, [0.02, hy + H.h * 0.4, H.d * 1.02], 0.03, 0.2, { hang: 0.7, drag: 0.2 });
     // the wrap top goes over one shoulder
   } else {
     // an open dusty-violet vest over the stone chest, a long teal cloth hanging in front
-    flap(c, rig.hips, smat('cloth', 0x4f8a86, { rough: 0.95, double: true, scale: 4 }), [0, 0.03, -B.hipD - 0.04], 0.16, 0.46, { front: true, curve: 0.14, taper: 0.9 });
+    flap(c, rig.hips, smat('cloth', 0x469aa0, { rough: 0.95, double: true, scale: 4 }), [0, 0.03, -B.hipD - 0.04], 0.16, 0.46, { front: true, curve: 0.14, taper: 0.9 });
   }
   strap(c, f ? -1 : 1, leather2, 0.03, 0.03);
-  put(rig.hips, box(0.12, 0.11, 0.055), leather2, [f ? -0.19 : 0.19, -0.05, 0.02]);
+  put(rig.hips, box(0.17, 0.15, 0.07), leather2, [f ? -0.2 : 0.2, -0.1, 0.01], [0, f ? 0.25 : -0.25, 0]);
+  put(rig.hips, box(0.17, 0.035, 0.075), smat('leather', 0x4a3524, { rough: 0.8, scale: 5 }), [f ? -0.2 : 0.2, -0.04, 0.01], [0, f ? 0.25 : -0.25, 0]);
 }
 
 function goggles(c: Ctx, brass: THREE.Material, leather: THREE.Material): void {
