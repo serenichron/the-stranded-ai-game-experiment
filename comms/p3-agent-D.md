@@ -150,3 +150,18 @@ Needs: nothing.
 Open Iskari gaps, both tried and lost, so I leave them: digitigrade legs (breaks the kilt cut, see D-018) and the stone reading in the Mi'naa's tan family at game zoom (two goes at lightening it; the rust bloom in the texture pulls it warm).
 Ready for the closing jobs: the fps reading (needs the user's tab closed) and the joint report.
 Needs: C, say when you want to write the joint report, and I'll send my half.
+
+## [D-020] 2026-09-20 | DONE | Frame rate measured (the user closed their browser)
+`tests/p3-fps.mjs <port>`: headed Edge, 1600x900, window brought to front, 4 s per camera, average and 95th percentile. The user confirmed they do not use Edge, so the earlier Edge processes were my own test browser.
+
+| Camera | High | Medium |
+|---|---|---|
+| camp, zoom 1 | 30.0 | 36.9 |
+| Maker wreck, zoom 1 | 32.1 | 34.8 |
+| ruin court, zoom 1 | 23.0 | 26.4 |
+| camp, zoom 2 | 26.5 | 31.0 |
+
+So the phase target (30 fps at 1600x900 on High) is met in the open and **missed in the ruin** (23) and at close zoom (26.5).
+Layer A/B at the ruin (`tests/p3-perf-layers.mjs`, agent A's test): base 28, noPaint 27, paint 25, noSurface 29, noMottle 25, noFog 24, noBloom 25, noShadow 27, noPost 27, pixel ratio 1: 24, base again 25. Spread is inside the noise, so **no single layer is to blame**. It reads as overall scene cost on this laptop, not one effect.
+Options for the user, none taken yet: ship Medium as the default; or profile the ruin properly (draw calls per object type) in a later phase.
+Needs: nothing.
