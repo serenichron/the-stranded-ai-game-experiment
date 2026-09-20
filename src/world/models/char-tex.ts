@@ -161,11 +161,11 @@ const PAINTERS: Record<string, Paint> = {
     });
     // rust bloom: soft orange-brown stains running downwards
     g.globalCompositeOperation = 'multiply';
-    for (let i = 0; i < 7; i++) {
-      const x = r() * SIZE, y = r() * SIZE, rad = 18 + r() * 40;
+    for (let i = 0; i < 5; i++) {
+      const x = r() * SIZE, y = r() * SIZE, rad = 16 + r() * 34;
       wrapped(g, (dx) => {
         const grd = g.createRadialGradient(x + dx, y, 0, x + dx, y + rad * 0.5, rad);
-        grd.addColorStop(0, 'rgba(196,120,80,0.55)');
+        grd.addColorStop(0, 'rgba(186,126,92,0.38)');
         grd.addColorStop(1, 'rgba(255,255,255,0)');
         g.fillStyle = grd;
         g.fillRect(x + dx - rad, y - rad, rad * 2, rad * 2.5);

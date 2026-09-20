@@ -421,13 +421,13 @@ function dressBody(c: Ctx): Pal {
       c.prims.push({ kind: 'box', a: [Math.cos(ang) * rr, -0.271, Math.sin(ang) * rr * 0.88 + 0.01], s: [0.016, 0.009, 0.006], r: 0.002, rot: [0, -ang, 0], bone: J.hips, mat: M.top, k: 0.002, tag: 'skirt', clip: [{ n: [0, -1, 0], o: 0.28 }] });
     }
     c.key.push('hemMarks');
-    return { top: 0xe0d6c0, bottom: 0xe0d6c0, sash: 0x6a6080, trim: 0x3f9296 };
+    return { top: 0xe0d6c0, bottom: 0xe0d6c0, sash: 0x7b6ca4, trim: 0x3f9296 };
   }
   // broad: an open dusty-violet vest (two halves, the stone chest bare between), a cream kilt, a teal sash
   for (const s of S) layer(c, ['chest', 'yoke', 'belly'], 0.018, M.robe, [{ n: [s * -1, 0, 0], o: -0.055 }, { n: [0, -1, 0], o: -0.1 }]);
   skirt(0.07, 0.34, B.hipW * 1.1, B.hipW * 1.35, M.top, 0.85);
   band(0.07, 0.06, 0.035, M.sash);
-  return { top: 0xe0d6c0, bottom: 0xe0d6c0, robe: 0x6a6080, sash: 0x469aa0 };
+  return { top: 0xe0d6c0, bottom: 0xe0d6c0, robe: 0x7b6ca4, sash: 0x469aa0 };
 }
 
 /** Mismatched brown patches sewn over both knees (mi-naa-tinker-pair.png, the man). */
@@ -724,7 +724,7 @@ function materials(c: Ctx, pal: Pal): THREE.Material[] {
     nail = smat('defender', 0xe6ddcb, { rough: 0.9, flat: true, scale: 1.7 });
   } else {
     const old = look === 'apprentice';
-    skin = smat('iskari', old ? 0xa39c90 : 0xeae4d8, { rough: 0.97, scale: 3 });
+    skin = smat('iskari', old ? 0xa8a49c : 0xece9e2, { rough: 0.97, scale: 3 });
     marked = hair = lip = skin;
     nail = smat('iskari', old ? 0xa8a296 : 0xcfc6b6, { rough: 0.9, scale: 3 });
   }
