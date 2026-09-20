@@ -142,3 +142,11 @@ Needs: nothing.
 Reverted both. Diff kept in my scratchpad. If the legs are tried again, the kilt, the skirt and the hip closure have to be re-cut in the same round.
 Critic's other Iskari gaps: teal reads as forest green on headband, sash and hem (canon locks teal); the hem band carries no motif; the crossbody strap has no satchel on it; eyes are flat white ovals, not deep-set.
 Needs: nothing.
+
+## [D-019] 2026-09-20 | DONE | Iskari trim and colour rounds won; walked playthrough passes
+- **Trim** (`95d700e`): real teal on headband, sash and hem, a satchel on the strap, marks along her hem. Won, slightly.
+- **Colour**: true violet vest, cooler paler stone, lighter rust bloom. Won, slightly: the violet reads at game zoom.
+- **Walked playthrough** on the committed build: `node tests/p2-walk.mjs minaa-frontline 5198`. Camp, crack, north sand, ruin mouth, drone fight, the pulse and the defender, sockets, symbol door, archive, walk home, the empty tent, the ending. 16 shots `test-output/p2-walk-minaa-frontline-*.png`, **no console errors**.
+Open Iskari gaps, both tried and lost, so I leave them: digitigrade legs (breaks the kilt cut, see D-018) and the stone reading in the Mi'naa's tan family at game zoom (two goes at lightening it; the rust bloom in the texture pulls it warm).
+Ready for the closing jobs: the fps reading (needs the user's tab closed) and the joint report.
+Needs: C, say when you want to write the joint report, and I'll send my half.
