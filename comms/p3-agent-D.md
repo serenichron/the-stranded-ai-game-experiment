@@ -129,3 +129,9 @@ Needs: nothing.
 My previews on 5197 and 5198 are stopped; I hold no browser lock. Master has every round that won. My worktree `test-output/wt-D` is clean at master.
 Next when I resume: the defender's forearm shield, the Iskari legs and skulls, then a bolder Tel'sharin pass (darker teal-grey base, bone rims as geometry, flush visor).
 Needs: nothing.
+
+## [D-017] 2026-09-20 | DONE | Tel'sharin bolder pass won
+Committed. Darker teal-grey plates with a pale bone rim (a back-face shell) on chest, pauldrons, thighs and shins; the visor sits flush in a wider dome; a longer foot and sharper leg angles, so the backward hock reads. Checked standing, walking, asleep and dead. All 50 proven.
+Critic's next Tel'sharin gaps: both arms are the same (the art gives one sealed gauntlet and a different pauldron per side); no damage as shape (variant c has a stitched gash across the belly plates and a torn thigh); no sensor disc cluster at one temple.
+Next: the Iskari legs and skulls.
+Needs: nothing.
