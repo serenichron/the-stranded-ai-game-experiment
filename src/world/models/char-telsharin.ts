@@ -83,8 +83,19 @@ export function buildTelsharinSculpted(opts: ModelOpts): Model {
     const d = B.dims, yS = d.spineLen;
     const seam = glow(c.glows, PALETTE.telsharinRed, 1.6, false, 0x4a0e08);
     const bone = smat('bone', 0xd2c4a2, { rough: 0.9, flat: true, scale: 4 });
-    const plate = smat('warden', 0x8c9a92, { rough: 0.55, metal: 0.15, flat: true, scale: 3.5 });
-    const plate2 = smat('warden', 0x6a766e, { rough: 0.6, metal: 0.15, flat: true, scale: 5 });
+    const plate = smat('warden', 0x5e6f68, { rough: 0.55, metal: 0.15, flat: true, scale: 3.5 });
+    const plate2 = smat('warden', 0x47554e, { rough: 0.6, metal: 0.15, flat: true, scale: 5 });
+    // the bone rim: a slightly larger shell of the same plate, drawn inside out, so only a pale lip
+    // shows round the plate's edge (telsharin-warden-pair-variant-c-weathered.png)
+    const rimM = smat('bone', 0xc9bfa2, { rough: 0.85, flat: true, scale: 4, double: false });
+    rimM.side = THREE.BackSide;
+    const rim = (parent: THREE.Object3D, g: THREE.BufferGeometry, k = 1.045) => {
+      const m = put(parent, g, rimM);
+      m.scale.setScalar(k);
+      m.castShadow = false;
+      m.userData.keep = true;
+      return m;
+    };
     const core = c.mats[M.skin];
     const visorM = smat('', 0x0f0d0c, { rough: 0.35, metal: 0.3, flat: true });
     const P = (parent: THREE.Object3D, g: THREE.BufferGeometry, m: THREE.Material) => put(parent, g, m);
@@ -97,14 +108,14 @@ export function buildTelsharinSculpted(opts: ModelOpts): Model {
     P(rig.head, chunk('tel-brow', [0, cy + 0.01, 0.0], [H.w * 1.04, H.h * 1.02, H.d * 1.05], [{ n: [0, -1, 0], o: -(cy + H.h * 0.28) }, { n: [0, 0, 1], o: -H.d * 0.15 }], [9, 7], 0.04), plate2);
     // the visor: one dark slit across the face, a row of lights inside it (canon); a short second slit below
     const vy = cy - H.h * 0.05;
-    P(rig.head, chunk('tel-visor', [0, cy, 0.004], [H.w * 1.035, H.h * 1.03, H.d * 1.05], [{ n: [0, 1, 0], o: vy + 0.017 }, { n: [0, -1, 0], o: -(vy - 0.017) }, { n: [0, 0, 1], o: -H.d * 0.42 }, { n: [1, 0, 0], o: H.w * 0.78 }, { n: [-1, 0, 0], o: H.w * 0.78 }], [26, 18]), visorM);
+    P(rig.head, chunk('tel-visor', [0, cy, 0.004], [H.w * 0.995, H.h * 0.995, H.d * 1.0], [{ n: [0, 1, 0], o: vy + 0.017 }, { n: [0, -1, 0], o: -(vy - 0.017) }, { n: [0, 0, 1], o: -H.d * 0.42 }, { n: [1, 0, 0], o: H.w * 0.78 }, { n: [-1, 0, 0], o: H.w * 0.78 }], [26, 18]), visorM);
     const onDome = (x: number, y: number, k = 1.05) => {
       const q = 1 - (x / (H.w * k)) ** 2 - ((y - cy) / (H.h * k)) ** 2;
       return -H.d * k * Math.sqrt(Math.max(0, q));
     };
     for (let i = 0; i < 6; i++) {
       const x = (i - 2.5) * 0.019;
-      lit(put(rig.head, ball(0.0075, 6, 4), seam, [x, vy, onDome(x, vy, 1.06) - 0.002], undefined, [1, 0.8, 0.6]));
+      lit(put(rig.head, ball(0.0075, 6, 4), seam, [x, vy, onDome(x, vy, 1.0) - 0.004], undefined, [1, 0.8, 0.6]));
     }
     lit(put(rig.head, box(0.03, 0.006, 0.01), seam, [0.03, vy - 0.04, onDome(0.03, vy - 0.04, 1.02)], [0, -0.3, 0]));
     // round sensor pods at the sides of the head: two on the right, one on the left (asymmetric)
@@ -120,7 +131,9 @@ export function buildTelsharinSculpted(opts: ModelOpts): Model {
     // ---- chest: the right plate whole, the left torn away over the ribs, a back plate, a sternum ridge
     const cc: V3 = [0, yS * 0.64, 0.0], cr: V3 = [B.chestW + 0.04, yS * 0.36, B.chestD + 0.04];
     const front: Cut = { n: [0, 0, 1], o: 0.025 };
-    P(rig.spine, chunk('tel-chestR', cc, cr, [{ n: [-1, 0, 0], o: 0.012 }, { n: [0, -1, 0], o: -yS * 0.4 }, front], [9, 7], 0.1), plate);
+    const chestR = chunk('tel-chestR', cc, cr, [{ n: [-1, 0, 0], o: 0.012 }, { n: [0, -1, 0], o: -yS * 0.4 }, front], [9, 7], 0.1);
+    P(rig.spine, chestR, plate);
+    rim(rig.spine, chestR, 1.035);
     P(rig.spine, chunk('tel-chestLlow', cc, cr, [{ n: [1, 0, 0], o: -0.012 }, { n: [0, -1, 0], o: -yS * 0.38 }, { n: [0, 1, 0], o: yS * 0.53 }, front], [9, 7], 0.14), plate);
     P(rig.spine, chunk('tel-chestLtop', cc, cr, [{ n: [1, 0, 0], o: -0.012 }, { n: [0, -1, 0], o: -yS * 0.82 }, front, { n: [-0.4, 0, 1], o: -0.02 }], [9, 7], 0.14), plate);
     P(rig.spine, chunk('tel-back', cc, [cr[0] * 0.98, cr[1], cr[2] * 0.95], [{ n: [0, 0, -1], o: -0.01 }, { n: [0, -1, 0], o: -yS * 0.36 }], [9, 7], 0.08), plate2);
@@ -145,7 +158,9 @@ export function buildTelsharinSculpted(opts: ModelOpts): Model {
       const arm = s < 0 ? rig.lArm : rig.rArm, fore = s < 0 ? rig.lFore : rig.rFore;
       const big = s > 0;
       const pr: V3 = big ? [0.1, 0.066, 0.1] : [0.075, 0.05, 0.075];
-      P(arm, chunk(`tel-paul${s}`, [s * 0.025, 0.0, 0], pr, [{ n: [0, -1, 0], o: big ? 0.035 : 0.025 }, { n: [-s, 0, 0], o: 0.05 }], [9, 6], 0.06), plate);
+      const paul = chunk(`tel-paul${s}`, [s * 0.025, 0.0, 0], pr, [{ n: [0, -1, 0], o: big ? 0.035 : 0.025 }, { n: [-s, 0, 0], o: 0.05 }], [9, 6], 0.06);
+      P(arm, paul, plate);
+      rim(arm, paul, 1.05);
       if (big) P(arm, chunk('tel-paul2', [0.035, -0.06, 0], [0.095, 0.05, 0.095], [{ n: [0, -1, 0], o: 0.085 }, { n: [0, 1, 0], o: 0.02 }, { n: [-1, 0, 0], o: 0.03 }], [9, 5], 0.05), plate2);
       P(arm, limbPlate(`tel-uarm${s}`, -0.08, -d.upperArm + 0.06, B.armR + 0.013, B.armR + 0.012), plate);
       put(fore, ball(B.elbowR + 0.012, 8, 6), core, [0, 0, 0]);
@@ -174,10 +189,14 @@ export function buildTelsharinSculpted(opts: ModelOpts): Model {
     // ---- legs: thigh plates, knee caps pointing forward, shin plates running back, glowing hocks
     for (const s of [-1, 1]) {
       const leg = s < 0 ? rig.lLeg : rig.rLeg, shin = s < 0 ? rig.lShin : rig.rShin, foot = s < 0 ? rig.lFoot : rig.rFoot;
-      P(leg, limbPlate(`tel-thigh${s}`, -0.03, -d.thigh + 0.05, B.thighR + 0.016, B.thighR + 0.02, -0.008, [8, 6], 0.06), plate);
+      const thigh = limbPlate(`tel-thigh${s}`, -0.03, -d.thigh + 0.05, B.thighR + 0.016, B.thighR + 0.02, -0.008, [8, 6], 0.06);
+      P(leg, thigh, plate);
+      rim(leg, thigh, 1.05);
       P(shin, chunk(`tel-knee${s}`, [0, -0.005, -B.kneeR - 0.01], [0.058, 0.075, 0.048], [], [6, 5], 0.1), plate2);
       lit(put(shin, ball(0.02, 6, 4), seam, [s * 0.045, -0.02, -0.02]));
-      P(shin, limbPlate(`tel-shin${s}`, -0.07, -d.shin + 0.05, B.calfR + 0.012, B.calfR + 0.016, 0.006, [7, 6], 0.06), plate);
+      const shinP = limbPlate(`tel-shin${s}`, -0.07, -d.shin + 0.05, B.calfR + 0.012, B.calfR + 0.016, 0.006, [7, 6], 0.06);
+      P(shin, shinP, plate);
+      rim(shin, shinP, 1.06);
       put(foot, ball(B.ankleR + 0.014, 8, 6), core, [0, 0, 0]);
       lit(put(foot, ring(B.ankleR + 0.015, 0.005, 4, 12), seam, [0, 0, 0], [0, 0, Math.PI / 2]));
       P(foot, limbPlate(`tel-meta${s}`, -0.03, -d.meta + 0.03, 0.034, 0.038, 0, [6, 5], 0.06), plate2);
@@ -204,8 +223,8 @@ export function buildTelsharinSculpted(opts: ModelOpts): Model {
     // ---- stance: upright and lean as in the warden art, a slight stoop, head pushed forward
     spec.rest = spec.rest.slice() as Float32Array;
     const setR = (j: number, x: number, y = 0, z = 0) => { spec.rest[j * 3] = x; spec.rest[j * 3 + 1] = y; spec.rest[j * 3 + 2] = z; };
-    setR(J.lLeg, 0.62, 0, -0.08); setR(J.lShin, -1.45); setR(J.lFoot, 1.08);
-    setR(J.rLeg, 0.55, 0, 0.08); setR(J.rShin, -1.35); setR(J.rFoot, 1.04);
+    setR(J.lLeg, 0.72, 0, -0.1); setR(J.lShin, -1.72); setR(J.lFoot, 1.28);
+    setR(J.rLeg, 0.64, 0, 0.1); setR(J.rShin, -1.6); setR(J.rFoot, 1.22);
     setR(J.spine, -0.2, 0.06, -0.03); setR(J.head, 0.28, 0, -0.08);
     setR(J.lArm, 0.1, 0, -0.12); setR(J.lFore, 0.3); setR(J.rArm, 0.14, 0, 0.14); setR(J.rFore, 0.35);
 

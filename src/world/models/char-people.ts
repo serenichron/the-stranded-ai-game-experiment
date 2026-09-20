@@ -55,12 +55,12 @@ function build0(race: Race, body: Body, look: string): Build {
     // telsharin-warden-pair-*.png: tall and lean, a narrow waist between chest armour and hip armour,
     // long arms, backward-bending legs on long feet. This is the dark core: armour plates sit on top.
     return {
-      dims: { thigh: 0.5, shin: 0.48, meta: 0.42, footH: 0.04, hipW: 0.11, spineLen: 0.62, shoulderW: 0.205, upperArm: 0.4, foreArm: 0.4, neck: 0.14 },
+      dims: { thigh: 0.5, shin: 0.44, meta: 0.52, footH: 0.04, hipW: 0.11, spineLen: 0.62, shoulderW: 0.205, upperArm: 0.4, foreArm: 0.4, neck: 0.14 },
       chestW: 0.19, chestD: 0.13, waistW: 0.085, waistD: 0.07, hipW: 0.13, hipD: 0.1,
       neckR: 0.036, armR: 0.036, elbowR: 0.034, foreR: 0.034, wristR: 0.026,
       thighR: 0.06, kneeR: 0.045, calfR: 0.036, ankleR: 0.028,
       muscle: 0.1, bust: 0, hand: 1.25, finger: 1.5,
-      head: { w: 0.092, h: 0.12, d: 0.11, jaw: 1, brow: 0, cheek: 0, chin: 0 },
+      head: { w: 0.105, h: 0.13, d: 0.12, jaw: 1, brow: 0, cheek: 0, chin: 0 },
       height: 2.1,
     };
   }
