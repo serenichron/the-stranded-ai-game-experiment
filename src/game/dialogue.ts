@@ -18,6 +18,13 @@ export interface DialogueHost {
 
 const txt = (t: Text | undefined, c: Ctx) => (typeof t === 'function' ? t(c) : (t ?? ''));
 
+/** How many times this node has been shown before, counted in the saved 'seen' set. */
+function visitsOf(host: DialogueHost, key: string): number {
+  let n = 0;
+  while (host.seen.has(key + '#' + (n + 1))) n++;
+  return n;
+}
+
 export async function runDialogue(host: DialogueHost, id: string, d: Dialogue, startAt = 'start'): Promise<void> {
   let nodeId: string | null = startAt;
   let guard = 0;
@@ -33,13 +40,20 @@ export async function runDialogue(host: DialogueHost, id: string, d: Dialogue, s
       return true;
     });
 
+    // a return visit says something short, if the node has short lines for it
+    const nodeKey = id + ':' + nodeId;
+    const visits = visitsOf(host, nodeKey);
+    host.seen.add(nodeKey + '#' + (visits + 1));
+    const line = visits > 0 && node.again && node.again.length
+      ? txt(node.again[(visits - 1) % node.again.length], c)
+      : txt(node.text, c);
     const speaker = node.speaker ? SPEAKERS[node.speaker] : undefined;
     const views: DialogueChoiceView[] = visible.map(({ ch, i }) => choiceView(host, c, ch, `${id}:${nodeId}:${i}`));
 
     const picked = await host.ui.dialogue({
       speaker: speaker?.name ?? '',
       portrait: speaker?.portrait ?? 'narrator',
-      text: txt(node.text, c),
+      text: line,
       choices: views,
     });
 

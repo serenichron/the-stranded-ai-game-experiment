@@ -123,7 +123,11 @@ export interface Style {
   shoulderSway?: number;
 }
 
-export interface PoseCtx { anim: AnimName; at: number; p: number; clock: number }
+export interface PoseCtx {
+  anim: AnimName; at: number; p: number; clock: number;
+  /** Ground speed in metres per second, measured from the root's own motion. */
+  speed: number;
+}
 
 // ---------------------------------------------------------------- helpers
 
@@ -311,12 +315,24 @@ function talk(o: Pose, c: PoseCtx, st: Style): void {
   add(o, J.spine, 0, 0.05 * Math.sin(k * 0.9) * L);
 }
 
-function crouch(o: Pose, c: PoseCtx): void {
+function crouch(o: Pose, c: PoseCtx, st: Style): void {
   const sw = Math.sin(c.clock * 1.2) * 0.03;
-  add(o, J.lLeg, 1.05, 0, -0.06); add(o, J.lShin, -1.65); add(o, J.lFoot, 0.6);
-  add(o, J.rLeg, 0.85, 0, 0.06); add(o, J.rShin, -1.45); add(o, J.rFoot, 0.6);
+  // 0 standing still, 1 sneaking along
+  const m = clamp01(c.speed / 1.1);
+  const ph = TAU * st.walkHz * 0.78 * c.at;
+  if (m > 0.01) {
+    // short steps, knees already bent, feet kept low and flat
+    legsCycle(o, ph, st.stride * 0.42 * m, 0.45, 0.95);
+    o[HIPY] += 0.012 * Math.cos(2 * ph) * m - 0.01 * m;
+    add(o, J.hips, 0, 0.05 * m * Math.sin(ph), 0.03 * m * Math.cos(ph));
+  }
+  // the still crouch fades out as the step takes over, so the two never fight
+  const k = 1 - m;
+  add(o, J.lLeg, 1.05 * k + 0.62 * m, 0, -0.06); add(o, J.lShin, -1.65 * k - 0.9 * m); add(o, J.lFoot, 0.6 * k + 0.4 * m);
+  add(o, J.rLeg, 0.85 * k + 0.5 * m, 0, 0.06); add(o, J.rShin, -1.45 * k - 0.85 * m); add(o, J.rFoot, 0.6 * k + 0.4 * m);
   add(o, J.spine, -0.45 + sw, sw); add(o, J.head, 0.35 - sw);
-  add(o, J.lArm, 0.4); add(o, J.rArm, 0.25);
+  const s = Math.sin(ph) * m;
+  add(o, J.lArm, 0.4 - 0.18 * s); add(o, J.rArm, 0.25 + 0.18 * s);
   add(o, J.lFore, 0.8); add(o, J.rFore, 0.8);
 }
 
@@ -331,7 +347,7 @@ export function basePose(o: Pose, c: PoseCtx, st: Style): void {
     case 'channel': channel(o, c); break;
     case 'sleep': sleep(o, c, st); break;
     case 'talk': talk(o, c, st); break;
-    case 'crouch': crouch(o, c); break;
+    case 'crouch': crouch(o, c, st); break;
     case 'wake': break; // mixed by the model from sleep and idle
   }
 }
@@ -410,8 +426,10 @@ export function makeCharModel(spec: CharSpec): Model {
   const tgt = new Float32Array(POSE_LEN);
   const A = new Float32Array(POSE_LEN);
   const B = new Float32Array(POSE_LEN);
-  const ctx: PoseCtx = { anim: 'idle', at: 0, p: 0, clock: spec.phase ?? 0 };
+  const ctx: PoseCtx = { anim: 'idle', at: 0, p: 0, clock: spec.phase ?? 0, speed: 0 };
 
+  const _wp = new THREE.Vector3();
+  let lastX = 0, lastZ = 0, hadPos = false;
   let anim: AnimName = spec.restAnim?.() ?? 'idle';
   let at = 0, len = 0, fade = 1, fadeDur = 0.2;
   let clock = spec.phase ?? 0;
@@ -522,6 +540,14 @@ export function makeCharModel(spec: CharSpec): Model {
     update(dt: number) {
       dt = Math.min(Math.max(dt, 0), 0.1);
       clock += dt; at += dt;
+      if (dt > 0) {
+        root.getWorldPosition(_wp);
+        if (hadPos) {
+          const d = Math.hypot(_wp.x - lastX, _wp.z - lastZ) / dt;
+          ctx.speed += (Math.min(d, 8) - ctx.speed) * Math.min(1, dt * 8);
+        }
+        lastX = _wp.x; lastZ = _wp.z; hadPos = true;
+      }
       if (len > 0 && at >= len && anim !== 'die') play(spec.restAnim?.() ?? 'idle');
       target();
       fade = fadeDur > 0 ? Math.min(1, fade + dt / fadeDur) : 1;

@@ -47,6 +47,12 @@ export const apprentice: Dialogue = {
       if (anyHurt(c)) return 'You are scraped. It is only a scrape. Or it is the start of something worse. Mind it.';
       return 'The ruin is north, past the ridge. You are here, on my side of the sand. Is something wrong?';
     },
+    again: [
+      'Yes? I am still here. So is the wax.',
+      'Ask. I will write it down after.',
+      'The ruin has not moved, you know.',
+      'Something else?',
+    ],
     choices: [
       { text: 'Who are you, when you are not waiting on a crate?', next: 'who', once: true },
       { text: 'You asked for me by name. What is the job?', next: 'job', if: (c) => !c.flag('gotJob') },
@@ -240,6 +246,7 @@ export const foreman: Dialogue = {
   },
   hub: {
     speaker: 'foreman',
+    again: ['Well? Say it.', 'Back again. Talk while I work.', 'Make it quick.', 'Go on, then.'],
     text: (c) => {
       const scrap = c.s.flags.scrapTo;
       if (c.s.wounds.severe) return "You're bleeding on my sand. Tarn has aloe and a needle. Talk fast, then go to her.";
@@ -362,6 +369,7 @@ export const scav: Dialogue = {
       if (c.flag('pellThreatened')) return 'Still here? I thought you were off to tell Hadda.';
       return 'Still here? Watching is free. For now.';
     },
+    again: ['Well?', 'Still watching. Still free.', 'You again.', 'Say it, then.'],
     choices: [
       { text: 'What does a bolt-sorter want with a heap of plating?', next: 'why', once: true },
       {
@@ -1268,6 +1276,7 @@ export const hunter: Dialogue = {
   },
   hub: {
     speaker: 'hunter',
+    again: ['Speak, then.', 'You are still loud.', 'Sit, or go round.', 'What now?'],
     text: (c) => {
       if (badlyHurt(c)) return 'You smell of blood. Everything out here can smell it too. Keep moving, or sit very still.';
       if (seh(c)) return 'Sael is loud today. You hear it too.';

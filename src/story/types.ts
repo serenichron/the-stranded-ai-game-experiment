@@ -55,6 +55,11 @@ export interface DChoice {
 export interface DNode {
   speaker?: string; // key into SPEAKERS; '' or undefined = narration
   text: Text;
+  /**
+   * Shorter lines for a return visit, used in order and then cycled. The long `text` is for the
+   * first time only (the user: coming back to a character repeated one long line every time).
+   */
+  again?: Text[];
   choices?: DChoice[];
   next?: string | ((c: Ctx) => string);
   do?: (c: Ctx) => void | Promise<void>;

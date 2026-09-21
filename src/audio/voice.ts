@@ -72,6 +72,17 @@ function pick(key: VoiceKey): SpeechSynthesisVoice | null {
   // Edge fills its voice list late. Do not remember "no voice" from before the list arrived.
   if (!all.length) return null;
   const spec = CAST[key];
+  if (key === 'narrator') {
+    // narration is always British: en-GB first, then a British-sounding name, then any English male
+    const gb = all.filter((v) => /^en[-_]GB/i.test(v.lang));
+    const male = (v: SpeechSynthesisVoice) => MALE.test(v.name) && !FEMALE.test(v.name);
+    const v = gb.find((x) => /natural/i.test(x.name) && male(x))
+      ?? gb.find(male) ?? gb[0]
+      ?? all.find((x) => /(British|UK|Ryan|Thomas|George|Oliver|Arthur|Daniel)/i.test(x.name) && male(x))
+      ?? all.find(male) ?? all[0] ?? null;
+    chosen.set(key, v);
+    return v;
+  }
   const sexOk = (v: SpeechSynthesisVoice) => (spec.male ? MALE.test(v.name) && !FEMALE.test(v.name) : FEMALE.test(v.name));
   let v: SpeechSynthesisVoice | null = null;
   for (const re of spec.names) {

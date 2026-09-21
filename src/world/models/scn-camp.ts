@@ -201,7 +201,10 @@ export function cistern(seed = 1): { root: THREE.Group; water: THREE.Mesh; strea
   const ripMats: THREE.MeshBasicMaterial[] = [], ripples: THREE.Mesh[] = [];
   for (let i = 0; i < 2; i++) {
     const m = new THREE.MeshBasicMaterial({ color: 0xd8f0e8, transparent: true, opacity: 0, depthWrite: false });
-    const rp = new THREE.Mesh(new THREE.RingGeometry(0.08, 0.1, 24).rotateX(-Math.PI / 2).translate(spout.x, 0.59, spout.z), m);
+    // the ring sits at the spout by its position, not by a baked offset: scaling a shape that carries
+    // its own offset moved the ripple outwards as it grew, so it read as a smoke ring leaving the well
+    const rp = new THREE.Mesh(new THREE.RingGeometry(0.08, 0.1, 24).rotateX(-Math.PI / 2), m);
+    rp.position.set(spout.x, 0.59, spout.z);
     rp.raycast = () => {};
     ripMats.push(m); ripples.push(rp); root.add(rp);
   }
