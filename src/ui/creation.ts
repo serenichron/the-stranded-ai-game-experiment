@@ -33,7 +33,9 @@ import { RACE_GLYPH, ROLE_GLYPH } from './glyphs';
  * Head-and-shoulders portraits cropped from the concept art (public/portraits/, sources in
  * public/portraits/SOURCES.md). The user asked for them beside the 3D bodies on the Origin step.
  */
-const portraitOf = (race: string, body: 'male' | 'female') => `/portraits/${race}-${body}.jpg`;
+const portraitOf = (race: string, body: 'male' | 'female') =>
+  // relative to the page: a published build lives under /<repo>/, not at the site root
+  import.meta.env.BASE_URL + `portraits/${race}-${body}.jpg`;
 
 const RACES: Race[] = ['minaa', 'sehari', 'iskari'];
 const DEFAULT_NAME: Record<Race, string> = {

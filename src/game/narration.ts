@@ -42,9 +42,10 @@ export function withNarration(ui: UI): UI {
     base.closeDialogue.call(base);
   };
   wrapped.narrate = async (lines, opts) => {
-    void voice.sayAll(lines, 'narrator');
+    // one line at a time, so the page never runs ahead of the voice (the user: the audio read all
+    // three sentences while the screen still showed the first)
     try {
-      await base.narrate.call(base, lines, opts);
+      await base.narrate.call(base, lines, { ...opts, line: (_i, text) => voice.say(text, 'narrator') });
     } finally {
       voice.stop();
     }

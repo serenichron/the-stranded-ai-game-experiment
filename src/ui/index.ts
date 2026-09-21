@@ -198,7 +198,7 @@ class DomUI implements UI {
     return runCreation(this.layers.screen, preview);
   }
 
-  async narrate(lines: string[], opts?: { title?: string }): Promise<void> {
+  async narrate(lines: string[], opts?: { title?: string; line?: (i: number, text: string) => Promise<void> }): Promise<void> {
     const page = h('div', { class: 'nar-page' });
     const hint = h('div', { class: 'nar-hint sc' }, 'Click to continue');
     const screen = h(
@@ -223,7 +223,9 @@ class DomUI implements UI {
       requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('in')));
       hint.classList.remove('show');
       const shown = wait(reducedMotion() ? 0 : 900).then(() => hint.classList.add('show'));
-      await advance(screen);
+      // the narrator reads this line; the card turns when the reading ends or the player clicks
+      const spoken = opts?.line?.(i, lines[i]);
+      await (spoken ? Promise.race([advance(screen), spoken.then(() => wait(450))]) : advance(screen));
       p.classList.add('in', 'now');
       void shown;
     }

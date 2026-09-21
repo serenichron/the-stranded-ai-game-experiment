@@ -23,7 +23,7 @@ export class Combat {
   get actionLeft() {
     return this.actionsLeft > 0;
   }
-  /** Enemies you already traded blows with this round. They do not strike again in their turn. */
+  /** Enemies you traded blows with this round. Kept for the log and the bar; it no longer skips a turn. */
   engaged = new Set<EntityId>();
   selected: string | null = null;
   exposed = false;
@@ -501,10 +501,6 @@ export class Combat {
 
   private async enemyAct(f: EnemyRuntime) {
     const def = ENEMIES[f.kind];
-    if (this.engaged.has(f.id)) {
-      this.log.push(`The ${def.name} is still reeling from your exchange.`);
-      return;
-    }
     const st = this.stunned.get(f.id) ?? 0;
     if (st > 0 && this.hesitating.delete(f.id)) {
       this.stunned.set(f.id, 0);

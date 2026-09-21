@@ -132,7 +132,11 @@ export interface UI {
   createCharacter(preview?: CreationPreview): Promise<CreationChoice>;
   ending(summary: EndingSummary): Promise<void>;
   /** Full-screen text beat with a slow fade, click or Space to advance. */
-  narrate(lines: string[], opts?: { title?: string }): Promise<void>;
+  narrate(lines: string[], opts?: {
+    title?: string;
+    /** Speak one line. The card turns when this resolves, or when the player clicks. */
+    line?: (i: number, text: string) => Promise<void>;
+  }): Promise<void>;
 
   // HUD
   showHud(visible: boolean): void;

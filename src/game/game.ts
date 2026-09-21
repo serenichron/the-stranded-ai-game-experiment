@@ -215,12 +215,14 @@ export class Game {
     audio.setMusic('explore', 3);
 
     if (fresh) {
+      // The opening: what was lost, what the ruins kept, and what wakes when you dig (the user's
+      // brief). Each card turns when the narrator finishes reading it.
       this.busy = true;
       await this.ui.narrate(
         [
-          'The star never climbs higher than this. It hangs low and red over the Ash Reach, and every shadow is long.',
-          'You came to this salvage camp because an Iskari asked for you by name.',
-          'He is waiting by his tent. He has been waiting a long time. It is what Iskari do.',
+          'Everyone here forgot. Whole families, whole crafts, gone out of people\'s heads in one night.',
+          'The ruins kept what we lost. Old machines still run down there, and old marks still mean something.',
+          'Some of what sleeps in them is dangerous, and digging wakes it.',
         ],
         { title: "The Keeper's errand" },
       );
