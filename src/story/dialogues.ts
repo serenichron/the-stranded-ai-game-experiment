@@ -211,7 +211,12 @@ export const apprentice: Dialogue = {
   },
   plateBack: {
     speaker: 'apprentice',
-    text: 'You found it. Sit down. Tell me everything, slowly. I will write as you talk.',
+    text: 'You found it. Two hundred years, and she still says the ripple is close. She was always like that.',
+    next: 'plateBack2',
+  },
+  plateBack2: {
+    speaker: 'apprentice',
+    text: 'Sit down. Tell me everything, slowly. I will write as you talk.',
     next: 'hub',
   },
   bye: {
@@ -928,7 +933,7 @@ export const archive: Dialogue = {
   },
   wait: { text: 'The threads slow, as if waiting with you.', end: true },
   touch: {
-    text: 'The moment your skin touches it, the room goes blue.',
+    text: 'The moment your skin touches it, the room goes blue. The voice comes thin and slow, the way old wax gives up a mark.',
     do: async (c) => {
       await c.act('memory-start');
     },
