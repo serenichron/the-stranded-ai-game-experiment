@@ -129,7 +129,8 @@ export interface UI {
   // Screens. Each resolves when the player finishes it.
   title(opts: { canContinue: boolean }): Promise<'new' | 'continue'>;
   /** `preview` is told the choice so far, so the world can show the bodies behind the panel. */
-  createCharacter(preview?: CreationPreview): Promise<CreationChoice>;
+  /** Resolves null when the player backs out to the title from the first step. */
+  createCharacter(preview?: CreationPreview): Promise<CreationChoice | null>;
   ending(summary: EndingSummary): Promise<void>;
   /** Full-screen text beat with a slow fade, click or Space to advance. */
   narrate(lines: string[], opts?: {

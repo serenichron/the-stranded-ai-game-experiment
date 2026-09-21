@@ -76,7 +76,7 @@ const SPEC_HINT: Partial<Record<Spec, string>> = {
   medicine: 'Treat wounds and sickness.',
 };
 
-export function runCreation(host: HTMLElement, preview?: CreationPreview): Promise<CreationChoice> {
+export function runCreation(host: HTMLElement, preview?: CreationPreview): Promise<CreationChoice | null> {
   return new Promise((resolve) => {
     let step = 0;
     let race: Race | null = null;
@@ -130,7 +130,7 @@ export function runCreation(host: HTMLElement, preview?: CreationPreview): Promi
       const err = valid();
       next.toggleAttribute('disabled', !!err);
       next.textContent = step === STEPS.length - 1 ? 'Begin the errand' : 'Next';
-      back.style.visibility = step === 0 ? 'hidden' : 'visible';
+      back.textContent = step === 0 ? 'Title' : 'Back';
       hint.textContent = err ?? '';
     };
 
@@ -419,6 +419,13 @@ export function runCreation(host: HTMLElement, preview?: CreationPreview): Promi
     };
 
     const go = (d: number) => {
+      if (d < 0 && step === 0) {
+        screen.classList.remove('in');
+        setTimeout(() => screen.remove(), 400);
+        preview?.({ step, race, body: bodySel, role, done: true });
+        resolve(null);
+        return;
+      }
       if (d > 0 && valid()) return;
       if (d > 0 && step === STEPS.length - 1) {
         screen.classList.remove('in');

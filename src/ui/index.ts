@@ -194,7 +194,7 @@ class DomUI implements UI {
     });
   }
 
-  createCharacter(preview?: CreationPreview): Promise<CreationChoice> {
+  createCharacter(preview?: CreationPreview): Promise<CreationChoice | null> {
     return runCreation(this.layers.screen, preview);
   }
 

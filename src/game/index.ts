@@ -59,6 +59,7 @@ export async function startGame(boot: GameBoot) {
     (window as any).__lineup = lineup;
     const ch = quick ? quickCharacter(quick) : await ui.createCharacter((s) => lineup.show(s));
     lineup.clear();
+    if (!ch) return toTitle(); // backed out from the first step
     const character = buildCharacter(ch.name.trim() || 'Stranger', ch.race, ch.role, ch.stats, ch.picks, ch.body);
     await ui.fade('black', 600);
     const state = newGame(character);

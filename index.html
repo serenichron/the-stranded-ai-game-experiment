@@ -13,12 +13,17 @@
       #ui > * { pointer-events: auto; }
       #boot { position: fixed; inset: 0; display: grid; place-items: center; color: #d9c7a3;
               font: 16px/1.4 Georgia, serif; letter-spacing: .08em; background: #1a1210; transition: opacity .8s; }
+      /* the three dots appear one by one, then all go, and loop: so the page never looks stuck */
+      #boot .dots span { opacity: 0; animation: bootDot 1.6s infinite; }
+      #boot .dots span:nth-child(2) { animation-delay: .4s; }
+      #boot .dots span:nth-child(3) { animation-delay: .8s; }
+      @keyframes bootDot { 0%, 20% { opacity: 0; } 25%, 85% { opacity: 1; } 90%, 100% { opacity: 0; } }
     </style>
   </head>
   <body>
     <div id="stage"></div>
     <div id="ui"></div>
-    <div id="boot">Everyone here forgot something…</div>
+    <div id="boot"><span>Everyone here forgot something<span class="dots"><span>.</span><span>.</span><span>.</span></span></span></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
