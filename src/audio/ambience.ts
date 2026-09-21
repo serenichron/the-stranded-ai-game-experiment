@@ -45,7 +45,7 @@ interface WindOpts {
  * desert wind recording, scaled to the layer's wind level. The synth below is only the fallback.
  */
 function addWind(L: Layer, opts: WindOpts): void {
-  void addSample(L, '/audio/desert-wind.mp3', opts.level * 3.3) /* recording RMS is 0.031 */.then((ok) => {
+  void addSample(L, import.meta.env.BASE_URL + 'audio/desert-wind.mp3', opts.level * 3.3) /* recording RMS is 0.031 */.then((ok) => {
     if (!ok && !L.isStopped) addSynthWind(L, opts);
   });
 }
@@ -250,7 +250,7 @@ function build(e: Engine, a: Exclude<Ambience, 'none'>): Layer {
       L.gen(rand(3, 8), (t) => (flap(L, t, 0.09), rand(4, 12)));
       L.gen(rand(6, 14), (t) => (creak(L, t, 0.03), rand(9, 20)));
       L.gen(rand(4, 10), (t) => (taps(L, t, 0.025), rand(7, 18)));
-      void addSample(L, '/audio/campfire.mp3', 0.9) /* recording RMS is 0.005, sharp crackles */;
+      void addSample(L, import.meta.env.BASE_URL + 'audio/campfire.mp3', 0.9) /* recording RMS is 0.005, sharp crackles */;
       return L;
     }
     case 'desert': {

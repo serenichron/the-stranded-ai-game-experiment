@@ -145,9 +145,10 @@ function speakNative(text: string, key: VoiceKey, my: number): Promise<boolean> 
 
 // Failures in a row. After 3 the neural engine rests for 30 s, then is tried again. It is never dropped
 // for good: the user wants the British voice for all narration, not a fallback.
+const HAS_VOICE_SERVER = import.meta.env.DEV;
 let neuralFails = 0;
 let neuralRestUntil = 0;
-const neuralResting = () => neuralFails >= 3 && performance.now() < neuralRestUntil;
+const neuralResting = () => !HAS_VOICE_SERVER || (neuralFails >= 3 && performance.now() < neuralRestUntil);
 const nUrl = (text: string, key: VoiceKey) =>
   `/__voice?v=${CAST[key].neural}&r=${encodeURIComponent(CAST[key].nr)}&p=${encodeURIComponent(CAST[key].np)}&q=${encodeURIComponent(text)}`;
 
@@ -181,7 +182,7 @@ const gUrl = (text: string, key: VoiceKey) =>
 
 /** Start downloading the next chunk while this one plays, so there is no gap between them. */
 function prefetch(text: string, key: VoiceKey) {
-  if (gttsBroken) return;
+  if (gttsBroken || !HAS_VOICE_SERVER) return;
   const a = new Audio();
   a.preload = 'auto';
   a.src = gUrl(text, key);
@@ -189,7 +190,7 @@ function prefetch(text: string, key: VoiceKey) {
 
 function speakGoogle(text: string, key: VoiceKey): Promise<boolean> {
   return new Promise((resolve) => {
-    if (gttsBroken) return resolve(false);
+    if (gttsBroken || !HAS_VOICE_SERVER) return resolve(false);
     const a = new Audio(gUrl(text, key));
     a.volume = Math.min(1, audio.getVolume('master'));
     a.playbackRate = CAST[key].rate * 1.1; // Google's voice is slow by default

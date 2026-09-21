@@ -208,14 +208,19 @@ export function describe(s: GameState) {
 
 const SLOT = 'slot1';
 const LS_KEY = 'stranded-keepers-errand-' + SLOT;
+// The dev server keeps saves in ./saves (server/saves-plugin.ts). A published build has no server,
+// so it goes straight to the browser's storage instead of waiting on a request that cannot work.
+const HAS_SAVE_SERVER = import.meta.env.DEV;
 
 export async function saveGame(s: GameState): Promise<'disk' | 'browser'> {
   const body = JSON.stringify(s);
-  try {
-    const r = await fetch('/__saves/' + SLOT, { method: 'PUT', body, keepalive: body.length < 60000 });
-    if (r.ok) return 'disk';
-  } catch {
-    /* fall through */
+  if (HAS_SAVE_SERVER) {
+    try {
+      const r = await fetch('/__saves/' + SLOT, { method: 'PUT', body, keepalive: body.length < 60000 });
+      if (r.ok) return 'disk';
+    } catch {
+      /* fall through to the browser */
+    }
   }
   try {
     localStorage.setItem(LS_KEY, body);
@@ -226,14 +231,16 @@ export async function saveGame(s: GameState): Promise<'disk' | 'browser'> {
 }
 
 export async function loadGame(): Promise<GameState | null> {
-  try {
-    const r = await fetch('/__saves/' + SLOT);
-    if (r.ok) {
-      const v = JSON.parse(await r.text()) as GameState | null;
-      if (v) return v;
+  if (HAS_SAVE_SERVER) {
+    try {
+      const r = await fetch('/__saves/' + SLOT);
+      if (r.ok) {
+        const v = JSON.parse(await r.text()) as GameState | null;
+        if (v) return v;
+      }
+    } catch {
+      /* fall through to the browser */
     }
-  } catch {
-    /* fall through */
   }
   try {
     const raw = localStorage.getItem(LS_KEY);
