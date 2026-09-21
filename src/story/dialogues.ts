@@ -211,12 +211,7 @@ export const apprentice: Dialogue = {
   },
   plateBack: {
     speaker: 'apprentice',
-    text: 'You found it. Two hundred years, and she still says the ripple is close. She was always like that.',
-    next: 'plateBack2',
-  },
-  plateBack2: {
-    speaker: 'apprentice',
-    text: 'Sit down. Tell me everything, slowly. I will write as you talk.',
+    text: 'You found it. Sit down. Tell me everything, slowly. I will write as you talk.',
     next: 'hub',
   },
   bye: {
@@ -978,6 +973,10 @@ export const archive: Dialogue = {
     next: 'r7',
   },
   r7: {
+    text: 'The voice stops. Two hundred years ago she said the ripple was close. It came, and she did not.',
+    next: 'r8',
+  },
+  r8: {
     text: 'The blue drains out of the room. The plate goes cold in your hands. It is very light, for what it carries.',
     do: async (c) => {
       await c.act('memory-end');

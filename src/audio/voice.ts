@@ -157,6 +157,40 @@ function speakNative(text: string, key: VoiceKey, my: number): Promise<boolean> 
 // Failures in a row. After 3 the neural engine rests for 30 s, then is tried again. It is never dropped
 // for good: the user wants the British voice for all narration, not a fallback.
 const HAS_VOICE_SERVER = import.meta.env.DEV;
+
+/**
+ * The voice pack: the same neural clips, rendered ahead of time into public/voice/ so a published
+ * build speaks in the right voice with no server behind it (tools/p3-voice-pack.mjs).
+ * A line the pack does not have falls back to the dev server, then to the browser's own voice.
+ */
+const PACK_BASE = import.meta.env.BASE_URL + 'voice/';
+let packIds: Set<string> | null = null;
+let packLoad: Promise<void> | null = null;
+function loadPack(): Promise<void> {
+  if (!packLoad) {
+    packLoad = fetch(PACK_BASE + 'index.json')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list: string[]) => { packIds = new Set(list); })
+      .catch(() => { packIds = new Set(); });
+  }
+  return packLoad;
+}
+async function packId(key: VoiceKey, text: string): Promise<string> {
+  const c = CAST[key];
+  const data = new TextEncoder().encode(`${c.neural}|${c.nr}|${c.np}|${text}`);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 20);
+}
+function speakPack(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const a = new Audio(url);
+    a.volume = Math.min(1, audio.getVolume('master'));
+    current = a;
+    a.onended = () => resolve(true);
+    a.onerror = () => resolve(false);
+    a.play().catch(() => resolve(false));
+  });
+}
 let neuralFails = 0;
 let neuralRestUntil = 0;
 const neuralResting = () => !HAS_VOICE_SERVER || (neuralFails >= 3 && performance.now() < neuralRestUntil);
@@ -284,11 +318,19 @@ export const voice = {
     logCast();
     duck(true);
     for (const p of parts) {
-      const chunks = sentences(clean(p.t), neuralResting() ? 190 : 400);
+      const chunks = sentences(clean(p.t), neuralResting() && !packIds?.size ? 190 : 400);
       for (let i = 0; i < chunks.length; i++) {
         const s = chunks[i];
         if (my !== token) return;
-        // First choice: the neural voice, fetched by our dev server. Warm the next chunk meanwhile.
+        // First choice: a clip from the voice pack, if this line was rendered ahead of time.
+        await loadPack();
+        if (packIds && packIds.size) {
+          const id = await packId(p.k, s);
+          if (my !== token) return;
+          if (packIds.has(id) && (await speakPack(PACK_BASE + id + '.mp3'))) continue;
+        }
+        if (my !== token) return;
+        // Then the neural voice through our dev server. Warm the next chunk meanwhile.
         if (!neuralResting()) {
           if (chunks[i + 1]) prefetchNeural(chunks[i + 1], p.k);
           else if (parts[parts.indexOf(p) + 1]) prefetchNeural(clean(parts[parts.indexOf(p) + 1].t).slice(0, 400), parts[parts.indexOf(p) + 1].k);
