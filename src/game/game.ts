@@ -1654,6 +1654,8 @@ export class Game {
       await pulse;
       if (w.get('niche1')) this.setEntityState('niche1', 'lit');
       audio.sfx('door-open');
+      // close on the figure itself: from the court camera a tower or a wall can stand in front of it
+      await w.focus(dw.id, { zoom: 1.8, duration: 0.7 });
       await sleep(500);
       // the shell cracks and falls; it takes the step it was frozen in
       this.setEntityState(dw.id, 'waking');
@@ -1679,6 +1681,8 @@ export class Game {
       }
       w.face(dw.id, 'player');
       await this.showText('In the east wall, a stone figure you took for a statue cracks down the middle. Sand pours off it. It finishes the step it was frozen in.');
+      // back to the player, so the fight opens from where you stand
+      await w.focus('player', { zoom: 1.2, duration: 0.9 });
       await this.showText(
         isk
           ? 'It turns its head to you. The crystal in its chest flares, and yours answers. You know it the way you know your own hands. It raises the staff anyway.'
