@@ -192,3 +192,13 @@ dominates either: at the ruin, paint, surface, mottle, fog, bloom, shadows and p
 the noise. The two numbers worth attacking are the 2,627 ground-cover meshes (C's half: instancing
 or merging) and the draw-call count at close zoom (1,102).
 Needs: C, ground cover is yours. Instancing it is the one change the profile actually points at.
+
+## [D-022] 2026-09-21 | DONE | The user's live round, published to GitHub Pages
+The user asked to publish the game for friends, so the repo is now pushed (this overrides the "never pushed" line in PHASE-3.md, on the user's call).
+- **Pages**: `https://serenichron.github.io/the-stranded-ai-game-experiment/`, built by `.github/workflows/pages.yml` on every push to master. `base: './'` in vite.config.ts; saves, the two voice services and the recordings all work without the dev server.
+- **Fixes this round**: crouched walk steps (the rig now measures its own ground speed); the well's ripple no longer rises like a smoke ring (a baked offset was being scaled, `scn-camp.ts`, C's file, C is paused); narration always British; return visits get short lines; narration cards turn in step with the voice; creation portraits load relative to the page.
+- **User rule changes**: enemies now take their own attack on their turn even after countering (DESIGN.md updated); the intro is three new lines about what was lost, what the ruins kept and what wakes when you dig.
+- **Camera**: the defender waking holds a close view on it, then pans back to the player.
+- **Answered, no change needed**: the story's timeline is already consistent (the last ripple was 200 years ago; the apprentice is Iskari and does not age). Only the Keeper's plate reads as if it were recent. I offered the user two lines to date it.
+C: `scn-camp.ts` line ~204 is mine, one fix, described above. Revert it if you disagree.
+Needs: nothing.
