@@ -186,7 +186,7 @@ class DomUI implements UI {
             h('button', { class: 'tbtn', type: 'button', onclick: () => pick('new') }, 'New journey'),
           ),
         ),
-        h('div', { class: 'title-foot' }, 'The light is always low here.'),
+        h('div', { class: 'title-foot' }, 'The ruins keep what we lost.'),
       );
       this.layers.screen.append(screen);
       window.addEventListener('keydown', onKey);

@@ -36,17 +36,18 @@ interface VoiceSpec {
 
 // Casting. Pronouns come from the story text; where the story gives none, the voice is a free choice.
 // Rates sit at or above 1: the first cast was too slow (user playtest).
+// One voice for every line, the British narrator (user call, 2026-09-21).
 const CAST: Record<VoiceKey, VoiceSpec> = {
-  narrator: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '-2%', male: true, names: [/Ryan.*Natural/i, /Thomas.*Natural/i, /George/i], pitch: 1, rate: 1.05, gtts: 'en-GB' },
-  apprentice: { neural: 'en-GB-ThomasNeural', nr: '-6%', np: '-8%', male: true, names: [/Thomas.*Natural/i, /Guy.*Natural/i, /Christopher.*Natural/i, /George/i, /David/i], pitch: 0.92, rate: 1.0, gtts: 'en-GB' },
-  foreman: { neural: 'en-AU-NatashaNeural', nr: '+4%', np: '+0%', male: false, names: [/Libby.*Natural/i, /Natasha.*Natural/i, /Sonia.*Natural/i, /Hazel/i], pitch: 1, rate: 1.1, gtts: 'en-AU' },
-  scav: { neural: 'en-IE-EmilyNeural', nr: '+6%', np: '+0%', male: false, names: [/Emily.*Natural/i, /Molly.*Natural/i, /Susan/i], pitch: 1, rate: 1.12, gtts: 'en-IE' },
-  cook: { neural: 'en-NZ-MollyNeural', nr: '+0%', np: '-4%', male: false, names: [/Natasha.*Natural/i, /Leah.*Natural/i, /Jenny.*Natural/i, /Hazel/i], pitch: 0.95, rate: 1.05, gtts: 'en-AU' },
-  kid: { neural: 'en-GB-MaisieNeural', nr: '+2%', np: '+0%', male: false, names: [/Maisie.*Natural/i, /Ana.*Natural/i], pitch: 1.1, rate: 1.1, gtts: 'en-US' },
-  hunter: { neural: 'en-ZA-LukeNeural', nr: '-8%', np: '-6%', male: true, names: [/Luke.*Natural/i, /William.*Natural/i, /Prabhat.*Natural/i, /David/i], pitch: 0.95, rate: 1.0, gtts: 'en-ZA' },
-  record: { neural: 'en-GB-SoniaNeural', nr: '-8%', np: '-4%', male: false, names: [/Sonia.*Natural/i, /Aria.*Natural/i, /Jenny.*Natural/i, /Hazel/i], pitch: 0.97, rate: 1.0, gtts: 'en-GB' },
-  digger: { neural: 'en-NZ-MitchellNeural', nr: '+4%', np: '+0%', male: true, names: [/Mitchell.*Natural/i, /Connor.*Natural/i, /William.*Natural/i, /Mark/i], pitch: 1, rate: 1.1, gtts: 'en-NZ' },
-  lookout: { neural: 'en-AU-NatashaNeural', nr: '+4%', np: '+0%', male: false, names: [/Libby.*Natural/i, /Sonia.*Natural/i, /Hazel/i], pitch: 1, rate: 1.1, gtts: 'en-AU' },
+  narrator: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: true, names: [/Ryan.*Natural/i, /Thomas.*Natural/i, /George/i], pitch: 1, rate: 1, gtts: 'en-GB' },
+  apprentice: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: true, names: [/Thomas.*Natural/i, /Guy.*Natural/i, /Christopher.*Natural/i, /George/i, /David/i], pitch: 0.92, rate: 1.0, gtts: 'en-GB' },
+  foreman: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: false, names: [/Libby.*Natural/i, /Natasha.*Natural/i, /Sonia.*Natural/i, /Hazel/i], pitch: 1, rate: 1.1, gtts: 'en-GB' },
+  scav: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: false, names: [/Emily.*Natural/i, /Molly.*Natural/i, /Susan/i], pitch: 1, rate: 1.12, gtts: 'en-GB' },
+  cook: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: false, names: [/Natasha.*Natural/i, /Leah.*Natural/i, /Jenny.*Natural/i, /Hazel/i], pitch: 0.95, rate: 1.05, gtts: 'en-GB' },
+  kid: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: false, names: [/Maisie.*Natural/i, /Ana.*Natural/i], pitch: 1.1, rate: 1.1, gtts: 'en-GB' },
+  hunter: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: true, names: [/Luke.*Natural/i, /William.*Natural/i, /Prabhat.*Natural/i, /David/i], pitch: 0.95, rate: 1.0, gtts: 'en-GB' },
+  record: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: false, names: [/Sonia.*Natural/i, /Aria.*Natural/i, /Jenny.*Natural/i, /Hazel/i], pitch: 0.97, rate: 1.0, gtts: 'en-GB' },
+  digger: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: true, names: [/Mitchell.*Natural/i, /Connor.*Natural/i, /William.*Natural/i, /Mark/i], pitch: 1, rate: 1.1, gtts: 'en-GB' },
+  lookout: { neural: 'en-GB-RyanNeural', nr: '+0%', np: '+0%', male: false, names: [/Libby.*Natural/i, /Sonia.*Natural/i, /Hazel/i], pitch: 1, rate: 1.1, gtts: 'en-GB' },
 };
 
 // Browser voice names by sex, so a fallback never gives a man's line to a woman's voice or the reverse.
@@ -67,6 +68,7 @@ function voices(): SpeechSynthesisVoice[] {
 if (hasNative) speechSynthesis.addEventListener?.('voiceschanged', () => chosen.clear());
 
 function pick(key: VoiceKey): SpeechSynthesisVoice | null {
+  key = 'narrator'; // one voice for every line (user call)
   if (chosen.has(key)) return chosen.get(key)!;
   const all = voices().filter((v) => /^en/i.test(v.lang));
   // Edge fills its voice list late. Do not remember "no voice" from before the list arrived.
@@ -125,6 +127,17 @@ function sentences(text: string, max = 190): string[] {
 }
 
 /** Clean game text for speech: no *emphasis* stars, and 'ded-waka' read as two words. */
+/**
+ * Names the speech service reads wrong. The screen keeps the written form; the voice is handed a
+ * spelling it can say (the user: Mi'naa came out wrong).
+ */
+const SAY_AS: [RegExp, string][] = [
+  [/Mi[’']naa/g, 'Minaa'],
+  [/Aza[’']los/g, 'Azalos'],
+  [/Tel[’']sharin/g, 'Telsharin'],
+  [/ded-waka/g, 'dead-waka'],
+];
+export const sayable = (text: string): string => SAY_AS.reduce((s, [re, to]) => s.replace(re, to), text);
 function clean(t: string) {
   return t.replace(/\*/g, '').replace(/ded-waka/gi, 'ded waka').replace(/\s+/g, ' ').trim();
 }
@@ -132,12 +145,12 @@ function clean(t: string) {
 function speakNative(text: string, key: VoiceKey, my: number): Promise<boolean> {
   return new Promise((resolve) => {
     if (!hasNative) return resolve(false);
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(sayable(text));
     const v = pick(key);
     if (v) u.voice = v;
     u.lang = v?.lang ?? 'en-GB';
-    u.pitch = CAST[key].pitch;
-    u.rate = CAST[key].rate;
+    u.pitch = CAST.narrator.pitch;
+    u.rate = CAST.narrator.rate;
     u.volume = Math.min(1, audio.getVolume('master') * 1.1);
     let started = false;
     u.onstart = () => (started = true);
@@ -181,6 +194,18 @@ async function packId(key: VoiceKey, text: string): Promise<string> {
   const hash = await crypto.subtle.digest('SHA-256', data);
   return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 20);
 }
+if (typeof window !== 'undefined') setTimeout(() => void loadPack(), 0);
+
+/** Clips already pulled into the browser's cache, so the next line starts without a wait. */
+const warmed = new Set<string>();
+function warmPack(url: string): void {
+  if (warmed.has(url)) return;
+  warmed.add(url);
+  const a = new Audio();
+  a.preload = 'auto';
+  a.src = url;
+}
+
 function speakPack(url: string): Promise<boolean> {
   return new Promise((resolve) => {
     const a = new Audio(url);
@@ -199,13 +224,13 @@ const nUrl = (text: string, key: VoiceKey) =>
 
 function prefetchNeural(text: string, key: VoiceKey) {
   if (neuralResting()) return;
-  void fetch(nUrl(text, key)).catch(() => undefined); // warms the server cache
+  void fetch(nUrl(sayable(text), key)).catch(() => undefined); // warms the server cache
 }
 
 function speakNeural(text: string, key: VoiceKey): Promise<boolean> {
   return new Promise((resolve) => {
     if (neuralResting()) return resolve(false);
-    const a = new Audio(nUrl(text, key));
+    const a = new Audio(nUrl(sayable(text), key));
     a.volume = Math.min(1, audio.getVolume('master'));
     current = a;
     a.onended = () => {
@@ -230,15 +255,15 @@ function prefetch(text: string, key: VoiceKey) {
   if (gttsBroken || !HAS_VOICE_SERVER) return;
   const a = new Audio();
   a.preload = 'auto';
-  a.src = gUrl(text, key);
+  a.src = gUrl(sayable(text), key);
 }
 
 function speakGoogle(text: string, key: VoiceKey): Promise<boolean> {
   return new Promise((resolve) => {
     if (gttsBroken || !HAS_VOICE_SERVER) return resolve(false);
-    const a = new Audio(gUrl(text, key));
+    const a = new Audio(gUrl(sayable(text), key));
     a.volume = Math.min(1, audio.getVolume('master'));
-    a.playbackRate = CAST[key].rate * 1.1; // Google's voice is slow by default
+    a.playbackRate = CAST.narrator.rate; // Google's voice is slow by default
     current = a;
     a.onended = () => resolve(true);
     a.onerror = () => {
@@ -327,7 +352,12 @@ export const voice = {
         if (packIds && packIds.size) {
           const id = await packId(p.k, s);
           if (my !== token) return;
-          if (packIds.has(id) && (await speakPack(PACK_BASE + id + '.mp3'))) continue;
+          if (packIds.has(id)) {
+            // pull the next clip while this one plays
+            const next = chunks[i + 1];
+            if (next) void packId(p.k, next).then((n) => { if (packIds?.has(n)) warmPack(PACK_BASE + n + '.mp3'); });
+            if (await speakPack(PACK_BASE + id + '.mp3')) continue;
+          }
         }
         if (my !== token) return;
         // Then the neural voice through our dev server. Warm the next chunk meanwhile.
